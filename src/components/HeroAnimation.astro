@@ -1,12 +1,15 @@
 ---
 /*
-  Hero pixel field.
-  A grid of small square cells. Each cell has a value 0..1 that picks a colour
-  band (light lavender → purple → ink). The value comes from:
-    1. an ambient, slowly drifting noise field that dissolves raggedly downward
-    2. "heat" left by the cursor (fades over time)
-    3. shockwaves released by click-and-hold
-  Pure canvas 2D, no libraries. Pauses off-screen; static frame for reduced motion.
+  Hero pixel field: "black hole".
+  Pixels spawn along every edge and spiral into a dark core in the middle of
+  the hero, leaving short streaks and heating up in colour as they speed up.
+  The core grows with every pixel it swallows; once it is full it explodes,
+  spraying pixels back out with a shockwave ring. The debris cools and fades,
+  and the cycle starts again.
+
+  Everything is drawn snapped to a grid of square cells, coloured by a 0..1
+  value (light lavender → purple → ink). Pure canvas 2D, no libraries.
+  Pauses off-screen; reduced-motion visitors get one still frame.
 */
 ---
 
@@ -35,30 +38,22 @@
 <script>
   // Colour bands, cool → hot. Swap these to re-theme the whole field.
   const BANDS = ['#e7e2ff', '#c9bfff', '#9b86ff', '#6f52ff', '#3b23c4', '#15103f'];
-  const INTRO = 1.6;             // seconds for pixels to flicker in
 
-  // ---------- small value-noise implementation ----------
+  // Tuning
+  const CAPACITY = 480;        // pixels swallowed before the core explodes
+  const MAX_INFALL = 9;        // …or after this many seconds, whichever comes first
+  const COOLDOWN = 1.6;        // seconds of debris before pixels start falling in again
+  const TRAIL_FADE = 0.004;    // streak decay per second (lower = shorter streaks)
+
   const hash3 = (x: number, y: number, z: number) => {
     let h = (x * 374761393 + y * 668265263 + z * 2147483647) | 0;
     h = Math.imul(h ^ (h >>> 13), 1274126177);
     return ((h ^ (h >>> 16)) >>> 0) / 4294967295;
   };
-  const fade = (t: number) => t * t * (3 - 2 * t);
-  const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
-  function noise3(x: number, y: number, z: number) {
-    const xi = Math.floor(x), yi = Math.floor(y), zi = Math.floor(z);
-    const xf = fade(x - xi), yf = fade(y - yi), zf = fade(z - zi);
-    const c = (dx: number, dy: number, dz: number) => hash3(xi + dx, yi + dy, zi + dz);
-    return lerp(
-      lerp(lerp(c(0, 0, 0), c(1, 0, 0), xf), lerp(c(0, 1, 0), c(1, 1, 0), xf), yf),
-      lerp(lerp(c(0, 0, 1), c(1, 0, 1), xf), lerp(c(0, 1, 1), c(1, 1, 1), xf), yf),
-      zf,
-    );
-  }
-  const fbm = (x: number, y: number, z: number) =>
-    noise3(x, y, z) * 0.55 + noise3(x * 2.1, y * 2.1, z * 1.3) * 0.3 + noise3(x * 4.3, y * 4.3, z * 1.7) * 0.15;
-  const cellHash = (c: number, r: number) => hash3(c, r, 7);
   const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
+  const rand = (a: number, b: number) => a + Math.random() * (b - a);
+
+  type P = { x: number; y: number; vx: number; vy: number; out: boolean; life: number; max: number };
 
   function init(root: HTMLElement) {
     const cv = root.querySelector('canvas')!;
@@ -67,163 +62,212 @@
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const touch = !matchMedia('(hover: hover) and (pointer: fine)').matches;
 
-    let W = 0, H = 0, cell = 10, cols = 0, rows = 0;
+    let W = 0, H = 0, cell = 10, cols = 0, rows = 0, cx = 0, cy = 0, scale = 1;
     let heat = new Float32Array(0);
     let band = new Int8Array(0);
-    const seed = Math.random() * 100;
 
     function size() {
       const dpr = Math.min(devicePixelRatio || 1, 2);
       W = root.clientWidth; H = root.clientHeight;
-      cell = W < 600 ? 8 : 10;
+      cell = W < 600 ? 7 : 10;
       cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
       cols = Math.ceil(W / cell); rows = Math.ceil(H / cell);
       heat = new Float32Array(cols * rows);
       band = new Int8Array(cols * rows);
+      const bleed = parseFloat(getComputedStyle(root).getPropertyValue('--bleed')) || 0;
+      cx = W / 2; cy = (H - bleed) / 2;   // centre of the visible hero area
+      scale = Math.min(1, W / 1440 + 0.25);
+    }
+
+    // ---------- simulation ----------
+    const ps: P[] = [];
+    let phase: 'infall' | 'cooldown' = 'infall';
+    let phaseT = 0, mass = 0, R = 0, spawnAcc = 0;
+    const waves: { t0: number; pow: number }[] = [];
+    let simT = 0;
+
+    const coreRadius = () => (cell * 1.2 + Math.sqrt(mass) * 1.7) * scale;
+
+    function spawn() {
+      // Pick an edge weighted by its length
+      const per = 2 * (W + H), u = Math.random() * per;
+      let x: number, y: number;
+      if (u < W) { x = u; y = -2; }
+      else if (u < 2 * W) { x = u - W; y = H + 2; }
+      else if (u < 2 * W + H) { x = -2; y = u - 2 * W; }
+      else { x = W + 2; y = u - 2 * W - H; }
+      const dx = cx - x, dy = cy - y, d = Math.hypot(dx, dy) || 1;
+      const nx = dx / d, ny = dy / d;
+      // Mostly sideways velocity (counter-clockwise) so they spiral rather than fall straight
+      const tang = rand(170, 270) * scale, rad = rand(5, 30) * scale;
+      ps.push({ x, y, vx: -ny * tang + nx * rad, vy: nx * tang + ny * rad, out: false, life: 0, max: 0 });
+    }
+
+    function explode(power = 1) {
+      const n = Math.min(900, Math.max(120, Math.round(mass * 1.4 * power)));
+      const r0 = Math.max(R, cell);
+      for (let k = 0; k < n; k++) {
+        const a = Math.random() * Math.PI * 2;
+        const sp = (420 + 1100 * Math.pow(Math.random(), 1.3)) * scale * (0.7 + 0.3 * power);
+        const life = rand(1.1, 2.8);
+        const rr = r0 * (0.75 + 0.25 * Math.random());
+        ps.push({ x: cx + Math.cos(a) * rr, y: cy + Math.sin(a) * rr,
+          vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, out: true, life, max: life });
+      }
+      // Any pixel still falling in gets flung outwards too
+      for (const p of ps) if (!p.out) {
+        const dx = p.x - cx, dy = p.y - cy, d = Math.hypot(dx, dy) || 1;
+        const kick = (900 * scale) / Math.sqrt(d / 40 + 1);
+        p.vx += (dx / d) * kick; p.vy += (dy / d) * kick; p.out = true; p.life = p.max = rand(1, 2.2);
+      }
+      waves.push({ t0: simT, pow: 0.8 + 0.5 * power });
+      mass = 0; phase = 'cooldown'; phaseT = 0;
     }
 
     // ---------- interaction ----------
-    let px = -1, py = -1, lastX = -1, lastY = -1, inside = false;
-    let charging = false, chargeStart = 0;
-    const waves: { x: number; y: number; t0: number; pow: number }[] = [];
-
-    function deposit(x: number, y: number, amt: number, radius: number) {
-      const cc = x / cell, cr = y / cell, rad = Math.ceil(radius * 1.8);
-      const inv = 1 / (2 * radius * radius * 0.35);
-      for (let dr = -rad; dr <= rad; dr++) for (let dc = -rad; dc <= rad; dc++) {
-        const c = Math.floor(cc + dc), r = Math.floor(cr + dr);
-        if (c < 0 || r < 0 || c >= cols || r >= rows) continue;
-        const dx = c + 0.5 - cc, dy = r + 0.5 - cr;
-        const w = Math.exp(-(dx * dx + dy * dy) * inv);
-        if (w < 0.03) continue;
-        const i = r * cols + c;
-        heat[i] = Math.min(1, heat[i] + amt * w);
-      }
-    }
-    // Stamp along the path so fast flicks stay continuous
-    function trail(x: number, y: number, radius: number) {
-      if (lastX < 0) { lastX = x; lastY = y; }
-      const dx = x - lastX, dy = y - lastY;
-      const steps = Math.max(1, Math.min(40, Math.round(Math.hypot(dx, dy) / (cell * 0.8))));
-      for (let s = 1; s <= steps; s++) deposit(lastX + (dx * s) / steps, lastY + (dy * s) / steps, 0.14, radius);
-      lastX = x; lastY = y;
-    }
-
-    const local = (e: PointerEvent) => {
-      const r = cv.getBoundingClientRect();
-      return [e.clientX - r.left, e.clientY - r.top];
-    };
-    // Listen on the window: the next section overlaps the bottom of the canvas
+    let px = -9999, py = -9999, inside = false, charging = false, chargeStart = 0;
+    const local = (e: PointerEvent) => { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
     const within = (x: number, y: number) => x >= 0 && y >= 0 && x <= W && y <= H;
-    addEventListener('pointermove', (e) => {
-      [px, py] = local(e);
-      const now = within(px, py);
-      if (!now && inside) { lastX = -1; charging = false; }
-      inside = now;
-    }, { passive: true });
-    document.addEventListener('pointerleave', () => { inside = false; lastX = -1; charging = false; });
+    addEventListener('pointermove', (e) => { [px, py] = local(e); inside = within(px, py); if (!inside) charging = false; }, { passive: true });
+    document.addEventListener('pointerleave', () => { inside = false; charging = false; });
     addEventListener('pointerdown', (e) => {
-      [px, py] = local(e);
-      if (!within(px, py) || (e.target as Element).closest('a, button, input, textarea, select')) return;
-      if (touch) { waves.push({ x: px, y: py, t0: performance.now() / 1000, pow: 0.7 }); return; }
+      const [x, y] = local(e);
+      if (!within(x, y) || (e.target as Element).closest('a, button, input, textarea, select')) return;
+      if (touch) { if (phase === 'infall' && mass > 20) explode(0.9); return; }
       charging = true; chargeStart = performance.now() / 1000;
     });
     addEventListener('pointerup', () => {
       if (!charging) return;
       charging = false;
-      const charge = Math.min((performance.now() / 1000 - chargeStart) / 2, 1); // 2s to full
-      waves.push({ x: px, y: py, t0: performance.now() / 1000, pow: 0.45 + charge * 0.9 });
+      const charge = Math.min((performance.now() / 1000 - chargeStart) / 1.5, 1);
+      if (phase === 'infall' && mass > 20) explode(0.6 + charge * 0.7);   // detonate early
     });
 
-    // ---------- render ----------
-    let t0 = performance.now() / 1000, last = t0, running = false, raf = 0;
+    function step(dt: number) {
+      simT += dt; phaseT += dt;
 
-    function frame(nowMs: number) {
-      const now = nowMs / 1000;
-      const dt = Math.min(now - last, 0.05);
-      last = now;
-      const t = now - t0;
-      const intro = reduced ? 99 : t;
-      const tick = Math.floor(t * 7); // accent flicker ~7fps
+      if (phase === 'infall') {
+        spawnAcc += (45 + phaseT * 30) * dt * (W / 1440 + 0.35);
+        while (spawnAcc >= 1) { spawn(); spawnAcc--; }
+        if (mass >= CAPACITY || phaseT > MAX_INFALL) explode(1);
+      } else if (phaseT > COOLDOWN) { phase = 'infall'; phaseT = 0; }
 
-      // Cursor heat
-      if (inside && !reduced) {
-        const charge = charging ? Math.min((now - chargeStart) / 2, 1) : 0;
-        trail(px, py, 2.6 + charge * 4);
-        if (charging) deposit(px, py, 0.05 + charge * 0.08, 2 + charge * 5);
+      // Core radius eases toward its target (collapses quickly after an explosion)
+      const target = phase === 'infall' ? coreRadius() : 0;
+      R += (target - R) * Math.min(1, dt * (phase === 'infall' ? 6 : 14));
+
+      const drag = Math.pow(0.32, dt);
+      for (let k = ps.length - 1; k >= 0; k--) {
+        const p = ps[k];
+        if (p.out) {
+          p.vx *= drag; p.vy *= drag;
+          p.life -= dt;
+          if (p.life <= 0 || p.x < -20 || p.y < -20 || p.x > W + 20 || p.y > H + 20) { ps.splice(k, 1); continue; }
+        } else {
+          const dx = cx - p.x, dy = cy - p.y, d2 = dx * dx + dy * dy, d = Math.sqrt(d2) || 1;
+          const nx = dx / d, ny = dy / d;
+          const g = (140 + 9e6 / (d2 + 9000)) * scale;          // pull gets much stronger near the core
+          p.vx += nx * g * dt; p.vy += ny * g * dt;
+          // Bleed off sideways speed so orbits tighten into a spiral (much faster near the core)
+          const swirlLoss = Math.max(0, 1 - (0.3 + 3.2 * clamp01(1 - d / (260 * scale))) * dt);
+          const vr = p.vx * nx + p.vy * ny;
+          const tx = p.vx - vr * nx, ty = p.vy - vr * ny;
+          p.vx = vr * nx + tx * swirlLoss; p.vy = vr * ny + ty * swirlLoss;
+          const sp = Math.hypot(p.vx, p.vy), cap = 1400 * scale;
+          if (sp > cap) { p.vx *= cap / sp; p.vy *= cap / sp; }
+          if (d < R + cell * 0.6) { ps.splice(k, 1); mass++; continue; }  // swallowed
+        }
+        // Cursor gently pushes pixels away
+        if (inside) {
+          const ex = p.x - px, ey = p.y - py, ed = Math.hypot(ex, ey);
+          if (ed < 110 && ed > 0.1) { const f = (1 - ed / 110) * 1500 * dt; p.vx += (ex / ed) * f; p.vy += (ey / ed) * f; }
+        }
+        p.x += p.vx * dt; p.y += p.vy * dt;
       }
-      // Shockwaves: an expanding ring of heat
+    }
+
+    function render() {
+      // Streaks: previous frame's values fade, then pixels stamp their current cell
+      const fade = Math.pow(TRAIL_FADE, 1 / 60);
+      for (let i = 0; i < heat.length; i++) heat[i] *= fade;
+      for (const p of ps) {
+        const c = Math.floor(p.x / cell), r = Math.floor(p.y / cell);
+        if (c < 0 || r < 0 || c >= cols || r >= rows) continue;
+        const sp = Math.hypot(p.vx, p.vy) / scale;
+        const v = p.out ? 0.2 + 0.62 * (p.life / p.max) : 0.38 + Math.min(0.6, sp / 800);
+        const i = r * cols + c;
+        if (v > heat[i]) heat[i] = v;
+      }
+      // Shockwave rings
       for (let k = waves.length - 1; k >= 0; k--) {
-        const w = waves[k], age = now - w.t0, life = 1.1 + w.pow;
+        const w = waves[k], age = simT - w.t0, life = 0.9 + w.pow * 0.5;
         if (age > life) { waves.splice(k, 1); continue; }
-        const R = age * (420 + w.pow * 380), width = 26 + w.pow * 30, falloff = 1 - age / life;
-        const c0 = Math.max(0, Math.floor((w.x - R - width) / cell)), c1 = Math.min(cols - 1, Math.ceil((w.x + R + width) / cell));
-        const r0 = Math.max(0, Math.floor((w.y - R - width) / cell)), r1 = Math.min(rows - 1, Math.ceil((w.y + R + width) / cell));
+        const rad = age * 900 * scale * (0.7 + w.pow * 0.4), width = cell * 2.2, fall = 1 - age / life;
+        const c0 = Math.max(0, Math.floor((cx - rad - width) / cell)), c1 = Math.min(cols - 1, Math.ceil((cx + rad + width) / cell));
+        const r0 = Math.max(0, Math.floor((cy - rad - width) / cell)), r1 = Math.min(rows - 1, Math.ceil((cy + rad + width) / cell));
         for (let r = r0; r <= r1; r++) for (let c = c0; c <= c1; c++) {
-          const d = Math.hypot((c + 0.5) * cell - w.x, (r + 0.5) * cell - w.y);
-          const g = Math.exp(-(((d - R) / width) ** 2));
-          if (g < 0.05) continue;
-          const i = r * cols + c, v = w.pow * g * falloff;
-          if (v > heat[i]) heat[i] = Math.min(1, v);
+          const d = Math.hypot((c + 0.5) * cell - cx, (r + 0.5) * cell - cy);
+          const g = Math.exp(-(((d - rad) / width) ** 2)) * fall * w.pow;
+          if (g < 0.12 || hash3(c, r, Math.floor(simT * 30)) > 0.75) continue; // broken, sparkly ring
+          const i = r * cols + c;
+          if (g > heat[i]) heat[i] = Math.min(1, g);
         }
       }
 
-      // Decay heat (frame-rate independent)
-      const decay = Math.pow(0.18, dt);
-      for (let i = 0; i < heat.length; i++) heat[i] *= decay;
-
-      // Compute band per cell
-      const aspect = W / H, z = seed + t * 0.12;
+      const tick = Math.floor(simT * 8);
+      const charge = charging ? Math.min((performance.now() / 1000 - chargeStart) / 1.5, 1) : 0;
+      const ringW = cell * (1.6 + charge * 1.5);
       for (let r = 0; r < rows; r++) {
         const yf = (r + 0.5) / rows;
+        const tail = clamp01((0.98 - yf) / 0.16);   // bottom stretch breaks up: no hard edge
         for (let c = 0; c < cols; c++) {
-          const i = r * cols + c, xf = (c + 0.5) / cols;
-          const hc = cellHash(c, r);
-
-          // Ambient field, dissolving downward along a wavy, ragged edge
-          let amb = 0;
-          const cut = 0.68 + 0.13 * Math.sin(c * 0.07 + t * 0.18) + 0.09 * Math.sin(c * 0.23 - t * 0.11);
-          const edge = clamp01((cut - yf) / 0.3);
-          if (edge > 0 && hc < edge * 1.15) {
-            const n = fbm(xf * aspect * 2.2 + t * 0.03, yf * 2.2, z);
-            amb = clamp01((n - 0.31) / 0.38);
-            // Coarse patches survive further down; scattered singles fade out
-            amb *= 0.55 + 0.45 * edge;
+          const i = r * cols + c;
+          const hc = hash3(c, r, 7);
+          let v = heat[i];
+          // The core: solid ink, with a flickering hot rim
+          if (R > 1) {
+            const d = Math.hypot((c + 0.5) * cell - cx, (r + 0.5) * cell - cy);
+            if (d < R) v = 1;
+            else if (d < R + ringW && hash3(c, r, tick) < 0.7) v = Math.max(v, 0.72 + 0.2 * hash3(c, r, tick + 1));
           }
-          if (intro < INTRO && hc * INTRO > intro) amb = 0; // on-load flicker-in
-
-          const v = Math.max(amb, heat[i]);
           let b = -1;
-          // Last stretch of the canvas: everything (cursor trail too) breaks up into
-          // stray pixels so there is never a hard bottom edge
-          const tail = clamp01((0.98 - yf) / 0.16);
-          if (v > 0.16 && hc < tail) {
-            b = Math.min(BANDS.length - 1, Math.floor(((v - 0.16) / 0.84) * BANDS.length));
-            if (b === 0 && hc > 0.55) b = -1;                 // lightest band is speckled
-            else if (hash3(c, r, tick) < 0.04) b = Math.max(0, Math.min(BANDS.length - 1, b + (hc > 0.5 ? 1 : -1))); // flicker
-          }
+          if (v > 0.12 && hc < tail) b = Math.min(BANDS.length - 1, Math.floor(((v - 0.12) / 0.88) * BANDS.length));
           band[i] = b;
         }
       }
 
-      // Draw each colour band in one pass on a clear (white) background
       ctx!.clearRect(0, 0, W, H);
       const s = cell - 1;
       for (let b = 0; b < BANDS.length; b++) {
         ctx!.fillStyle = BANDS[b];
         for (let i = 0; i < band.length; i++) if (band[i] === b) ctx!.fillRect((i % cols) * cell, Math.floor(i / cols) * cell, s, s);
       }
-
-      if (running && !reduced) raf = requestAnimationFrame(frame);
     }
 
+    // ---------- loop ----------
+    let last = 0, running = false, raf = 0;
+    function frame(nowMs: number) {
+      const now = nowMs / 1000;
+      const dt = Math.min(now - last, 1 / 30);
+      last = now;
+      step(dt);
+      render();
+      if (running) raf = requestAnimationFrame(frame);
+    }
     function start() { if (running || reduced) return; running = true; last = performance.now() / 1000; raf = requestAnimationFrame(frame); }
     function stop() { running = false; cancelAnimationFrame(raf); }
 
+    function stillFrame() {
+      // Fast-forward to mid-spiral and draw once
+      ps.length = 0; mass = 0; phase = 'infall'; phaseT = 0; R = 0;
+      for (let k = 0; k < 300; k++) step(1 / 60);
+      for (let k = 0; k < 20; k++) render();
+    }
+
     size();
-    if (reduced) frame(performance.now()); // one static frame
-    new ResizeObserver(() => { size(); if (!running) frame(performance.now()); }).observe(root);
+    if (reduced) stillFrame();
+    new ResizeObserver(() => { size(); if (reduced) stillFrame(); }).observe(root);
     new IntersectionObserver(([e]) => (e.isIntersecting ? start() : stop()), { threshold: 0 }).observe(root);
     document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
   }
