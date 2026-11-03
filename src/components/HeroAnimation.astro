@@ -56,6 +56,12 @@
   const ALPHAS = [1, 0.6, 0.3]; // streak head → tail
   const DEPTH = 190;           // px from the core where blossoms give way to foliage
 
+  // Pixel style: 'square' | 'tight' | 'round' | 'dot' | 'petal' | 'brush'
+  // (?pixel=… in the URL overrides it, for comparing styles)
+  const params = new URLSearchParams(location.search);
+  const SHAPE = params.get('pixel') || 'square';
+  const CELL = Number(params.get('cell')) || 0;   // optional cell size override
+
   // Tuning
   const CAPACITY = 480;        // pixels swallowed before the core explodes
   const MAX_INFALL = 9;        // …or after this many seconds, whichever comes first
@@ -90,17 +96,19 @@
     let heat = new Float32Array(0);   // streak intensity per cell
     let col = new Int8Array(0);       // colour index per cell
     let key = new Int16Array(0);      // colour × alpha bucket to draw, -1 = empty
+    let ang = new Float32Array(0);    // direction of travel per cell (for petal shapes)
 
     function size() {
       const dpr = Math.min(devicePixelRatio || 1, 2);
       W = root.clientWidth; H = root.clientHeight;
-      cell = W < 600 ? 7 : 10;
+      cell = CELL || (W < 600 ? 7 : 10);
       cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
       cols = Math.ceil(W / cell); rows = Math.ceil(H / cell);
       heat = new Float32Array(cols * rows);
       col = new Int8Array(cols * rows);
       key = new Int16Array(cols * rows);
+      ang = new Float32Array(cols * rows);
       const bleed = parseFloat(getComputedStyle(root).getPropertyValue('--bleed')) || 0;
       cx = W / 2; cy = (H - bleed) / 2;   // centre of the visible hero area
       scale = Math.min(1, W / 1440 + 0.25);
@@ -232,7 +240,7 @@
             if (d < R + cell * 4) pc = 7;   // last stretch before the core: deep green
           }
         }
-        if (v >= heat[i]) { heat[i] = v; col[i] = pc; }
+        if (v >= heat[i]) { heat[i] = v; col[i] = pc; ang[i] = Math.atan2(p.vy, p.vx); }
       }
       // Shockwave rings: broken, sparkly, in the warm colours
       for (let k = waves.length - 1; k >= 0; k--) {
@@ -247,7 +255,7 @@
           const g = Math.min(1, Math.exp(-(((d - rad) / width) ** 2)) * fall * w.pow);
           if (g < 0.15 || hash3(c, r, fr) > 0.7) continue;
           const i = r * cols + c;
-          if (g > heat[i]) { heat[i] = g; col[i] = WARM[Math.floor(hash3(c, r, 3) * WARM.length)]; }
+          if (g > heat[i]) { heat[i] = g; col[i] = WARM[Math.floor(hash3(c, r, 3) * WARM.length)]; ang[i] = Math.atan2((r + 0.5) * cell - cy, (c + 0.5) * cell - cx); }
         }
       }
 
@@ -278,11 +286,38 @@
       }
 
       ctx!.clearRect(0, 0, W, H);
-      const s = cell - 1;
+      const g = cell, half = g / 2;
       for (let kk = 0; kk <= CORE_KEY; kk++) {
-        if (kk === CORE_KEY) { ctx!.fillStyle = CORE; ctx!.globalAlpha = 1; }
+        const isCore = kk === CORE_KEY;
+        if (isCore) { ctx!.fillStyle = CORE; ctx!.globalAlpha = 1; }
         else { ctx!.fillStyle = PALETTE[Math.floor(kk / 3)].c; ctx!.globalAlpha = ALPHAS[kk % 3]; }
-        for (let i = 0; i < key.length; i++) if (key[i] === kk) ctx!.fillRect((i % cols) * cell, Math.floor(i / cols) * cell, s, s);
+        if (SHAPE === 'square' || SHAPE === 'tight') {
+          const sz = SHAPE === 'tight' ? g : g - 1;
+          for (let i = 0; i < key.length; i++) if (key[i] === kk) ctx!.fillRect((i % cols) * g, Math.floor(i / cols) * g, sz, sz);
+          continue;
+        }
+        ctx!.beginPath();
+        for (let i = 0; i < key.length; i++) {
+          if (key[i] !== kk) continue;
+          const c = i % cols, r = (i / cols) | 0, x = c * g, y = r * g, mx = x + half, my = y + half;
+          if (SHAPE === 'round') {
+            ctx!.roundRect(x + 0.5, y + 0.5, g - 1.5, g - 1.5, g * 0.3);
+          } else if (SHAPE === 'dot' || (isCore && SHAPE === 'petal')) {
+            ctx!.moveTo(mx + half * 0.82, my); ctx!.arc(mx, my, half * 0.82, 0, Math.PI * 2);
+          } else if (SHAPE === 'petal') {
+            const a = ang[i];
+            ctx!.moveTo(mx + Math.cos(a) * g * 0.72, my + Math.sin(a) * g * 0.72);
+            ctx!.ellipse(mx, my, g * 0.72, g * 0.3, a, 0, Math.PI * 2);
+          } else if (SHAPE === 'brush') {
+            // Painterly dab: jittered, rotated, overlapping blob (stable per cell so it doesn't shimmer)
+            const h1 = hash3(c, r, 11), h2 = hash3(c, r, 12), h3 = hash3(c, r, 13);
+            const rx = g * (0.62 + 0.38 * h1), ry = g * (0.38 + 0.24 * h2), rot = h3 * Math.PI;
+            const ox = mx + (h2 - 0.5) * g * 0.5, oy = my + (h1 - 0.5) * g * 0.5;
+            ctx!.moveTo(ox + Math.cos(rot) * rx, oy + Math.sin(rot) * rx);
+            ctx!.ellipse(ox, oy, rx, ry, rot, 0, Math.PI * 2);
+          }
+        }
+        ctx!.fill();
       }
       ctx!.globalAlpha = 1;
     }
@@ -308,6 +343,17 @@
     }
 
     size();
+    const still = params.get('still');
+    if (still) {
+      // Preview mode: deterministic frame for comparing styles
+      let seedN = 12345;
+      Math.random = () => { seedN = (seedN + 0x6d2b79f5) | 0; let t = Math.imul(seedN ^ (seedN >>> 15), 1 | seedN); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+      ps.length = 0; mass = 0; phase = 'infall'; phaseT = 0; R = 0;
+      const steps = still === 'explode' ? 0 : Number(still) || 420;
+      if (still === 'explode') { while (phase === 'infall') { step(1 / 60); render(); } for (let k = 0; k < 22; k++) { step(1 / 60); render(); } }
+      else for (let k = 0; k < steps; k++) { step(1 / 60); render(); }
+      return;
+    }
     if (reduced) stillFrame();
     new ResizeObserver(() => { size(); if (reduced) stillFrame(); }).observe(root);
     new IntersectionObserver(([e]) => (e.isIntersecting ? start() : stop()), { threshold: 0 }).observe(root);
