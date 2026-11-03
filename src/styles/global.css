@@ -19,6 +19,9 @@
   --gutter: clamp(1rem, 0.25rem + 5.5vw, 6.25rem); /* 16px mobile → 100px desktop */
   --max-width: 1440px;
   --radius: 6px;
+  /* Page frame: thin vertical lines down both sides, inset from the window edge
+     and sitting outside the content (40px from the edge on desktop, ~6px on phones) */
+  --frame: calc(var(--gutter) * 0.4);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -26,6 +29,7 @@
 html { -webkit-text-size-adjust: 100%; }
 
 body {
+  position: relative;
   margin: 0;
   background: var(--color-bg);
   color: var(--color-text);
@@ -47,5 +51,17 @@ a { color: inherit; }
 }
 
 .placeholder { background: var(--color-placeholder); }
+
+/* Side lines running the full height of the page. They follow the content's
+   max width on very wide screens, sit above the hero animation, and never
+   block clicks. */
+body::before {
+  content: '';
+  position: absolute;
+  inset: 0 max(var(--frame), calc((100% - var(--max-width)) / 2 + var(--frame)));
+  border-inline: 1px solid var(--color-line);
+  pointer-events: none;
+  z-index: 10;
+}
 
 :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
