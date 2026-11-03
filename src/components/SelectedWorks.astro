@@ -19,7 +19,7 @@ const { works } = Astro.props;
     gap: 2rem;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
-    --edge: max(var(--gutter), calc((100vw - var(--max-width)) / 2 + var(--gutter)));
+    --edge: var(--gutter);
     /* Snap to the same edge the cards start at, so they line up with the heading on wide screens */
     scroll-padding-inline: var(--edge);
     padding-inline: var(--edge);

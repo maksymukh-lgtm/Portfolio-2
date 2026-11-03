@@ -16,15 +16,23 @@
   --fs-body: 1.0625rem;                           /* 17px */
   --fs-small: 0.875rem;                           /* 14px */
 
-  --gutter: clamp(1rem, 0.25rem + 5.5vw, 6.25rem); /* 16px mobile → 100px desktop */
-  --max-width: 1440px;
   --radius: 6px;
-  /* Page frame: thin vertical lines down both sides, inset from the window edge
-     and sitting outside the content (40px from the edge on desktop, ~6px on phones) */
-  --frame: calc(var(--gutter) * 0.4);
-  /* The frame hugs the window edges up to this width (1840 + 2 × 40 = 1920px
-     screens); only beyond that does it stop growing and centre itself */
+
+  /* Page frame & content edges
+     --frame      side lines' distance from the window edge (40px desktop → 10px phones)
+     --frame-max  widest the framed area gets; it hugs the window up to 1920px screens,
+                  then centres
+     --inset      space between the side lines and the content
+     --line-x     where the side lines actually sit
+     --gutter     where content starts: always --inset inside the lines */
+  --frame: clamp(10px, 2.8vw, 40px);
   --frame-max: 1840px;
+  --inset: 40px;
+  --line-x: max(var(--frame), calc((100vw - var(--frame-max)) / 2));
+  --gutter: calc(var(--line-x) + var(--inset));
+}
+@media (max-width: 600px) {
+  :root { --inset: 20px; }  /* phones: keep enough width for text */
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -48,8 +56,6 @@ img { display: block; max-width: 100%; height: auto; }
 a { color: inherit; }
 
 .container {
-  max-width: var(--max-width);
-  margin-inline: auto;
   padding-inline: var(--gutter);
 }
 
@@ -61,7 +67,7 @@ a { color: inherit; }
 body::before {
   content: '';
   position: absolute;
-  inset: 0 max(var(--frame), calc((100% - var(--frame-max)) / 2));
+  inset: 0 var(--line-x);
   border-inline: 1px solid var(--color-line);
   pointer-events: none;
   z-index: 10;
