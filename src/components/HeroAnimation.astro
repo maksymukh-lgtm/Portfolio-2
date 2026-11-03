@@ -63,9 +63,10 @@
   const CELL = Number(params.get('cell')) || 0;   // optional cell size override
 
   // Tuning
-  const CAPACITY = 480;        // pixels swallowed before the core explodes
-  const MAX_INFALL = 9;        // …or after this many seconds, whichever comes first
-  const COOLDOWN = 1.6;        // seconds of debris before pixels start falling in again
+  const CAPACITY = 480;        // average pixels swallowed before the core explodes (varies ±25% per cycle)
+  const MAX_INFALL = 10;       // …or after roughly this many seconds, whichever comes first
+  const COOLDOWN = 1.6;        // seconds after an explosion when the edges only trickle
+  const MAX_PIXELS = 2400;     // upper bound on live pixels (keeps it smooth on slower machines)
   const TRAIL_FADE = 0.004;    // streak decay per second (lower = shorter streaks)
 
   const hash3 = (x: number, y: number, z: number) => {
@@ -76,7 +77,7 @@
   const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
   const rand = (a: number, b: number) => a + Math.random() * (b - a);
 
-  type P = { x: number; y: number; vx: number; vy: number; out: boolean; life: number; max: number; col: number };
+  type P = { x: number; y: number; vx: number; vy: number; out: boolean; life: number; max: number; col: number; age: number };
 
   function pickColour(burst = false) {
     const wt = (p: (typeof PALETTE)[number]) => (burst ? p.b : p.w);
@@ -118,6 +119,10 @@
     const ps: P[] = [];
     let phase: 'infall' | 'cooldown' = 'infall';
     let phaseT = 0, mass = 0, R = 0, spawnAcc = 0;
+    // Each cycle gets a slightly different size and length so the rhythm never feels mechanical
+    let capacity = CAPACITY, maxInfall = MAX_INFALL;
+    const newCycle = () => { capacity = CAPACITY * rand(0.75, 1.25); maxInfall = MAX_INFALL * rand(0.8, 1.2); };
+    newCycle();
     const waves: { t0: number; pow: number }[] = [];
     let simT = 0;
 
@@ -135,11 +140,11 @@
       const nx = dx / d, ny = dy / d;
       // Mostly sideways velocity (counter-clockwise) so they spiral rather than fall straight
       const tang = rand(105, 175) * scale, rad = rand(45, 90) * scale;
-      ps.push({ x, y, vx: -ny * tang + nx * rad, vy: nx * tang + ny * rad, out: false, life: 0, max: 0, col: pickColour() });
+      ps.push({ x, y, vx: -ny * tang + nx * rad, vy: nx * tang + ny * rad, out: false, life: 0, max: 0, col: pickColour(), age: 0 });
     }
 
     function explode(power = 1) {
-      const n = Math.min(900, Math.max(120, Math.round(mass * 1.4 * power)));
+      const n = Math.min(900, Math.max(120, Math.round(mass * 1.05 * power)));
       const r0 = Math.max(R, cell);
       for (let k = 0; k < n; k++) {
         const a = Math.random() * Math.PI * 2;
@@ -147,7 +152,7 @@
         const life = rand(1.1, 2.8);
         const rr = r0 * (0.75 + 0.25 * Math.random());
         ps.push({ x: cx + Math.cos(a) * rr, y: cy + Math.sin(a) * rr,
-          vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, out: true, life, max: life, col: pickColour(true) });
+          vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, out: true, life, max: life, col: pickColour(true), age: 0 });
       }
       // Any pixel still falling in gets flung outwards too
       for (const p of ps) if (!p.out) {
@@ -156,7 +161,7 @@
         p.vx += (dx / d) * kick; p.vy += (dy / d) * kick; p.out = true; p.life = p.max = rand(1, 2.2);
       }
       waves.push({ t0: simT, pow: 0.8 + 0.5 * power });
-      mass = 0; phase = 'cooldown'; phaseT = 0;
+      mass = 0; phase = 'cooldown'; phaseT = 0; newCycle();
     }
 
     // ---------- interaction ----------
@@ -181,15 +186,22 @@
     function step(dt: number) {
       simT += dt; phaseT += dt;
 
+      // The edges never stop: a gentle trickle right after an explosion, easing back up to full flow
+      const rate = phase === 'infall'
+        ? 30 + Math.min(phaseT, 6) * 22
+        : 12 + 18 * (phaseT / COOLDOWN);
+      spawnAcc += rate * dt * (W / 1440 + 0.35);
+      while (spawnAcc >= 1) { if (ps.length < MAX_PIXELS) spawn(); spawnAcc--; }
       if (phase === 'infall') {
-        spawnAcc += (45 + phaseT * 30) * dt * (W / 1440 + 0.35);
-        while (spawnAcc >= 1) { spawn(); spawnAcc--; }
-        if (mass >= CAPACITY || phaseT > MAX_INFALL) explode(1);
+        if (mass >= capacity || phaseT > maxInfall) explode(1);
       } else if (phaseT > COOLDOWN) { phase = 'infall'; phaseT = 0; }
 
-      // Core radius eases toward its target (collapses quickly after an explosion)
-      const target = phase === 'infall' ? coreRadius() : 0;
-      R += (target - R) * Math.min(1, dt * (phase === 'infall' ? 6 : 14));
+      // Core radius eases toward its target. Near capacity it starts to pulse (the build-up);
+      // after an explosion it shrinks away smoothly instead of vanishing.
+      const fill = phase === 'infall' ? Math.max(mass / capacity, phaseT / maxInfall) : 0;
+      const pulse = fill > 0.8 ? 1 + 0.1 * ((fill - 0.8) / 0.2) * Math.sin(simT * (14 + 16 * fill)) : 1;
+      const target = phase === 'infall' ? coreRadius() * pulse : 0;
+      R += (target - R) * Math.min(1, dt * (phase === 'infall' ? 6 : 3.5));
 
       const drag = Math.pow(0.32, dt);
       for (let k = ps.length - 1; k >= 0; k--) {
@@ -197,7 +209,14 @@
         if (p.out) {
           p.vx *= drag; p.vy *= drag;
           p.life -= dt;
-          if (p.life <= 0 || p.x < -20 || p.y < -20 || p.x > W + 20 || p.y > H + 20) { ps.splice(k, 1); continue; }
+          if (p.x < -20 || p.y < -20 || p.x > W + 20 || p.y > H + 20) { ps.splice(k, 1); continue; }
+          if (p.life <= 0) {
+            // Debris that has slowed down gets recaptured: it swings sideways and joins the next spiral
+            const dx = cx - p.x, dy = cy - p.y, d = Math.hypot(dx, dy) || 1;
+            const t = rand(90, 170) * scale;
+            p.vx += (-dy / d) * t; p.vy += (dx / d) * t;
+            p.out = false; p.age = 0.35;
+          }
         } else {
           const dx = cx - p.x, dy = cy - p.y, d2 = dx * dx + dy * dy, d = Math.sqrt(d2) || 1;
           const nx = dx / d, ny = dy / d;
@@ -217,7 +236,7 @@
           const ex = p.x - px, ey = p.y - py, ed = Math.hypot(ex, ey);
           if (ed < 110 && ed > 0.1) { const f = (1 - ed / 110) * 1500 * dt; p.vx += (ex / ed) * f; p.vy += (ey / ed) * f; }
         }
-        p.x += p.vx * dt; p.y += p.vy * dt;
+        p.x += p.vx * dt; p.y += p.vy * dt; p.age += dt;
       }
     }
 
@@ -228,7 +247,8 @@
       for (const p of ps) {
         const c = Math.floor(p.x / cell), r = Math.floor(p.y / cell);
         if (c < 0 || r < 0 || c >= cols || r >= rows) continue;
-        const v = p.out ? 0.35 + 0.65 * (p.life / p.max) : 1;   // debris fades as it cools
+        // Debris fades as it cools; incoming pixels fade in (no popping at the edges)
+        const v = p.out ? 0.35 + 0.65 * (p.life / p.max) : 0.3 + 0.7 * clamp01(p.age / 0.7);
         const i = r * cols + c;
         let pc = p.col;
         if (!p.out) {
