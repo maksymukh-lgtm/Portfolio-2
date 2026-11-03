@@ -19,7 +19,7 @@ const { works } = Astro.props;
     position: relative;
     z-index: 1;
     margin-inline: var(--line-x);
-    padding-top: 8rem;
+    padding-top: clamp(7rem, 3rem + 10vw, 14rem);  /* space above: ~112px phones → 184px @1440 → 224px wide screens */
   }
   .works-head {
     padding: 0 var(--inset) 3rem;
