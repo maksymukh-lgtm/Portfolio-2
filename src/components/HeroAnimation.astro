@@ -65,7 +65,7 @@
   const params = new URLSearchParams(location.search);
   const SHAPE = params.get('pixel') || 'square';
   const FREE = ['threads', 'glow', 'blossom', 'watercolor'].includes(SHAPE);
-  const TRAIL_LEN = ({ threads: 16, glow: 7, blossom: 1, watercolor: 7 } as Record<string, number>)[SHAPE] ?? 8;
+  const TRAIL_LEN_BASE = ({ threads: 16, glow: 7, blossom: 1, watercolor: 7 } as Record<string, number>)[SHAPE] ?? 8;
   const CELL = Number(params.get('cell')) || 0;   // optional cell size override
 
   // Tuning
@@ -74,6 +74,9 @@
   const COOLDOWN = 1.6;        // seconds after an explosion when the edges only trickle
   const MAX_PIXELS = 2400;     // upper bound on live pixels (keeps it smooth on slower machines)
   const TRAIL_FADE = 0.004;    // streak decay per second (lower = shorter streaks)
+  const SPEED = Number(params.get('speed')) || 0.55;  // overall pace: 1 = original, lower = slower
+  // Trails keep the same length on screen at any speed
+  const TRAIL_LEN = Math.max(1, Math.round(TRAIL_LEN_BASE / SPEED));
 
   const hash3 = (x: number, y: number, z: number) => {
     let h = (x * 374761393 + y * 668265263 + z * 2147483647) | 0;
@@ -327,7 +330,7 @@
     function render() {
       if (FREE) { renderFree(); return; }
       // Streaks: previous frame's intensity fades, then each pixel stamps its cell in its own colour
-      const fade = Math.pow(TRAIL_FADE, 1 / 60);
+      const fade = Math.pow(TRAIL_FADE, SPEED / 60);   // streaks stay the same length on screen at any speed
       for (let i = 0; i < heat.length; i++) heat[i] *= fade;
       for (const p of ps) {
         const c = Math.floor(p.x / cell), r = Math.floor(p.y / cell);
@@ -433,7 +436,7 @@
       const now = nowMs / 1000;
       const dt = Math.min(now - last, 1 / 30);
       last = now;
-      step(dt);
+      step(dt * SPEED);
       render();
       if (running) raf = requestAnimationFrame(frame);
     }
