@@ -1,0 +1,39 @@
+---
+const { items } = Astro.props;
+---
+<section class="archive container">
+  <h2>Archive</h2>
+  <ul>
+    {items.map((item) => (
+      <li class="row">
+        <div class="text">
+          <h3>{item.title}</h3>
+          <p>{item.summary}</p>
+        </div>
+        <div class="media placeholder">
+          {item.image ? <img src={item.image} alt={item.title} loading="lazy" /> : null}
+        </div>
+      </li>
+    ))}
+  </ul>
+</section>
+
+<style>
+  .archive { padding-block: 6rem 12rem; }
+  h2 { font-size: var(--fs-h2); margin-bottom: 1.5rem; }
+  ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4rem; }
+  .row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    gap: 2rem;
+    align-items: start;
+  }
+  h3 { font-size: var(--fs-h3); line-height: 1.25; margin-bottom: 0.5rem; }
+  p { font-size: 0.8125rem; line-height: 1.55; color: var(--color-muted); max-width: 24rem; }
+  .media { aspect-ratio: 768 / 462; }
+  .media img { width: 100%; height: 100%; object-fit: cover; }
+  @media (max-width: 800px) {
+    .row { grid-template-columns: 1fr; gap: 1rem; }
+    ul { gap: 3rem; }
+  }
+</style>

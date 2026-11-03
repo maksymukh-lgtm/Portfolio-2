@@ -1,0 +1,51 @@
+/* Design tokens — measured from the Figma home page (1440px frame). */
+:root {
+  --color-bg: #ffffff;
+  --color-text: #111111;
+  --color-muted: #2b2b2b;
+  --color-line: #e6e6e6;
+  --color-hero: #efefef;
+  --color-accent: #6f52ff;
+  --color-placeholder: #c6c6c6;
+
+  --font-sans: 'Inter Tight', 'Helvetica Neue', Arial, sans-serif;
+
+  --fs-display: clamp(3rem, 2rem + 4vw, 5rem);   /* 80px at 1440 */
+  --fs-h2: clamp(1.75rem, 1.4rem + 1.2vw, 2.5rem); /* 40px */
+  --fs-h3: 1.375rem;                              /* 22px */
+  --fs-body: 1.0625rem;                           /* 17px */
+  --fs-small: 0.875rem;                           /* 14px */
+
+  --gutter: clamp(1rem, 0.25rem + 5.5vw, 6.25rem); /* 16px mobile → 100px desktop */
+  --max-width: 1440px;
+  --radius: 6px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, p { margin: 0; }
+h1, h2, h3 { font-weight: 400; letter-spacing: -0.01em; }
+img { display: block; max-width: 100%; height: auto; }
+a { color: inherit; }
+
+.container {
+  max-width: var(--max-width);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.placeholder { background: var(--color-placeholder); }
+
+:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }

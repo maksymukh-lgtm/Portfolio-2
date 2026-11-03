@@ -1,0 +1,16 @@
+---
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+import SelectedWorks from '../components/SelectedWorks.astro';
+import Archive from '../components/Archive.astro';
+import { selectedWorks, archive } from '../data/projects.js';
+---
+<Base>
+  <Header />
+  <main>
+    <Hero />
+    <SelectedWorks works={selectedWorks} />
+    <Archive items={archive} />
+  </main>
+</Base>

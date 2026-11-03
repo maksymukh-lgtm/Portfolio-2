@@ -1,0 +1,33 @@
+---
+const { title, summary, image, href } = Astro.props;
+---
+<a class="card" href={href}>
+  <div class="text">
+    <h3>{title}</h3>
+    <p>{summary}</p>
+  </div>
+  <div class="media">
+    {image ? <img src={image} alt="" loading="lazy" /> : null}
+  </div>
+</a>
+
+<style>
+  .card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    text-decoration: none;
+    background: var(--color-bg);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    height: 100%;
+  }
+  .card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgb(0 0 0 / 0.08); }
+  .text { padding: 1.25rem 1.5rem 1.5rem; min-height: 8.5rem; }
+  h3 { font-size: var(--fs-h3); line-height: 1.25; margin-bottom: 0.6rem; }
+  p { font-size: 0.8125rem; line-height: 1.55; color: var(--color-muted); }
+  .media { background: var(--color-accent); aspect-ratio: 440 / 460; }
+  .media img { width: 100%; height: 100%; object-fit: cover; }
+  @media (prefers-reduced-motion: reduce) { .card { transition: none; } .card:hover { transform: none; } }
+</style>

@@ -1,0 +1,29 @@
+---
+import WorkCard from './WorkCard.astro';
+const { works } = Astro.props;
+---
+<section id="work" class="works">
+  <h2 class="container">Selected Works</h2>
+  <div class="track" tabindex="0" aria-label="Selected works, scroll horizontally">
+    {works.map((w) => <div class="slot"><WorkCard {...w} href={`/work/${w.slug}`} /></div>)}
+  </div>
+</section>
+
+<style>
+  .works { padding-top: 8rem; }
+  h2 { font-size: var(--fs-h2); margin-bottom: 1.75rem; }
+  /* Cards line up with the page gutter on the left and bleed off the right edge */
+  .track {
+    display: flex;
+    gap: 2rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--gutter);
+    padding-inline: max(var(--gutter), calc((100vw - var(--max-width)) / 2 + var(--gutter)));
+    padding-bottom: 1rem;
+    scrollbar-width: none;
+  }
+  .track::-webkit-scrollbar { display: none; }
+  .slot { flex: 0 0 min(27.5rem, 82vw); scroll-snap-align: start; padding-top: 4px; }
+  .track:focus-visible { outline-offset: -2px; }
+</style>
