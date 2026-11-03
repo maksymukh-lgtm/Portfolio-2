@@ -16,8 +16,13 @@
 
 <style>
   .hero-anim {
+    /* The canvas runs past the hero into the next section's top spacing,
+       so the pixels dissolve into it instead of stopping at a box edge. */
+    --bleed: clamp(64px, 8vw, 112px);
     position: relative;
-    height: clamp(220px, 30vw, 430px);
+    z-index: 0;
+    height: calc(clamp(220px, 30vw, 430px) + var(--bleed));
+    margin-bottom: calc(-1 * var(--bleed));
     background: var(--color-bg);
     border-top: 1px solid var(--color-line);
     cursor: crosshair;
@@ -30,7 +35,6 @@
 <script>
   // Colour bands, cool → hot. Swap these to re-theme the whole field.
   const BANDS = ['#e7e2ff', '#c9bfff', '#9b86ff', '#6f52ff', '#3b23c4', '#15103f'];
-  const GRID = '#f4f4f6';        // empty cells: faint graph paper
   const INTRO = 1.6;             // seconds for pixels to flicker in
 
   // ---------- small value-noise implementation ----------
@@ -110,10 +114,18 @@
       const r = cv.getBoundingClientRect();
       return [e.clientX - r.left, e.clientY - r.top];
     };
-    root.addEventListener('pointermove', (e) => { [px, py] = local(e); inside = true; });
-    root.addEventListener('pointerleave', () => { inside = false; lastX = -1; charging = false; });
-    root.addEventListener('pointerdown', (e) => {
+    // Listen on the window: the next section overlaps the bottom of the canvas
+    const within = (x: number, y: number) => x >= 0 && y >= 0 && x <= W && y <= H;
+    addEventListener('pointermove', (e) => {
       [px, py] = local(e);
+      const now = within(px, py);
+      if (!now && inside) { lastX = -1; charging = false; }
+      inside = now;
+    }, { passive: true });
+    document.addEventListener('pointerleave', () => { inside = false; lastX = -1; charging = false; });
+    addEventListener('pointerdown', (e) => {
+      [px, py] = local(e);
+      if (!within(px, py) || (e.target as Element).closest('a, button, input, textarea, select')) return;
       if (touch) { waves.push({ x: px, y: py, t0: performance.now() / 1000, pow: 0.7 }); return; }
       charging = true; chargeStart = performance.now() / 1000;
     });
@@ -171,8 +183,8 @@
 
           // Ambient field, dissolving downward along a wavy, ragged edge
           let amb = 0;
-          const cut = 0.7 + 0.14 * Math.sin(c * 0.07 + t * 0.18) + 0.1 * Math.sin(c * 0.23 - t * 0.11);
-          const edge = clamp01((cut - yf) / 0.28);
+          const cut = 0.68 + 0.13 * Math.sin(c * 0.07 + t * 0.18) + 0.09 * Math.sin(c * 0.23 - t * 0.11);
+          const edge = clamp01((cut - yf) / 0.3);
           if (edge > 0 && hc < edge * 1.15) {
             const n = fbm(xf * aspect * 2.2 + t * 0.03, yf * 2.2, z);
             amb = clamp01((n - 0.31) / 0.38);
@@ -183,7 +195,10 @@
 
           const v = Math.max(amb, heat[i]);
           let b = -1;
-          if (v > 0.16) {
+          // Last stretch of the canvas: everything (cursor trail too) breaks up into
+          // stray pixels so there is never a hard bottom edge
+          const tail = clamp01((0.98 - yf) / 0.16);
+          if (v > 0.16 && hc < tail) {
             b = Math.min(BANDS.length - 1, Math.floor(((v - 0.16) / 0.84) * BANDS.length));
             if (b === 0 && hc > 0.55) b = -1;                 // lightest band is speckled
             else if (hash3(c, r, tick) < 0.04) b = Math.max(0, Math.min(BANDS.length - 1, b + (hc > 0.5 ? 1 : -1))); // flicker
@@ -192,11 +207,9 @@
         }
       }
 
-      // Draw: faint grid first, then each colour band in one pass
+      // Draw each colour band in one pass on a clear (white) background
       ctx!.clearRect(0, 0, W, H);
       const s = cell - 1;
-      ctx!.fillStyle = GRID;
-      for (let i = 0; i < band.length; i++) if (band[i] < 0) ctx!.fillRect((i % cols) * cell, Math.floor(i / cols) * cell, s, s);
       for (let b = 0; b < BANDS.length; b++) {
         ctx!.fillStyle = BANDS[b];
         for (let i = 0; i < band.length; i++) if (band[i] === b) ctx!.fillRect((i % cols) * cell, Math.floor(i / cols) * cell, s, s);

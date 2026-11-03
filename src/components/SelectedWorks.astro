@@ -10,7 +10,8 @@ const { works } = Astro.props;
 </section>
 
 <style>
-  .works { padding-top: 8rem; }
+  /* Sits above the hero canvas, which bleeds into this section's top spacing */
+  .works { padding-top: 8rem; position: relative; z-index: 1; }
   h2 { font-size: var(--fs-h2); margin-bottom: 1.75rem; }
   /* Cards line up with the page gutter on the left and bleed off the right edge */
   .track {
