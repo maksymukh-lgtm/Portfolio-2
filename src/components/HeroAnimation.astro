@@ -36,25 +36,27 @@
 </style>
 
 <script>
-  // Palette inspired by a painterly blossom tunnel: pink blossoms frame the
-  // outside, foliage deepens toward the middle, and the core is the dark mouth
-  // of the tunnel. `w` = how often a colour is picked for incoming pixels,
-  // `b` = for the explosion (a burst of petals and sunlight).
+  // Palette inspired by a soft, grainy sunrise gradient: misty teal and peach on
+  // the outside, warming through sunshine and marigold to tangerine as pixels
+  // fall toward the core (like heading into the sun). The core is ink black.
+  // `w` = how often a colour is picked for incoming pixels, `b` = for the explosion.
   const PALETTE = [
-    { c: '#ee5f8f', w: 2.4, b: 2.6 },  // 0 hot pink
-    { c: '#f4a8ba', w: 2.4, b: 2.4 },  // 1 blush
-    { c: '#f7e0d3', w: 1.1, b: 1.8 },  // 2 petal cream
-    { c: '#c9334f', w: 0.9, b: 1.2 },  // 3 crimson
-    { c: '#b8c43d', w: 1.0, b: 1.0 },  // 4 chartreuse
-    { c: '#e6c35a', w: 0.6, b: 1.1 },  // 5 sunlight gold
-    { c: '#55803c', w: 1.5, b: 0.3 },  // 6 leaf green
-    { c: '#2f4a2e', w: 0.8, b: 0.0 },  // 7 deep green
+    { c: '#f98f33', w: 0.6, b: 2.6 },  // 0 tangerine
+    { c: '#fcbc45', w: 1.6, b: 2.4 },  // 1 marigold
+    { c: '#fde27a', w: 1.8, b: 1.8 },  // 2 sunshine
+    { c: '#f8cfa6', w: 1.6, b: 1.4 },  // 3 peach
+    { c: '#8fc3bd', w: 2.4, b: 0.8 },  // 4 seafoam teal
+    { c: '#c3ddd5', w: 1.6, b: 0.4 },  // 5 misty aqua
+    { c: '#e46a1e', w: 0.3, b: 1.2 },  // 6 burnt orange
+    { c: '#4f8f8a', w: 0.6, b: 0.2 },  // 7 deep teal
   ];
-  const CORE = '#0f1d1c';      // the tunnel's dark mouth: green-black
-  const LEAVES = [6, 7, 6, 4];  // what pixels turn into as they get deep into the tunnel
-  const WARM = [0, 1, 5];      // the core's flickering rim and the shockwave
+  const CORE = '#161412';      // ink black, like the wordmark
+  const LEAVES = [0, 1, 6, 0]; // what pixels warm into as they fall close to the core
+  const DEEPEST = 6;           // last stretch before the core: burnt orange
+  const WARM = [0, 1, 6];      // the core's flickering rim and the shockwave
+  const HALO = '249,143,51';   // soft glow around the core (free styles), as r,g,b
   const ALPHAS = [1, 0.6, 0.3]; // streak head → tail
-  const DEPTH = 190;           // px from the core where blossoms give way to foliage
+  const DEPTH = 190;           // px from the core where pixels start warming up
 
   // Drawing style.
   //   Grid styles:  'square' | 'tight' | 'round' | 'dot' | 'petal' | 'brush'
@@ -246,11 +248,11 @@
       }
     }
 
-    // Colour a pixel by where it is: blossoms outside, foliage deep in the tunnel
+    // Colour a pixel by where it is: cool outside, warming as it nears the core
     function colourOf(p: P) {
       if (p.out) return p.col;
       const d = Math.hypot(p.x - cx, p.y - cy), depth = DEPTH * scale;
-      if (d < depth && (p.col * 7 + Math.floor(depth - d)) % 9 > 1) return d < R + cell * 4 ? 7 : LEAVES[p.col % LEAVES.length];
+      if (d < depth && (p.col * 7 + Math.floor(depth - d)) % 9 > 1) return d < R + cell * 4 ? DEEPEST : LEAVES[p.col % LEAVES.length];
       return p.col;
     }
     const brightness = (p: P) => (p.out ? 0.35 + 0.65 * (p.life / p.max) : 0.3 + 0.7 * clamp01(p.age / 0.7));
@@ -309,7 +311,7 @@
       // Core with a soft warm halo
       if (R > 1) {
         const halo = g.createRadialGradient(cx, cy, R * 0.8, cx, cy, R * 2.4);
-        halo.addColorStop(0, 'rgba(238,95,143,0.4)'); halo.addColorStop(1, 'rgba(238,95,143,0)');
+        halo.addColorStop(0, `rgba(${HALO},0.45)`); halo.addColorStop(1, `rgba(${HALO},0)`);
         g.globalAlpha = 1; g.fillStyle = halo; g.beginPath(); g.arc(cx, cy, R * 2.4, 0, Math.PI * 2); g.fill();
         g.fillStyle = CORE; g.beginPath(); g.arc(cx, cy, R, 0, Math.PI * 2); g.fill();
       }
@@ -335,12 +337,12 @@
         const i = r * cols + c;
         let pc = p.col;
         if (!p.out) {
-          // Deep in the tunnel blossoms give way to foliage (a few stay pink for sparkle)
+          // Close to the core pixels heat up into warm sun colours (a few keep their colour for sparkle)
           const d = Math.hypot(p.x - cx, p.y - cy);
           const depth = DEPTH * scale;
           if (d < depth && (p.col * 7 + Math.floor(depth - d)) % 9 > 1) {
             pc = LEAVES[p.col % LEAVES.length];
-            if (d < R + cell * 4) pc = 7;   // last stretch before the core: deep green
+            if (d < R + cell * 4) pc = DEEPEST;   // last stretch before the core
           }
         }
         if (v >= heat[i]) { heat[i] = v; col[i] = pc; ang[i] = Math.atan2(p.vy, p.vx); }
