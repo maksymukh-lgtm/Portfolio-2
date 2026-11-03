@@ -3,30 +3,47 @@ import WorkCard from './WorkCard.astro';
 const { works } = Astro.props;
 ---
 <section id="work" class="works">
-  <h2 class="container">Selected Works</h2>
-  <div class="track" tabindex="0" aria-label="Selected works, scroll horizontally">
-    {works.map((w) => <div class="slot"><WorkCard {...w} href={`/work/${w.slug}`} /></div>)}
+  <div class="works-head">
+    <h2>Selected Works</h2>
   </div>
+  <ul class="works-grid">
+    {works.map((w) => <li class="cell"><WorkCard {...w} href={`/work/${w.slug}`} /></li>)}
+  </ul>
 </section>
 
 <style>
-  /* Sits above the hero canvas, which bleeds into this section's top spacing */
-  .works { padding-top: 8rem; position: relative; z-index: 1; }
-  h2 { font-size: var(--fs-h2); margin-bottom: 1.75rem; }
-  /* Cards line up with the page gutter on the left and bleed off the right edge */
-  .track {
-    display: flex;
-    gap: 2rem;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    --edge: var(--gutter);
-    /* Snap to the same edge the cards start at, so they line up with the heading on wide screens */
-    scroll-padding-inline: var(--edge);
-    padding-inline: var(--edge);
-    padding-bottom: 1rem;
-    scrollbar-width: none;
+  /* The section spans the full framed area (side line to side line) so its
+     horizontal lines meet the page's side lines. It sits above the hero canvas,
+     which bleeds into its top spacing. */
+  .works {
+    position: relative;
+    z-index: 1;
+    margin-inline: var(--line-x);
+    padding-top: 8rem;
   }
-  .track::-webkit-scrollbar { display: none; }
-  .slot { flex: 0 0 min(27.5rem, 82vw); scroll-snap-align: start; padding-top: 4px; }
-  .track:focus-visible { outline-offset: -2px; }
+  .works-head {
+    padding: 0 var(--inset) 3rem;
+    border-bottom: 1px solid var(--color-line);
+  }
+  h2 { font-size: var(--fs-h2); line-height: 1.1; }
+
+  /* Two columns of cells divided by 1px lines */
+  .works-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .cell {
+    padding: 1.125rem;            /* 18px between the lines and the card */
+    border-bottom: 1px solid var(--color-line);
+  }
+  .cell:nth-child(odd) { border-right: 1px solid var(--color-line); }
+
+  @media (max-width: 700px) {
+    .works-grid { grid-template-columns: 1fr; }
+    .cell:nth-child(odd) { border-right: 0; }
+    .cell { padding: 0.75rem; }
+  }
 </style>

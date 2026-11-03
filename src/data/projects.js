@@ -18,6 +18,13 @@ export const selectedWorks = [
     summary: 'A tool for providers to track and report the services each Supported Living participant receives.',
     image: null,
   },
+  {
+    // Placeholder: replace with your fourth project
+    slug: 'project-four',
+    title: 'Project Title',
+    summary: 'One or two lines about the problem you solved and the result it had.',
+    image: null,
+  },
 ];
 
 export const archive = [

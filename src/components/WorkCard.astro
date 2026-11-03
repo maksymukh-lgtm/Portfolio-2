@@ -2,32 +2,48 @@
 const { title, summary, image, href } = Astro.props;
 ---
 <a class="card" href={href}>
-  <div class="text">
+  {image ? <img src={image} alt="" loading="lazy" /> : null}
+  <div class={`text${image ? ' on-image' : ''}`}>
     <h3>{title}</h3>
     <p>{summary}</p>
-  </div>
-  <div class="media">
-    {image ? <img src={image} alt="" loading="lazy" /> : null}
   </div>
 </a>
 
 <style>
+  /* Rounded card filling its grid cell; title and description sit at the bottom-left */
   .card {
+    position: relative;
     display: flex;
     flex-direction: column;
-    border: 1px solid var(--color-line);
-    border-radius: var(--radius);
+    justify-content: flex-end;
+    aspect-ratio: 584 / 642;
+    border-radius: 10px;
     overflow: hidden;
+    background: var(--color-placeholder);
     text-decoration: none;
-    background: var(--color-bg);
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
-    height: 100%;
+    isolation: isolate;
   }
-  .card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgb(0 0 0 / 0.08); }
-  .text { padding: 1.25rem 1.5rem 1.5rem; min-height: 8.5rem; }
-  h3 { font-size: var(--fs-h3); line-height: 1.25; margin-bottom: 0.6rem; }
-  p { font-size: 0.8125rem; line-height: 1.55; color: var(--color-muted); }
-  .media { background: var(--color-accent); aspect-ratio: 440 / 460; }
-  .media img { width: 100%; height: 100%; object-fit: cover; }
-  @media (prefers-reduced-motion: reduce) { .card { transition: none; } .card:hover { transform: none; } }
+  img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
+    transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .card:hover img { transform: scale(1.03); }
+  .card:hover { filter: brightness(0.97); }
+
+  .text { padding: 1.5rem; max-width: 34rem; }
+  /* With a real image behind it, a soft fade keeps the text readable */
+  .text.on-image { background: linear-gradient(to top, rgb(255 255 255 / 0.85), rgb(255 255 255 / 0)); padding-top: 4rem; max-width: none; }
+  h3 { font-size: clamp(1.375rem, 1rem + 0.9vw, 1.875rem); line-height: 1.2; margin-bottom: 0.75rem; }
+  p { font-size: 1rem; line-height: 1.5; color: var(--color-muted); max-width: 32rem; }
+
+  @media (max-width: 700px) {
+    .text { padding: 1.25rem; }
+    p { font-size: 0.9375rem; }
+  }
+  @media (prefers-reduced-motion: reduce) { img { transition: none; } .card:hover img { transform: none; } }
 </style>
