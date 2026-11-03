@@ -1,3 +1,6 @@
+---
+import HeroAnimation from './HeroAnimation.astro';
+---
 <section class="hero">
   <div class="container intro">
     <h1>Hello, I’m Hanna</h1>
@@ -6,7 +9,7 @@
       that holds them together. I don’t just make things look good. I make them make sense.
     </p>
   </div>
-  <div class="hero-media" role="img" aria-label="Hero image placeholder"></div>
+  <HeroAnimation />
 </section>
 
 <style>
@@ -32,10 +35,6 @@
     /* Extend the divider up to the top of the page like the mockup */
     margin-top: -6rem;
     padding-top: calc(6rem + var(--header-gap));
-  }
-  .hero-media {
-    background: var(--color-hero);
-    height: clamp(220px, 30vw, 430px);
   }
   @media (max-width: 800px) {
     .intro { grid-template-columns: 1fr; gap: 0; }
