@@ -8,7 +8,7 @@
   and the cycle starts again.
 
   Everything is drawn snapped to a grid of square cells, coloured by a 0..1
-  value (light lavender → purple → ink). Pure canvas 2D, no libraries.
+  value mapped to a colour band (see BANDS). Pure canvas 2D, no libraries.
   Pauses off-screen; reduced-motion visitors get one still frame.
 */
 ---
@@ -36,8 +36,20 @@
 </style>
 
 <script>
-  // Colour bands, cool → hot. Swap these to re-theme the whole field.
-  const BANDS = ['#e7e2ff', '#c9bfff', '#9b86ff', '#6f52ff', '#3b23c4', '#15103f'];
+  // Palette drawn from a soft 3D landscape. Each pixel gets one colour for its
+  // whole life; weights set how common each colour is (mostly sky and foliage,
+  // with flowers as accents). Swap these to re-theme the animation.
+  const PALETTE = [
+    { c: '#9ec3e3', w: 3.0 },  // sky blue
+    { c: '#8db8a4', w: 2.4 },  // sage
+    { c: '#97a947', w: 1.9 },  // moss green
+    { c: '#e2c048', w: 1.1 },  // sunflower
+    { c: '#dc82a8', w: 1.1 },  // blossom pink
+    { c: '#8e3d8d', w: 0.8 },  // plum
+  ];
+  const CORE = '#2c2533';      // the black hole: deep plum-charcoal
+  const WARM = [3, 4, 5];      // colours used for the core's flickering rim and the shockwave
+  const ALPHAS = [1, 0.6, 0.3]; // streak head → tail
 
   // Tuning
   const CAPACITY = 480;        // pixels swallowed before the core explodes
@@ -53,7 +65,14 @@
   const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
   const rand = (a: number, b: number) => a + Math.random() * (b - a);
 
-  type P = { x: number; y: number; vx: number; vy: number; out: boolean; life: number; max: number };
+  type P = { x: number; y: number; vx: number; vy: number; out: boolean; life: number; max: number; col: number };
+
+  const totalW = PALETTE.reduce((a, p) => a + p.w, 0);
+  function pickColour() {
+    let u = Math.random() * totalW;
+    for (let k = 0; k < PALETTE.length; k++) { u -= PALETTE[k].w; if (u <= 0) return k; }
+    return 0;
+  }
 
   function init(root: HTMLElement) {
     const cv = root.querySelector('canvas')!;
@@ -63,8 +82,9 @@
     const touch = !matchMedia('(hover: hover) and (pointer: fine)').matches;
 
     let W = 0, H = 0, cell = 10, cols = 0, rows = 0, cx = 0, cy = 0, scale = 1;
-    let heat = new Float32Array(0);
-    let band = new Int8Array(0);
+    let heat = new Float32Array(0);   // streak intensity per cell
+    let col = new Int8Array(0);       // colour index per cell
+    let key = new Int16Array(0);      // colour × alpha bucket to draw, -1 = empty
 
     function size() {
       const dpr = Math.min(devicePixelRatio || 1, 2);
@@ -74,7 +94,8 @@
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
       cols = Math.ceil(W / cell); rows = Math.ceil(H / cell);
       heat = new Float32Array(cols * rows);
-      band = new Int8Array(cols * rows);
+      col = new Int8Array(cols * rows);
+      key = new Int16Array(cols * rows);
       const bleed = parseFloat(getComputedStyle(root).getPropertyValue('--bleed')) || 0;
       cx = W / 2; cy = (H - bleed) / 2;   // centre of the visible hero area
       scale = Math.min(1, W / 1440 + 0.25);
@@ -100,8 +121,8 @@
       const dx = cx - x, dy = cy - y, d = Math.hypot(dx, dy) || 1;
       const nx = dx / d, ny = dy / d;
       // Mostly sideways velocity (counter-clockwise) so they spiral rather than fall straight
-      const tang = rand(170, 270) * scale, rad = rand(5, 30) * scale;
-      ps.push({ x, y, vx: -ny * tang + nx * rad, vy: nx * tang + ny * rad, out: false, life: 0, max: 0 });
+      const tang = rand(105, 175) * scale, rad = rand(45, 90) * scale;
+      ps.push({ x, y, vx: -ny * tang + nx * rad, vy: nx * tang + ny * rad, out: false, life: 0, max: 0, col: pickColour() });
     }
 
     function explode(power = 1) {
@@ -113,7 +134,7 @@
         const life = rand(1.1, 2.8);
         const rr = r0 * (0.75 + 0.25 * Math.random());
         ps.push({ x: cx + Math.cos(a) * rr, y: cy + Math.sin(a) * rr,
-          vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, out: true, life, max: life });
+          vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, out: true, life, max: life, col: pickColour() });
       }
       // Any pixel still falling in gets flung outwards too
       for (const p of ps) if (!p.out) {
@@ -188,61 +209,67 @@
     }
 
     function render() {
-      // Streaks: previous frame's values fade, then pixels stamp their current cell
+      // Streaks: previous frame's intensity fades, then each pixel stamps its cell in its own colour
       const fade = Math.pow(TRAIL_FADE, 1 / 60);
       for (let i = 0; i < heat.length; i++) heat[i] *= fade;
       for (const p of ps) {
         const c = Math.floor(p.x / cell), r = Math.floor(p.y / cell);
         if (c < 0 || r < 0 || c >= cols || r >= rows) continue;
-        const sp = Math.hypot(p.vx, p.vy) / scale;
-        const v = p.out ? 0.2 + 0.62 * (p.life / p.max) : 0.38 + Math.min(0.6, sp / 800);
+        const v = p.out ? 0.35 + 0.65 * (p.life / p.max) : 1;   // debris fades as it cools
         const i = r * cols + c;
-        if (v > heat[i]) heat[i] = v;
+        if (v >= heat[i]) { heat[i] = v; col[i] = p.col; }
       }
-      // Shockwave rings
+      // Shockwave rings: broken, sparkly, in the warm colours
       for (let k = waves.length - 1; k >= 0; k--) {
         const w = waves[k], age = simT - w.t0, life = 0.9 + w.pow * 0.5;
         if (age > life) { waves.splice(k, 1); continue; }
         const rad = age * 900 * scale * (0.7 + w.pow * 0.4), width = cell * 2.2, fall = 1 - age / life;
         const c0 = Math.max(0, Math.floor((cx - rad - width) / cell)), c1 = Math.min(cols - 1, Math.ceil((cx + rad + width) / cell));
         const r0 = Math.max(0, Math.floor((cy - rad - width) / cell)), r1 = Math.min(rows - 1, Math.ceil((cy + rad + width) / cell));
+        const fr = Math.floor(simT * 30);
         for (let r = r0; r <= r1; r++) for (let c = c0; c <= c1; c++) {
           const d = Math.hypot((c + 0.5) * cell - cx, (r + 0.5) * cell - cy);
-          const g = Math.exp(-(((d - rad) / width) ** 2)) * fall * w.pow;
-          if (g < 0.12 || hash3(c, r, Math.floor(simT * 30)) > 0.75) continue; // broken, sparkly ring
+          const g = Math.min(1, Math.exp(-(((d - rad) / width) ** 2)) * fall * w.pow);
+          if (g < 0.15 || hash3(c, r, fr) > 0.7) continue;
           const i = r * cols + c;
-          if (g > heat[i]) heat[i] = Math.min(1, g);
+          if (g > heat[i]) { heat[i] = g; col[i] = WARM[Math.floor(hash3(c, r, 3) * WARM.length)]; }
         }
       }
 
       const tick = Math.floor(simT * 8);
       const charge = charging ? Math.min((performance.now() / 1000 - chargeStart) / 1.5, 1) : 0;
       const ringW = cell * (1.6 + charge * 1.5);
+      const CORE_KEY = PALETTE.length * ALPHAS.length;
       for (let r = 0; r < rows; r++) {
         const yf = (r + 0.5) / rows;
         const tail = clamp01((0.98 - yf) / 0.16);   // bottom stretch breaks up: no hard edge
         for (let c = 0; c < cols; c++) {
           const i = r * cols + c;
-          const hc = hash3(c, r, 7);
-          let v = heat[i];
-          // The core: solid ink, with a flickering hot rim
-          if (R > 1) {
-            const d = Math.hypot((c + 0.5) * cell - cx, (r + 0.5) * cell - cy);
-            if (d < R) v = 1;
-            else if (d < R + ringW && hash3(c, r, tick) < 0.7) v = Math.max(v, 0.72 + 0.2 * hash3(c, r, tick + 1));
+          let k = -1;
+          if (hash3(c, r, 7) < tail) {
+            const v = heat[i];
+            if (v > 0.66) k = col[i] * 3;
+            else if (v > 0.36) k = col[i] * 3 + 1;
+            else if (v > 0.14) k = col[i] * 3 + 2;
+            // The core: solid dark disc with a flickering warm rim
+            if (R > 1) {
+              const d = Math.hypot((c + 0.5) * cell - cx, (r + 0.5) * cell - cy);
+              if (d < R) k = CORE_KEY;
+              else if (d < R + ringW && hash3(c, r, tick) < 0.7) k = WARM[Math.floor(hash3(c, r, tick + 1) * WARM.length)] * 3;
+            }
           }
-          let b = -1;
-          if (v > 0.12 && hc < tail) b = Math.min(BANDS.length - 1, Math.floor(((v - 0.12) / 0.88) * BANDS.length));
-          band[i] = b;
+          key[i] = k;
         }
       }
 
       ctx!.clearRect(0, 0, W, H);
       const s = cell - 1;
-      for (let b = 0; b < BANDS.length; b++) {
-        ctx!.fillStyle = BANDS[b];
-        for (let i = 0; i < band.length; i++) if (band[i] === b) ctx!.fillRect((i % cols) * cell, Math.floor(i / cols) * cell, s, s);
+      for (let kk = 0; kk <= CORE_KEY; kk++) {
+        if (kk === CORE_KEY) { ctx!.fillStyle = CORE; ctx!.globalAlpha = 1; }
+        else { ctx!.fillStyle = PALETTE[Math.floor(kk / 3)].c; ctx!.globalAlpha = ALPHAS[kk % 3]; }
+        for (let i = 0; i < key.length; i++) if (key[i] === kk) ctx!.fillRect((i % cols) * cell, Math.floor(i / cols) * cell, s, s);
       }
+      ctx!.globalAlpha = 1;
     }
 
     // ---------- loop ----------
