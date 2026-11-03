@@ -36,20 +36,25 @@
 </style>
 
 <script>
-  // Palette drawn from a soft 3D landscape. Each pixel gets one colour for its
-  // whole life; weights set how common each colour is (mostly sky and foliage,
-  // with flowers as accents). Swap these to re-theme the animation.
+  // Palette inspired by a painterly blossom tunnel: pink blossoms frame the
+  // outside, foliage deepens toward the middle, and the core is the dark mouth
+  // of the tunnel. `w` = how often a colour is picked for incoming pixels,
+  // `b` = for the explosion (a burst of petals and sunlight).
   const PALETTE = [
-    { c: '#9ec3e3', w: 3.0 },  // sky blue
-    { c: '#8db8a4', w: 2.4 },  // sage
-    { c: '#97a947', w: 1.9 },  // moss green
-    { c: '#e2c048', w: 1.1 },  // sunflower
-    { c: '#dc82a8', w: 1.1 },  // blossom pink
-    { c: '#8e3d8d', w: 0.8 },  // plum
+    { c: '#ee5f8f', w: 2.4, b: 2.6 },  // 0 hot pink
+    { c: '#f4a8ba', w: 2.4, b: 2.4 },  // 1 blush
+    { c: '#f7e0d3', w: 1.1, b: 1.8 },  // 2 petal cream
+    { c: '#c9334f', w: 0.9, b: 1.2 },  // 3 crimson
+    { c: '#b8c43d', w: 1.0, b: 1.0 },  // 4 chartreuse
+    { c: '#e6c35a', w: 0.6, b: 1.1 },  // 5 sunlight gold
+    { c: '#55803c', w: 1.5, b: 0.3 },  // 6 leaf green
+    { c: '#2f4a2e', w: 0.8, b: 0.0 },  // 7 deep green
   ];
-  const CORE = '#2c2533';      // the black hole: deep plum-charcoal
-  const WARM = [3, 4, 5];      // colours used for the core's flickering rim and the shockwave
+  const CORE = '#0f1d1c';      // the tunnel's dark mouth: green-black
+  const LEAVES = [6, 7, 6, 4];  // what pixels turn into as they get deep into the tunnel
+  const WARM = [0, 1, 5];      // the core's flickering rim and the shockwave
   const ALPHAS = [1, 0.6, 0.3]; // streak head → tail
+  const DEPTH = 190;           // px from the core where blossoms give way to foliage
 
   // Tuning
   const CAPACITY = 480;        // pixels swallowed before the core explodes
@@ -67,10 +72,10 @@
 
   type P = { x: number; y: number; vx: number; vy: number; out: boolean; life: number; max: number; col: number };
 
-  const totalW = PALETTE.reduce((a, p) => a + p.w, 0);
-  function pickColour() {
-    let u = Math.random() * totalW;
-    for (let k = 0; k < PALETTE.length; k++) { u -= PALETTE[k].w; if (u <= 0) return k; }
+  function pickColour(burst = false) {
+    const wt = (p: (typeof PALETTE)[number]) => (burst ? p.b : p.w);
+    let u = Math.random() * PALETTE.reduce((a, p) => a + wt(p), 0);
+    for (let k = 0; k < PALETTE.length; k++) { u -= wt(PALETTE[k]); if (u <= 0) return k; }
     return 0;
   }
 
@@ -134,7 +139,7 @@
         const life = rand(1.1, 2.8);
         const rr = r0 * (0.75 + 0.25 * Math.random());
         ps.push({ x: cx + Math.cos(a) * rr, y: cy + Math.sin(a) * rr,
-          vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, out: true, life, max: life, col: pickColour() });
+          vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, out: true, life, max: life, col: pickColour(true) });
       }
       // Any pixel still falling in gets flung outwards too
       for (const p of ps) if (!p.out) {
@@ -217,7 +222,17 @@
         if (c < 0 || r < 0 || c >= cols || r >= rows) continue;
         const v = p.out ? 0.35 + 0.65 * (p.life / p.max) : 1;   // debris fades as it cools
         const i = r * cols + c;
-        if (v >= heat[i]) { heat[i] = v; col[i] = p.col; }
+        let pc = p.col;
+        if (!p.out) {
+          // Deep in the tunnel blossoms give way to foliage (a few stay pink for sparkle)
+          const d = Math.hypot(p.x - cx, p.y - cy);
+          const depth = DEPTH * scale;
+          if (d < depth && (p.col * 7 + Math.floor(depth - d)) % 9 > 1) {
+            pc = LEAVES[p.col % LEAVES.length];
+            if (d < R + cell * 4) pc = 7;   // last stretch before the core: deep green
+          }
+        }
+        if (v >= heat[i]) { heat[i] = v; col[i] = pc; }
       }
       // Shockwave rings: broken, sparkly, in the warm colours
       for (let k = waves.length - 1; k >= 0; k--) {
