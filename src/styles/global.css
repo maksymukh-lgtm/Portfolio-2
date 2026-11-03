@@ -22,6 +22,9 @@
   /* Page frame: thin vertical lines down both sides, inset from the window edge
      and sitting outside the content (40px from the edge on desktop, ~6px on phones) */
   --frame: calc(var(--gutter) * 0.4);
+  /* The frame hugs the window edges up to this width (1840 + 2 × 40 = 1920px
+     screens); only beyond that does it stop growing and centre itself */
+  --frame-max: 1840px;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -52,13 +55,13 @@ a { color: inherit; }
 
 .placeholder { background: var(--color-placeholder); }
 
-/* Side lines running the full height of the page. They follow the content's
-   max width on very wide screens, sit above the hero animation, and never
-   block clicks. */
+/* Side lines running the full height of the page. They stay close to the
+   window edges up to 1920px screens, centre on wider ones, sit above the hero
+   animation, and never block clicks. */
 body::before {
   content: '';
   position: absolute;
-  inset: 0 max(var(--frame), calc((100% - var(--max-width)) / 2 + var(--frame)));
+  inset: 0 max(var(--frame), calc((100% - var(--frame-max)) / 2));
   border-inline: 1px solid var(--color-line);
   pointer-events: none;
   z-index: 10;
