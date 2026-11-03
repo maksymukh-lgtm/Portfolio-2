@@ -20,12 +20,17 @@ const links = [
     justify-content: space-between;
     align-items: center;
     padding-block: 2.25rem 0;
-    font-size: var(--fs-small);
+    font-size: 1.25rem; /* 20px */
     position: relative;
     z-index: 1;
   }
   a { text-decoration: none; }
   a:hover { text-decoration: underline; text-underline-offset: 4px; }
   ul { display: flex; gap: 2rem; list-style: none; margin: 0; padding: 0; }
-  @media (max-width: 480px) { ul { gap: 1.25rem; } }
+  /* Name + 3 links don't fit at 20px on phones */
+  @media (max-width: 560px) {
+    .site-header { font-size: 1.0625rem; flex-wrap: wrap; row-gap: 0.75rem; }
+    nav { width: 100%; }
+    ul { gap: 1.25rem; }
+  }
 </style>
