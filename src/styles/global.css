@@ -8,7 +8,7 @@
   --color-accent: #6f52ff;
   --color-placeholder: #c6c6c6;
 
-  --font-sans: 'Inter Tight', 'Helvetica Neue', Arial, sans-serif;
+  --font-sans: 'Geist', 'Helvetica Neue', Arial, sans-serif;
 
   --fs-display: clamp(3rem, 2rem + 4vw, 5rem);   /* 80px at 1440 */
   --fs-h2: clamp(1.75rem, 1.4rem + 1.2vw, 2.5rem); /* 40px */
