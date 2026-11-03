@@ -19,14 +19,14 @@
   --radius: 6px;
 
   /* Page frame & content edges
-     --frame      side lines' distance from the window edge (40px desktop → 10px phones)
-     --frame-max  widest the framed area gets; it hugs the window up to 1920px screens,
-                  then centres
+     --frame      side lines' distance from the window edge; grows with the screen:
+                  ~14px phones · 50px @1440 · 70 @1600 · 90 @1700 · 110 @1800 · 130 @1920 · 140 @2560
+     --frame-max  beyond 2560px screens the framed area stops growing and centres
      --inset      space between the side lines and the content
      --line-x     where the side lines actually sit
      --gutter     where content starts: always --inset inside the lines */
-  --frame: clamp(10px, 2.8vw, 40px);
-  --frame-max: 1840px;
+  --frame: clamp(10px, 3.472vw, 50px);
+  --frame-max: 2280px;
   --inset: 40px;
   --line-x: max(var(--frame), calc((100vw - var(--frame-max)) / 2));
   --gutter: calc(var(--line-x) + var(--inset));
@@ -34,6 +34,12 @@
 @media (max-width: 600px) {
   :root { --inset: 20px; }  /* phones: keep enough width for text */
 }
+/* Side-line distance on wide screens: straight-line steps between the agreed sizes */
+@media (min-width: 1440px) { :root { --frame: calc(12.5vw - 130px); } }    /* 50 → 70  */
+@media (min-width: 1600px) { :root { --frame: calc(20vw - 250px); } }      /* 70 → 110 */
+@media (min-width: 1800px) { :root { --frame: calc(16.667vw - 190px); } }  /* 110 → 130 */
+@media (min-width: 1920px) { :root { --frame: calc(1.5625vw + 100px); } }  /* 130 → 140 */
+@media (min-width: 2560px) { :root { --frame: 140px; } }
 
 *, *::before, *::after { box-sizing: border-box; }
 
