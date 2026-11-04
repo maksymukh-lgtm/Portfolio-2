@@ -1,49 +1,55 @@
 ---
-const { title, summary, image, href } = Astro.props;
+const { title, summary, image, href, bg = 'var(--color-placeholder)', border = 'transparent' } = Astro.props;
 ---
-<a class="card" href={href}>
-  {image ? <img src={image} alt="" loading="lazy" /> : null}
-  <div class={`text${image ? ' on-image' : ''}`}>
+<a class="card" href={href} style={`--card-bg:${bg};--card-border:${border}`}>
+  <div class="media">
+    {image ? <img src={image} alt="" loading="lazy" /> : null}
+  </div>
+  <div class="text">
     <h3>{title}</h3>
     <p>{summary}</p>
   </div>
 </a>
 
 <style>
-  /* Rounded card filling its grid cell; title and description sit at the bottom-left */
+  /* Coloured card: image area on top, title and description underneath */
   .card {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
+    display: grid;
+    grid-template-rows: 1fr auto;
     aspect-ratio: 584 / 642;
     border-radius: 10px;
+    border: 1px solid var(--card-border);
+    background: var(--card-bg);
     overflow: hidden;
-    background: var(--color-placeholder);
     text-decoration: none;
-    isolation: isolate;
+    transition: border-color 0.3s ease;
   }
+  .media { position: relative; overflow: hidden; min-height: 0; }
+  /* Image is anchored to the card's top edge and cropped by its corners,
+     so screenshots can bleed off the top and sides like in the design */
   img {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    z-index: -1;
-    transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+    object-position: center top;
+    transition: transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+    transform-origin: center top;
   }
   .card:hover img { transform: scale(1.03); }
-  .card:hover { filter: brightness(0.97); }
+  .card:hover { border-color: color-mix(in srgb, var(--card-border), #000 12%); }
 
-  .text { padding: 1.5rem; max-width: 34rem; }
-  /* With a real image behind it, a soft fade keeps the text readable */
-  .text.on-image { background: linear-gradient(to top, rgb(255 255 255 / 0.85), rgb(255 255 255 / 0)); padding-top: 4rem; max-width: none; }
-  h3 { font-size: clamp(1.375rem, 1rem + 0.9vw, 1.875rem); line-height: 1.2; margin-bottom: 0.75rem; }
-  p { font-size: 1rem; line-height: 1.5; color: var(--color-muted); max-width: 32rem; }
+  .text { padding: 1.5rem; }
+  h3 { font-size: clamp(1.375rem, 1rem + 0.9vw, 1.875rem); line-height: 1.2; margin-bottom: 0.875rem; }
+  p { font-size: clamp(1rem, 0.85rem + 0.35vw, 1.25rem); line-height: 1.5; color: var(--color-text); max-width: 32rem; }
 
+  /* Phones: the text needs more room, so let the card grow instead of
+     squeezing the image; the image keeps the same proportions as on desktop */
   @media (max-width: 700px) {
+    .card { aspect-ratio: auto; grid-template-rows: auto auto; }
+    .media { aspect-ratio: 632 / 540; }
     .text { padding: 1.25rem; }
-    p { font-size: 0.9375rem; }
   }
   @media (prefers-reduced-motion: reduce) { img { transition: none; } .card:hover img { transform: none; } }
 </style>
