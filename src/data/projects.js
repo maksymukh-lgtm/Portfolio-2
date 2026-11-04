@@ -1,11 +1,7 @@
 // Edit this file to add, remove or reorder projects on the home page.
 // Each project's card colour: `bg` fills the card, `border` outlines it.
-// `shots` are the screenshots composed in the top of the card (files live in /public/work).
-// Each one is placed by percentages of the image area:
-//   x, y   top-left corner (can be negative or >100 to bleed off the card)
-//   w      width (height follows the screenshot's own proportions)
-//   r      rotation in degrees (negative = rising to the right)
-//   tilt   optional extra 3D lean, in degrees, for a "lying on a table" look
+// `image` is the screenshot shown in the card (files live in /public/work, exported at
+// 1260 x 1000px). It hangs from the card's top-left edge, flat, with a soft shadow.
 export const selectedWorks = [
   {
     slug: 'phone-intake',
@@ -13,9 +9,8 @@ export const selectedWorks = [
     summary: "I replaced MassAbility's manual phone intake with a guided online application, cutting drop-offs by 80%.",
     bg: '#e2dcff',      // lavender
     border: '#bdb7d9',
-    shots: [
-      { src: '/work/intake.webp', alt: 'Online intake form, Personal Information step', x: -8, y: 9, w: 126, r: -18, tilt: 18 },
-    ],
+    image: '/work/intake.webp',
+    alt: 'Online intake form on the Personal Information step, with a short explanation panel',
   },
   {
     slug: 'spreadsheets-to-platform',
@@ -23,9 +18,8 @@ export const selectedWorks = [
     summary: 'Service reporting, spend tracking and fund requests moved from spreadsheets and email to one platform.',
     bg: '#cdfaf2',      // mint
     border: '#b5e3db',
-    shots: [
-      { src: '/work/service-hours.webp', alt: 'Service hours request form with a running total of requested hours', x: 0, y: 0, w: 96, r: 0 },
-    ],
+    image: '/work/service-hours.webp',
+    alt: 'Service hours request form with a running total of requested hours',
   },
   {
     slug: 'tracking-care',
@@ -33,10 +27,8 @@ export const selectedWorks = [
     summary: 'A tool for providers to track and report the services each Supported Living participant receives.',
     bg: '#fde4f2',      // pink
     border: '#d5bbc9',
-    shots: [
-      { src: '/work/sl-profile.webp', alt: 'Participant profile and service plan summary', x: 4, y: 0, w: 84, r: 0 },
-      { src: '/work/sl-quarter.webp', alt: 'Quarterly progress report showing hours remaining', x: 31, y: 16, w: 100, r: 0 },
-    ],
+    image: '/work/sl-quarter.webp',
+    alt: 'Quarterly progress report showing hours remaining and services to report',
   },
   {
     slug: 'career-reporting',
@@ -44,9 +36,8 @@ export const selectedWorks = [
     summary: "Reporting for MassAbility's career and student services, designed around their own rules and users.",
     bg: '#d8f2ff',      // sky blue
     border: '#b9d9ea',
-    shots: [
-      { src: '/work/cies-reports.webp', alt: 'Monthly reports page with current report and submission history', x: -4, y: 9, w: 134, r: -16, tilt: 18 },
-    ],
+    image: '/work/cies-reports.webp',
+    alt: 'Monthly reports page with the current report and submission history',
   },
 ];
 

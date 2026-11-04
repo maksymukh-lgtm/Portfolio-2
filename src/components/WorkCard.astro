@@ -1,18 +1,9 @@
 ---
-const { title, summary, shots = [], href, bg = 'var(--color-placeholder)', border = 'transparent' } = Astro.props;
+const { title, summary, image, alt = '', href, bg = 'var(--color-placeholder)', border = 'transparent' } = Astro.props;
 ---
 <a class="card" href={href} style={`--card-bg:${bg};--card-border:${border}`}>
   <div class="media">
-    {shots.map((s) => (
-      <img
-        src={s.src}
-        alt={s.alt}
-        loading="lazy"
-        decoding="async"
-        class={s.r || s.tilt ? 'tilted' : 'flat'}
-        style={`--x:${s.x}%;--y:${s.y}%;--w:${s.w}%;--r:${s.r || 0}deg;--tilt:${s.tilt || 0}deg`}
-      />
-    ))}
+    {image ? <img src={image} alt={alt} width="1260" height="1000" loading="lazy" decoding="async" /> : null}
   </div>
   <div class="text">
     <h3>{title}</h3>
@@ -21,11 +12,11 @@ const { title, summary, shots = [], href, bg = 'var(--color-placeholder)', borde
 </a>
 
 <style>
-  /* Coloured card: composed screenshots on top, title and description underneath */
+  /* Coloured card: a screenshot hanging from the top-left edge, title and description underneath */
   .card {
     display: grid;
     grid-template-rows: 1fr auto;
-    aspect-ratio: 584 / 642;
+    aspect-ratio: 633 / 698;
     border-radius: 10px;
     border: 1px solid var(--card-border);
     background: var(--card-bg);
@@ -33,43 +24,31 @@ const { title, summary, shots = [], href, bg = 'var(--color-placeholder)', borde
     text-decoration: none;
     transition: border-color 0.3s ease;
   }
-  .media { position: relative; overflow: hidden; min-height: 0; }
-
-  /* Each screenshot is placed by percentages of the image area (set per project in
-     src/data/projects.js) and cropped by the card, so it can bleed off the edges */
+  .media { position: relative; min-height: 0; }
+  /* Flush with the card's top and left edges, a gap on the right, rounded bottom corners */
   img {
     position: absolute;
-    left: var(--x);
-    top: var(--y);
-    width: var(--w);
+    top: 0;
+    left: 0;
+    width: 95.6%;
     height: auto;
-    max-width: none;
+    border-radius: 0 0 10px 10px;
     background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 12px 32px -8px rgb(30 20 60 / 0.18);
-    transform-origin: 0 0;
-    transform: perspective(1600px) rotateX(var(--tilt)) rotate(var(--r));
-    transition: transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 10px 28px -10px rgb(30 20 60 / 0.22);
+    transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
   }
-  /* Flat screenshots hang from the top edge: square top corners, rounded bottom */
-  img.flat { border-radius: 0 0 8px 8px; }
-  img.flat:first-child { border-top-left-radius: 0; }
-
-  .card:hover img { transform: perspective(1600px) rotateX(var(--tilt)) rotate(var(--r)) translateY(-6px); }
+  .card:hover img { transform: translateY(-4px); }
   .card:hover { border-color: color-mix(in srgb, var(--card-border), #000 12%); }
 
-  .text { padding: 1.5rem; }
-  h3 { font-size: clamp(1.375rem, 1rem + 0.9vw, 1.875rem); line-height: 1.2; margin-bottom: 0.875rem; }
-  p { font-size: clamp(1rem, 0.85rem + 0.35vw, 1.25rem); line-height: 1.5; color: var(--color-text); max-width: 32rem; }
+  .text { padding: 1.5rem 1.625rem 1.75rem; }
+  h3 { font-size: clamp(1.5rem, 1rem + 1.1vw, 2.125rem); line-height: 1.2; margin-bottom: 1rem; }
+  p { font-size: clamp(1.0625rem, 0.85rem + 0.5vw, 1.375rem); line-height: 1.5; color: var(--color-text); max-width: 36rem; }
 
-  /* Phones: let the card grow instead of squeezing the image area */
+  /* Phones: let the card grow instead of squeezing the screenshot */
   @media (max-width: 700px) {
     .card { aspect-ratio: auto; grid-template-rows: auto auto; }
-    .media { aspect-ratio: 632 / 540; }
+    .media { aspect-ratio: 605 / 520; }
     .text { padding: 1.25rem; }
   }
-  @media (prefers-reduced-motion: reduce) {
-    img { transition: none; }
-    .card:hover img { transform: perspective(1600px) rotateX(var(--tilt)) rotate(var(--r)); }
-  }
+  @media (prefers-reduced-motion: reduce) { img { transition: none; } .card:hover img { transform: none; } }
 </style>
