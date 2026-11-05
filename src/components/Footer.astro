@@ -1,0 +1,182 @@
+---
+/*
+  Footer: stepped pixel columns (a pyramid of square cells with dithered colour
+  bands, warm at the top of each column fading to deep teal at the bottom),
+  with small monospaced text arranged around the steps.
+  The columns rise into place when the footer scrolls into view, then breathe
+  gently; the column under the cursor lifts. Canvas 2D, no libraries.
+
+  Links below are placeholders: replace the hrefs with your real profiles.
+*/
+const year = new Date().getFullYear();
+const links = [
+  { label: 'LinkedIn', href: '#' },
+  { label: 'Email', href: '#' },
+  { label: 'Resume', href: '/resume' },
+];
+---
+<footer class="site-footer" id="contacts">
+  <canvas aria-hidden="true"></canvas>
+
+  <div class="credit">
+    <p>Designed and built by<br />Hanna Maksymuk</p>
+    <ul class="links">
+      {links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+    </ul>
+  </div>
+
+  <a class="side l1" href="#top">Back to top</a>
+  <p class="side l2">© {year}</p>
+  <p class="side r1">Currently:</p>
+  <p class="side r2">Open to new roles</p>
+</footer>
+
+<style>
+  .site-footer {
+    position: relative;
+    margin-inline: var(--line-x);
+    height: clamp(460px, 52vw, 760px);
+    background: #f7f7f7;
+    overflow: hidden;
+    font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: clamp(0.75rem, 0.7rem + 0.2vw, 0.875rem);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1.5;
+    color: var(--color-text);
+  }
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+  .credit {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    translate: -50% 0;
+    text-align: center;
+    z-index: 1;
+    white-space: nowrap;
+  }
+  .links { list-style: none; margin: 1.5em 0 0; padding: 0; display: flex; justify-content: center; gap: 2em; }
+  a { text-decoration: none; }
+  a:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+  /* Side items sit above the steps, stepping down toward the edges like the columns */
+  .side { position: absolute; margin: 0; z-index: 1; white-space: nowrap; }
+  .l1 { left: 17%; top: 33%; }
+  .l2 { left: 9%;  top: 46%; }
+  .r1 { right: 17%; top: 33%; }
+  .r2 { right: 9%;  top: 46%; }
+
+  @media (max-width: 700px) {
+    .site-footer { height: 520px; }
+    .credit { top: 8%; }
+    .l1 { left: 8%; top: 32%; }
+    .r1 { right: 8%; top: 32%; }
+    .l2 { left: 8%; top: 38%; }
+    .r2 { right: 8%; top: 38%; }
+  }
+</style>
+
+<script>
+  // Colour bands from the top edge of each column downward (hero palette).
+  // `t` = thickness in cells; the last band fills the rest of the column.
+  const BANDS = [
+    { c: '#fbd9b8', t: 2 },  // peach
+    { c: '#f98f33', t: 3 },  // tangerine
+    { c: '#fcbc45', t: 3 },  // marigold
+    { c: '#fde27a', t: 3 },  // sunshine
+    { c: '#f6efd9', t: 2 },  // cream
+    { c: '#c3ddd5', t: 3 },  // misty aqua
+    { c: '#8fc3bd', t: 3 },  // seafoam
+    { c: '#4f8f8a', t: 4 },  // deep teal
+    { c: '#1f3d3c', t: 0 },  // ink teal (fills to the bottom)
+  ];
+  // Step heights as the fraction of the footer's height where each column's top sits
+  const TOPS_DESKTOP = [0.7, 0.62, 0.54, 0.46, 0.38, 0.46, 0.54, 0.62, 0.7];
+  const TOPS_MOBILE = [0.6, 0.52, 0.44, 0.52, 0.6];
+  const DITHER = 1.6; // how many cells the soft edge between bands spans
+
+  const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map((v) => (v + 0.5) / 16 - 0.5);
+  const thresholds: number[] = [];
+  { let acc = 0; for (const b of BANDS) { acc += b.t; thresholds.push(b.t ? acc : Infinity); } }
+
+  function init(root: HTMLElement) {
+    const cv = root.querySelector('canvas')!;
+    const ctx = cv.getContext('2d');
+    if (!ctx) return;
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    let W = 0, H = 0, cell = 12, cols = 0, rows = 0, tops = TOPS_DESKTOP;
+    const lift: number[] = [];   // per-column hover lift (eased, px)
+    let mx = -1;
+
+    function size() {
+      const dpr = Math.min(devicePixelRatio || 1, 2);
+      W = root.clientWidth; H = root.clientHeight;
+      cell = W < 700 ? 9 : 12;
+      tops = W < 700 ? TOPS_MOBILE : TOPS_DESKTOP;
+      cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+      ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
+      cols = Math.ceil(W / cell); rows = Math.ceil(H / cell);
+      lift.length = tops.length; lift.fill(0);
+    }
+
+    root.addEventListener('pointermove', (e) => { mx = e.clientX - cv.getBoundingClientRect().left; });
+    root.addEventListener('pointerleave', () => { mx = -1; });
+
+    let start = -1, last = 0, running = false, raf = 0;
+
+    function draw(now: number) {
+      if (start < 0) start = now;
+      const t = (now - start) / 1000;
+      const dt = Math.min(0.05, (now - last) / 1000 || 0.016); last = now;
+      const n = tops.length, stepW = W / n;
+      const hovered = mx >= 0 ? Math.min(n - 1, Math.floor(mx / stepW)) : -1;
+
+      // Top edge of each column, in px
+      const topPx = tops.map((f, i) => {
+        // Rise in from the bottom when first shown, outer columns a little later
+        const delay = Math.abs(i - (n - 1) / 2) * 0.12;
+        const k = reduced ? 1 : Math.min(1, Math.max(0, (t - delay) / 1.2));
+        const rise = 1 - Math.pow(1 - k, 3);
+        const breathe = reduced ? 0 : Math.sin(t * 0.7 + i * 0.8) * H * 0.012;
+        lift[i] += ((i === hovered ? H * 0.06 : 0) - lift[i]) * Math.min(1, dt * 6);
+        return H - (H - f * H + breathe + lift[i]) * rise;
+      });
+
+      ctx!.clearRect(0, 0, W, H);
+      const s = cell - 1;
+      // Draw band by band so each colour is set once
+      const bandOf = new Int8Array(cols * rows).fill(-1);
+      for (let c = 0; c < cols; c++) {
+        const step = Math.min(n - 1, Math.floor(((c + 0.5) * cell) / stepW));
+        const top = topPx[step] / cell;
+        for (let r = Math.max(0, Math.floor(top - DITHER)); r < rows; r++) {
+          const d = r + 0.5 - top + BAYER[(r & 3) * 4 + (c & 3)] * DITHER;
+          if (d < 0) continue;
+          let b = 0;
+          while (d >= thresholds[b]) b++;
+          bandOf[r * cols + c] = b;
+        }
+      }
+      for (let b = 0; b < BANDS.length; b++) {
+        ctx!.fillStyle = BANDS[b].c;
+        for (let i = 0; i < bandOf.length; i++) if (bandOf[i] === b) ctx!.fillRect((i % cols) * cell, Math.floor(i / cols) * cell, s, s);
+      }
+      if (running) raf = requestAnimationFrame(draw);
+    }
+
+    function startLoop() { if (running) return; running = true; last = performance.now(); raf = requestAnimationFrame(draw); }
+    function stopLoop() { running = false; cancelAnimationFrame(raf); }
+
+    size();
+    new ResizeObserver(() => { size(); if (!running) draw(performance.now()); }).observe(root);
+    new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { if (reduced) draw(performance.now()); else startLoop(); }
+      else stopLoop();
+    }, { threshold: 0.15 }).observe(root);
+    document.addEventListener('visibilitychange', () => { if (document.hidden) stopLoop(); });
+  }
+
+  document.querySelectorAll<HTMLElement>('.site-footer').forEach(init);
+</script>
