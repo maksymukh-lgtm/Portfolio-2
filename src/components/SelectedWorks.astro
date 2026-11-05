@@ -4,7 +4,7 @@ const { works } = Astro.props;
 ---
 <section id="work" class="works">
   <div class="works-head">
-    <h2>Selected Works</h2>
+    <h2>Recent Work</h2>
   </div>
   <ul class="works-grid">
     {works.map((w) => <li class="cell"><WorkCard {...w} href={`/work/${w.slug}`} /></li>)}
