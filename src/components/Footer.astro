@@ -1,10 +1,10 @@
 ---
 /*
-  Footer: stepped pixel columns (a pyramid of square cells with dithered colour
-  bands, warm at the top of each column fading to deep teal at the bottom),
-  with small monospaced text arranged around the steps.
-  The columns rise into place when the footer scrolls into view, then breathe
-  gently; the column under the cursor lifts. Canvas 2D, no libraries.
+  Footer: a quiet echo of the hero animation. Sparse pixels drift up from just
+  below the bottom edge in a gentle, curving fan (the hero's spiral, released in
+  reverse), leaving short fading streaks. Warm colours near the source cool to
+  teal as they rise, and everything fades out well before the text.
+  The cursor nudges pixels aside. Canvas 2D, no libraries.
 
   Links below are placeholders: replace the hrefs with your real profiles.
 */
@@ -35,8 +35,8 @@ const links = [
   .site-footer {
     position: relative;
     margin-inline: var(--line-x);
-    height: clamp(460px, 52vw, 760px);
-    background: #f7f7f7;
+    height: clamp(420px, 44vw, 640px);
+    background: var(--color-bg);
     overflow: hidden;
     font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: clamp(0.75rem, 0.7rem + 0.2vw, 0.875rem);
@@ -68,7 +68,7 @@ const links = [
   .r2 { right: 9%;  top: 46%; }
 
   @media (max-width: 700px) {
-    .site-footer { height: 520px; }
+    .site-footer { height: 480px; }
     .credit { top: 8%; }
     .l1 { left: 8%; top: 32%; }
     .r1 { right: 8%; top: 32%; }
@@ -78,27 +78,14 @@ const links = [
 </style>
 
 <script>
-  // Colour bands from the top edge of each column downward (hero palette).
-  // `t` = thickness in cells; the last band fills the rest of the column.
-  const BANDS = [
-    { c: '#fbd9b8', t: 2 },  // peach
-    { c: '#f98f33', t: 3 },  // tangerine
-    { c: '#fcbc45', t: 3 },  // marigold
-    { c: '#fde27a', t: 3 },  // sunshine
-    { c: '#f6efd9', t: 2 },  // cream
-    { c: '#c3ddd5', t: 3 },  // misty aqua
-    { c: '#8fc3bd', t: 3 },  // seafoam
-    { c: '#4f8f8a', t: 4 },  // deep teal
-    { c: '#1f3d3c', t: 0 },  // ink teal (fills to the bottom)
-  ];
-  // Step heights as the fraction of the footer's height where each column's top sits
-  const TOPS_DESKTOP = [0.7, 0.62, 0.54, 0.46, 0.38, 0.46, 0.54, 0.62, 0.7];
-  const TOPS_MOBILE = [0.6, 0.52, 0.44, 0.52, 0.6];
-  const DITHER = 1.6; // how many cells the soft edge between bands spans
+  // Same palette and pixel style as the hero. Index order: warm (near the source) → cool (far).
+  const PALETTE = ['#e46a1e', '#f98f33', '#fcbc45', '#fde27a', '#f8cfa6', '#c3ddd5', '#8fc3bd', '#4f8f8a'];
+  const ALPHAS = [1, 0.6, 0.3];   // streak head → tail
+  const SPEED = 0.55;             // same calm pace as the hero
 
-  const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map((v) => (v + 0.5) / 16 - 0.5);
-  const thresholds: number[] = [];
-  { let acc = 0; for (const b of BANDS) { acc += b.t; thresholds.push(b.t ? acc : Infinity); } }
+  type P = { x: number; y: number; vx: number; vy: number; age: number; life: number; jit: number };
+  const rand = (a: number, b: number) => a + Math.random() * (b - a);
+  const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
 
   function init(root: HTMLElement) {
     const cv = root.querySelector('canvas')!;
@@ -106,76 +93,99 @@ const links = [
     if (!ctx) return;
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    let W = 0, H = 0, cell = 12, cols = 0, rows = 0, tops = TOPS_DESKTOP;
-    const lift: number[] = [];   // per-column hover lift (eased, px)
-    let mx = -1;
+    let W = 0, H = 0, cell = 10, cols = 0, rows = 0, ox = 0, oy = 0, RX = 1, RY = 1;
+    let heat = new Float32Array(0), col = new Int8Array(0), key = new Int16Array(0);
+    const ps: P[] = [];
+    let mx = -9999, my = -9999, spawnAcc = 0;
 
     function size() {
       const dpr = Math.min(devicePixelRatio || 1, 2);
       W = root.clientWidth; H = root.clientHeight;
-      cell = W < 700 ? 9 : 12;
-      tops = W < 700 ? TOPS_MOBILE : TOPS_DESKTOP;
+      cell = W < 700 ? 7 : 10;
       cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
       cols = Math.ceil(W / cell); rows = Math.ceil(H / cell);
-      lift.length = tops.length; lift.fill(0);
+      heat = new Float32Array(cols * rows); col = new Int8Array(cols * rows); key = new Int16Array(cols * rows);
+      ox = W / 2; oy = H + 24;               // the source sits just below the bottom edge
+      // How far pixels travel before fading: a wide, low arc that keeps clear of the text
+      RX = W * 0.5; RY = H * 0.5;
     }
 
-    root.addEventListener('pointermove', (e) => { mx = e.clientX - cv.getBoundingClientRect().left; });
-    root.addEventListener('pointerleave', () => { mx = -1; });
+    root.addEventListener('pointermove', (e) => { const r = cv.getBoundingClientRect(); mx = e.clientX - r.left; my = e.clientY - r.top; });
+    root.addEventListener('pointerleave', () => { mx = my = -9999; });
 
-    let start = -1, last = 0, running = false, raf = 0;
+    // Distance from the source, measured on the wide arc (1 = the edge of the arc)
+    const reach = (p: P) => Math.hypot((p.x - ox) / RX, (p.y - oy) / RY);
 
-    function draw(now: number) {
-      if (start < 0) start = now;
-      const t = (now - start) / 1000;
-      const dt = Math.min(0.05, (now - last) / 1000 || 0.016); last = now;
-      const n = tops.length, stepW = W / n;
-      const hovered = mx >= 0 ? Math.min(n - 1, Math.floor(mx / stepW)) : -1;
+    function spawn() {
+      // A fan of directions around straight up, denser toward the middle
+      const a = rand(-1.45, 1.45);                       // ≈ ±83°, spread evenly
+      const sp = rand(60, 130);
+      // Horizontal speed is stretched so the fan opens wide and low
+      ps.push({ x: ox + rand(-30, 30), y: oy, vx: Math.sin(a) * sp * (RX / RY), vy: -Math.cos(a) * sp, age: 0, life: rand(0.55, 1), jit: Math.random() });
+    }
 
-      // Top edge of each column, in px
-      const topPx = tops.map((f, i) => {
-        // Rise in from the bottom when first shown, outer columns a little later
-        const delay = Math.abs(i - (n - 1) / 2) * 0.12;
-        const k = reduced ? 1 : Math.min(1, Math.max(0, (t - delay) / 1.2));
-        const rise = 1 - Math.pow(1 - k, 3);
-        const breathe = reduced ? 0 : Math.sin(t * 0.7 + i * 0.8) * H * 0.012;
-        lift[i] += ((i === hovered ? H * 0.06 : 0) - lift[i]) * Math.min(1, dt * 6);
-        return H - (H - f * H + breathe + lift[i]) * rise;
-      });
+    function step(dt: number) {
+      spawnAcc += dt * 40 * (W / 1340 + 0.3);
+      while (spawnAcc >= 1) { if (ps.length < 1400) spawn(); spawnAcc--; }
+      for (let k = ps.length - 1; k >= 0; k--) {
+        const p = ps[k];
+        // Gentle swirl (same direction as the hero's spiral) and a little drag
+        const curl = 0.32 * dt, c = Math.cos(curl), s = Math.sin(curl);
+        const vx = p.vx * c - p.vy * s; p.vy = p.vx * s + p.vy * c; p.vx = vx;
+        p.vx *= 1 - 0.12 * dt; p.vy *= 1 - 0.12 * dt;
+        if (mx > -999) {
+          const ex = p.x - mx, ey = p.y - my, ed = Math.hypot(ex, ey);
+          if (ed < 90 && ed > 0.1) { const f = (1 - ed / 90) * 260 * dt; p.vx += (ex / ed) * f; p.vy += (ey / ed) * f; }
+        }
+        p.x += p.vx * dt; p.y += p.vy * dt; p.age += dt;
+        if (reach(p) > p.life + 0.1 || p.x < -20 || p.x > W + 20 || p.y < -20) ps.splice(k, 1);
+      }
+    }
 
-      ctx!.clearRect(0, 0, W, H);
-      const s = cell - 1;
-      // Draw band by band so each colour is set once
-      const bandOf = new Int8Array(cols * rows).fill(-1);
-      for (let c = 0; c < cols; c++) {
-        const step = Math.min(n - 1, Math.floor(((c + 0.5) * cell) / stepW));
-        const top = topPx[step] / cell;
-        for (let r = Math.max(0, Math.floor(top - DITHER)); r < rows; r++) {
-          const d = r + 0.5 - top + BAYER[(r & 3) * 4 + (c & 3)] * DITHER;
-          if (d < 0) continue;
-          let b = 0;
-          while (d >= thresholds[b]) b++;
-          bandOf[r * cols + c] = b;
+    function render() {
+      const fade = Math.pow(0.004, SPEED / 60);
+      for (let i = 0; i < heat.length; i++) heat[i] *= fade;
+      for (const p of ps) {
+        const c = Math.floor(p.x / cell), r = Math.floor(p.y / cell);
+        if (c < 0 || r < 0 || c >= cols || r >= rows) continue;
+        const f = reach(p) / p.life;
+        // Fade in as it leaves the edge, fade out as it reaches its distance
+        const v = clamp01(p.age / 0.8) * clamp01((1 - f) / 0.35);
+        const i = r * cols + c;
+        if (v >= heat[i]) {
+          heat[i] = v;
+          col[i] = Math.max(0, Math.min(PALETTE.length - 1, Math.floor(f * PALETTE.length + (p.jit - 0.5) * 2.2)));
         }
       }
-      for (let b = 0; b < BANDS.length; b++) {
-        ctx!.fillStyle = BANDS[b].c;
-        for (let i = 0; i < bandOf.length; i++) if (bandOf[i] === b) ctx!.fillRect((i % cols) * cell, Math.floor(i / cols) * cell, s, s);
+      for (let i = 0; i < heat.length; i++) {
+        const v = heat[i];
+        key[i] = v > 0.62 ? col[i] * 3 : v > 0.32 ? col[i] * 3 + 1 : v > 0.1 ? col[i] * 3 + 2 : -1;
       }
-      if (running) raf = requestAnimationFrame(draw);
+      ctx!.clearRect(0, 0, W, H);
+      const s = cell - 1;
+      for (let kk = 0; kk < PALETTE.length * 3; kk++) {
+        ctx!.fillStyle = PALETTE[Math.floor(kk / 3)]; ctx!.globalAlpha = ALPHAS[kk % 3];
+        for (let i = 0; i < key.length; i++) if (key[i] === kk) ctx!.fillRect((i % cols) * cell, Math.floor(i / cols) * cell, s, s);
+      }
+      ctx!.globalAlpha = 1;
     }
 
-    function startLoop() { if (running) return; running = true; last = performance.now(); raf = requestAnimationFrame(draw); }
-    function stopLoop() { running = false; cancelAnimationFrame(raf); }
+    let last = 0, running = false, raf = 0;
+    function frame(now: number) {
+      const dt = Math.min(0.05, (now - last) / 1000); last = now;
+      step(dt * SPEED); render();
+      if (running) raf = requestAnimationFrame(frame);
+    }
+    function start() { if (running || reduced) return; running = true; last = performance.now(); raf = requestAnimationFrame(frame); }
+    function stop() { running = false; cancelAnimationFrame(raf); }
+    function warm() { ps.length = 0; for (let k = 0; k < 600; k++) { step((1 / 60) * SPEED * 1.6); render(); } }
 
     size();
-    new ResizeObserver(() => { size(); if (!running) draw(performance.now()); }).observe(root);
-    new IntersectionObserver(([e]) => {
-      if (e.isIntersecting) { if (reduced) draw(performance.now()); else startLoop(); }
-      else stopLoop();
-    }, { threshold: 0.15 }).observe(root);
-    document.addEventListener('visibilitychange', () => { if (document.hidden) stopLoop(); });
+    warm();   // start mid-flow, so it never looks empty when scrolled into view
+    new ResizeObserver(() => { size(); warm(); if (!running) render(); }).observe(root);
+    new IntersectionObserver(([e]) => (e.isIntersecting ? start() : stop()), { threshold: 0 }).observe(root);
+    document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
   }
 
   document.querySelectorAll<HTMLElement>('.site-footer').forEach(init);
