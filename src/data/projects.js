@@ -42,20 +42,34 @@ export const selectedWorks = [
   },
 ];
 
+// Archive: earlier projects, one per row. A line break in `title` (\n) is kept on wider
+// screens; `body` is a list of paragraphs. `image` (in /public/archive) is optional.
 export const archive = [
   {
-    title: 'Radar Smart',
-    summary: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis.',
+    title: 'NeuroSoph Design System\n& Figma Standards',
+    body: [
+      'NeuroSoph needed a shared foundation that worked for both designers and developers. Without a common system or file conventions, designs and code could drift apart, and handoff took more back-and-forth than it should have. I set out to create a single source of truth for the whole product team.',
+      "I built our internal design system from the ground up, starting with a token library for color, typography and spacing that both designers and developers could rely on, then designing the core components on top of it. I also defined our Figma standards: how the workspace is organized and how every file is structured, from pages and flows to annotations, so anyone opening a file knew exactly where to look. Alongside this, I partnered with another designer on NeuroSoph's branding, which became the visual language of the whole system.",
+    ],
     image: null,
+    alt: '',
   },
   {
-    title: 'Wemates',
-    summary: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis.',
+    title: 'RadarSmart Family\nTracking App',
+    body: [
+      'RadarSmart helps families stay connected. I worked in a cross-functional product team alongside a content designer, UX designer, 3D designer, copywriter and developers. With so many disciplines shaping one product across iOS, Android and the web, consistency was the real challenge.',
+      "I led the creation of a design system that kept the product cohesive, then used it to redesign the full app for iOS and Android and to design the marketing pages. When RadarSmart partnered with lifecell, one of Ukraine's largest mobile providers, I adapted the app for their brand, proving the system was flexible enough to carry a completely new identity.",
+    ],
     image: null,
+    alt: '',
   },
   {
-    title: 'Wemates',
-    summary: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis.',
+    title: 'Wemates Mobile Insurance App',
+    body: [
+      'Wemates lets people insure their phones, pets, bikes and more, right from their phone. Insurance is complex and often confusing, while people expect mobile apps to be quick and simple. Bridging that gap was the core challenge.',
+      'I worked in a product team alongside another UX designer, writers and developers. I built the design system, designed the full iOS and Android app and created the marketing pages that brought new customers in. Together, we turned a complicated product into an experience that feels clear and approachable.',
+    ],
     image: null,
+    alt: '',
   },
 ];

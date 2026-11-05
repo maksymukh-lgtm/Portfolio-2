@@ -1,17 +1,17 @@
 ---
 const { items } = Astro.props;
 ---
-<section class="archive container">
+<section class="archive" id="archive">
   <h2>Archive</h2>
   <ul>
     {items.map((item) => (
       <li class="row">
         <div class="text">
           <h3>{item.title}</h3>
-          <p>{item.summary}</p>
+          {item.body.map((para) => <p>{para}</p>)}
         </div>
-        <div class="media placeholder">
-          {item.image ? <img src={item.image} alt={item.title} loading="lazy" /> : null}
+        <div class="media">
+          {item.image ? <img src={item.image} alt={item.alt} loading="lazy" decoding="async" /> : null}
         </div>
       </li>
     ))}
@@ -19,21 +19,48 @@ const { items } = Astro.props;
 </section>
 
 <style>
-  .archive { padding-block: 6rem 12rem; }
-  h2 { font-size: var(--fs-h2); margin-bottom: 1.5rem; }
-  ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4rem; }
+  /* Spans the framed area (side line to side line) so the row lines meet the page's side lines */
+  .archive {
+    margin-inline: var(--line-x);
+    padding-top: clamp(4rem, 2rem + 5vw, 7.5rem);
+    padding-bottom: clamp(4rem, 2rem + 6vw, 9rem);
+  }
+  h2 {
+    font-size: var(--fs-h2);
+    line-height: 1.1;
+    padding-inline: var(--inset);
+  }
+  ul { list-style: none; margin: 0; padding: 0; }
+
+  /* One project per row: text on the left, image on the right, a line under each row */
   .row {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
-    gap: 2rem;
+    grid-template-columns: minmax(0, 0.76fr) minmax(0, 1fr);
+    column-gap: clamp(2rem, 1rem + 2.5vw, 3.25rem);
     align-items: start;
+    padding: 4.5rem var(--inset);
+    border-bottom: 1px solid var(--color-line);
   }
-  h3 { font-size: var(--fs-h3); line-height: 1.25; margin-bottom: 0.5rem; }
-  p { font-size: 0.8125rem; line-height: 1.55; color: var(--color-muted); max-width: 24rem; }
-  .media { aspect-ratio: 768 / 462; }
+  .row:first-child { padding-top: clamp(2.5rem, 1.5rem + 2vw, 3.25rem); }
+
+  h3 {
+    font-size: clamp(1.5rem, 1rem + 1.1vw, 2.125rem);   /* 34px on desktop */
+    line-height: 1.2;
+    white-space: pre-line;           /* keeps the designed line break in the title */
+    margin-bottom: 1.375rem;
+  }
+  p { font-size: clamp(1rem, 0.95rem + 0.15vw, 1.0625rem); line-height: 1.6; color: var(--color-muted); }
+  p + p { margin-top: 1.6em; }        /* one blank line between paragraphs */
+
+  .media {
+    aspect-ratio: 496 / 339;
+    background: var(--color-placeholder-light);
+    overflow: hidden;
+  }
   .media img { width: 100%; height: 100%; object-fit: cover; }
+
   @media (max-width: 800px) {
-    .row { grid-template-columns: 1fr; gap: 1rem; }
-    ul { gap: 3rem; }
+    .row { grid-template-columns: 1fr; row-gap: 2rem; padding-block: 3rem; }
+    h3 { white-space: normal; }
   }
 </style>
