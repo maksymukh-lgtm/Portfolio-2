@@ -1,91 +1,137 @@
 ---
 /*
-  Footer: a quiet echo of the hero animation. Sparse pixels drift up from just
-  below the bottom edge in a gentle, curving fan (the hero's spiral, released in
-  reverse), leaving short fading streaks. Warm colours near the source cool to
-  teal as they rise, and everything fades out well before the text.
-  The cursor nudges pixels aside. Canvas 2D, no libraries.
+  Footer: a pixel gradient. The whole footer is a mosaic of small square
+  pixels, dark at the top melting through rust and burnt orange into warm sand,
+  with ordered dithering between colours (so the gradient reads as pixels, not
+  blur) and slowly drifting cloud-like variation. The top edge dissolves from the
+  white page into the dark in a pixel pattern. The cursor warms the area around it.
 
-  Links below are placeholders: replace the hrefs with your real profiles.
+  Links and the status line are placeholders: replace them with your real ones.
 */
 const year = new Date().getFullYear();
-const links = [
+const nav = [
+  { label: 'Recent work', href: '/#work' },
+  { label: 'Archive', href: '/#archive' },
+  { label: 'Resume', href: '/resume' },
+];
+const social = [
   { label: 'LinkedIn', href: '#' },
   { label: 'Email', href: '#' },
-  { label: 'Resume', href: '/resume' },
+  { label: 'Back to top', href: '#top' },
 ];
 ---
 <footer class="site-footer" id="contacts">
   <canvas aria-hidden="true"></canvas>
 
-  <div class="credit">
-    <p>Designed and built by<br />Hanna Maksymuk</p>
-    <ul class="links">
-      {links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
-    </ul>
-  </div>
+  <div class="content">
+    <div class="top">
+      <div class="cta">
+        <h2>Let’s make it<br /><span>make sense</span></h2>
+        <p class="sub">Open to new roles and collaborations</p>
+        <a class="button" href="#">Get in touch</a>
+      </div>
+      <ul class="links">{nav.map((l) => <li><a href={l.href}>{l.label}</a></li>)}</ul>
+      <ul class="links">{social.map((l) => <li><a href={l.href}>{l.label}</a></li>)}</ul>
+    </div>
 
-  <a class="side l1" href="#top">Back to top</a>
-  <p class="side l2">© {year}</p>
-  <p class="side r1">Currently:</p>
-  <p class="side r2">Open to new roles</p>
+    <dl class="meta">
+      <div><dt>© {year}</dt><dd>Hanna Maksymuk</dd></div>
+      <div><dt>Currently</dt><dd>Open to new roles</dd></div>
+      <div><dt>Your device</dt><dd class="device">—</dd></div>
+      <div><dt>Fonts used</dt><dd>Geist, Geist Mono</dd></div>
+    </dl>
+  </div>
 </footer>
 
 <style>
   .site-footer {
+    --ink: #f6eee6;
+    --muted: rgb(246 238 230 / 0.62);
     position: relative;
     margin-inline: var(--line-x);
-    height: clamp(420px, 44vw, 640px);
-    background: var(--color-bg);
+    min-height: clamp(560px, 52vw, 780px);
+    color: var(--ink);
     overflow: hidden;
-    font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: clamp(0.75rem, 0.7rem + 0.2vw, 0.875rem);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    line-height: 1.5;
-    color: var(--color-text);
+    isolation: isolate;
   }
-  canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; z-index: -1; }
 
-  .credit {
-    position: absolute;
-    top: 10%;
-    left: 50%;
-    translate: -50% 0;
-    text-align: center;
-    z-index: 1;
-    white-space: nowrap;
+  .content {
+    min-height: inherit;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 4rem;
+    padding: clamp(7rem, 4rem + 6vw, 11rem) var(--inset) 2.5rem;
   }
-  .links { list-style: none; margin: 1.5em 0 0; padding: 0; display: flex; justify-content: center; gap: 2em; }
-  a { text-decoration: none; }
-  a:hover { text-decoration: underline; text-underline-offset: 4px; }
+  .top {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 2.5rem;
+    align-items: start;
+  }
+  h2 { font-size: clamp(2.25rem, 1.6rem + 1.8vw, 3.5rem); line-height: 1.05; letter-spacing: -0.02em; }
+  h2 span { color: #f3b98a; }
+  .sub { margin-top: 1rem; color: var(--muted); font-size: 1.0625rem; }
+  .button {
+    display: inline-block;
+    margin-top: 2rem;
+    padding: 0.85rem 1.4rem;
+    border-radius: 8px;
+    background: rgb(255 255 255 / 0.1);
+    border: 1px solid rgb(255 255 255 / 0.14);
+    backdrop-filter: blur(6px);
+    text-decoration: none;
+    transition: background 0.25s ease;
+  }
+  .button:hover { background: rgb(255 255 255 / 0.18); }
 
-  /* Side items sit above the steps, stepping down toward the edges like the columns */
-  .side { position: absolute; margin: 0; z-index: 1; white-space: nowrap; }
-  .l1 { left: 17%; top: 33%; }
-  .l2 { left: 9%;  top: 46%; }
-  .r1 { right: 17%; top: 33%; }
-  .r2 { right: 9%;  top: 46%; }
+  .links { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; font-size: clamp(1.25rem, 1.05rem + 0.5vw, 1.625rem); }
+  .links a { text-decoration: none; }
+  .links a:hover { text-decoration: underline; text-underline-offset: 5px; text-decoration-thickness: 1px; }
 
-  @media (max-width: 700px) {
-    .site-footer { height: 480px; }
-    .credit { top: 8%; }
-    .l1 { left: 8%; top: 32%; }
-    .r1 { right: 8%; top: 32%; }
-    .l2 { left: 8%; top: 38%; }
-    .r2 { right: 8%; top: 38%; }
+  .meta {
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.5rem 2.5rem;
+    font-size: 0.9375rem;
+  }
+  /* The bottom row sits on the light sand, so it uses dark text */
+  .meta dt { color: #2a1a12; }
+  .meta dd { margin: 0.25rem 0 0; color: rgb(42 26 18 / 0.68); font-family: 'Geist Mono', ui-monospace, monospace; font-size: 0.8125rem; letter-spacing: 0.02em; }
+
+  @media (max-width: 800px) {
+    .top { grid-template-columns: 1fr 1fr; }
+    .cta { grid-column: 1 / -1; }
+    .meta { grid-template-columns: 1fr 1fr; }
   }
 </style>
 
 <script>
-  // Same palette and pixel style as the hero. Index order: warm (near the source) → cool (far).
-  const PALETTE = ['#e46a1e', '#f98f33', '#fcbc45', '#fde27a', '#f8cfa6', '#c3ddd5', '#8fc3bd', '#4f8f8a'];
-  const ALPHAS = [1, 0.6, 0.3];   // streak head → tail
-  const SPEED = 0.55;             // same calm pace as the hero
+  // Gradient stops from the top of the footer to the bottom: ink → rust → burnt orange → sand.
+  // Warm tones come from the hero palette; tweak these to re-colour the footer.
+  const STOPS = ['#121110', '#1c1411', '#2e1a10', '#4c2512', '#733416', '#9c4a1f', '#c0652f', '#d6844c', '#e3a575', '#ecc4a2', '#f2d9c2'];
+  const CELL = 6;          // pixel size in CSS px
+  const FPS = 30;          // the gradient moves slowly, so 30fps is plenty
 
-  type P = { x: number; y: number; vx: number; vy: number; age: number; life: number; jit: number };
-  const rand = (a: number, b: number) => a + Math.random() * (b - a);
-  const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
+  const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map((v) => (v + 0.5) / 16);
+
+  // Small value noise for the drifting clouds
+  const hash = (x: number, y: number, z: number) => {
+    let h = (x * 374761393 + y * 668265263 + z * 1274126177) | 0;
+    h = Math.imul(h ^ (h >>> 13), 1274126177);
+    return ((h ^ (h >>> 16)) >>> 0) / 4294967295;
+  };
+  const sm = (t: number) => t * t * (3 - 2 * t);
+  function noise(x: number, y: number, z: number) {
+    const xi = Math.floor(x), yi = Math.floor(y), zi = Math.floor(z);
+    const xf = sm(x - xi), yf = sm(y - yi), zf = sm(z - zi);
+    const l = (a: number, b: number, t: number) => a + (b - a) * t;
+    const c = (dx: number, dy: number, dz: number) => hash(xi + dx, yi + dy, zi + dz);
+    return l(l(l(c(0,0,0), c(1,0,0), xf), l(c(0,1,0), c(1,1,0), xf), yf),
+             l(l(c(0,0,1), c(1,0,1), xf), l(c(0,1,1), c(1,1,1), xf), yf), zf);
+  }
 
   function init(root: HTMLElement) {
     const cv = root.querySelector('canvas')!;
@@ -93,97 +139,76 @@ const links = [
     if (!ctx) return;
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    let W = 0, H = 0, cell = 10, cols = 0, rows = 0, ox = 0, oy = 0, RX = 1, RY = 1;
-    let heat = new Float32Array(0), col = new Int8Array(0), key = new Int16Array(0);
-    const ps: P[] = [];
-    let mx = -9999, my = -9999, spawnAcc = 0;
+    // "Your device" line, like the reference
+    const dev = root.querySelector('.device');
+    if (dev) {
+      const ua = navigator.userAgent;
+      const os = /iPhone|iPad/.test(ua) ? 'iOS' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'macOS' : /Win/.test(ua) ? 'Windows' : /Linux/.test(ua) ? 'Linux' : 'Web';
+      dev.textContent = `${os} · ${screen.width}×${screen.height}`;
+    }
+
+    let W = 0, H = 0, cols = 0, rows = 0;
+    let idx = new Int8Array(0);
+    let mx = -1e4, my = -1e4, glow = 0;
 
     function size() {
       const dpr = Math.min(devicePixelRatio || 1, 2);
       W = root.clientWidth; H = root.clientHeight;
-      cell = W < 700 ? 7 : 10;
       cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
-      cols = Math.ceil(W / cell); rows = Math.ceil(H / cell);
-      heat = new Float32Array(cols * rows); col = new Int8Array(cols * rows); key = new Int16Array(cols * rows);
-      ox = W / 2; oy = H + 24;               // the source sits just below the bottom edge
-      // How far pixels travel before fading: a wide, low arc that keeps clear of the text
-      RX = W * 0.5; RY = H * 0.5;
+      cols = Math.ceil(W / CELL); rows = Math.ceil(H / CELL);
+      idx = new Int8Array(cols * rows);
     }
-
     root.addEventListener('pointermove', (e) => { const r = cv.getBoundingClientRect(); mx = e.clientX - r.left; my = e.clientY - r.top; });
-    root.addEventListener('pointerleave', () => { mx = my = -9999; });
+    root.addEventListener('pointerleave', () => { mx = my = -1e4; });
 
-    // Distance from the source, measured on the wide arc (1 = the edge of the arc)
-    const reach = (p: P) => Math.hypot((p.x - ox) / RX, (p.y - oy) / RY);
+    let t0 = performance.now(), lastDraw = 0, running = false, raf = 0;
 
-    function spawn() {
-      // A fan of directions around straight up, denser toward the middle
-      const a = rand(-1.45, 1.45);                       // ≈ ±83°, spread evenly
-      const sp = rand(60, 130);
-      // Horizontal speed is stretched so the fan opens wide and low
-      ps.push({ x: ox + rand(-30, 30), y: oy, vx: Math.sin(a) * sp * (RX / RY), vy: -Math.cos(a) * sp, age: 0, life: rand(0.55, 1), jit: Math.random() });
-    }
-
-    function step(dt: number) {
-      spawnAcc += dt * 40 * (W / 1340 + 0.3);
-      while (spawnAcc >= 1) { if (ps.length < 1400) spawn(); spawnAcc--; }
-      for (let k = ps.length - 1; k >= 0; k--) {
-        const p = ps[k];
-        // Gentle swirl (same direction as the hero's spiral) and a little drag
-        const curl = 0.32 * dt, c = Math.cos(curl), s = Math.sin(curl);
-        const vx = p.vx * c - p.vy * s; p.vy = p.vx * s + p.vy * c; p.vx = vx;
-        p.vx *= 1 - 0.12 * dt; p.vy *= 1 - 0.12 * dt;
-        if (mx > -999) {
-          const ex = p.x - mx, ey = p.y - my, ed = Math.hypot(ex, ey);
-          if (ed < 90 && ed > 0.1) { const f = (1 - ed / 90) * 260 * dt; p.vx += (ex / ed) * f; p.vy += (ey / ed) * f; }
+    function draw(now: number) {
+      const t = reduced ? 0 : (now - t0) / 1000;
+      glow += ((mx > -1e3 ? 1 : 0) - glow) * 0.08;
+      const n = STOPS.length - 1;
+      const z = t * 0.05;
+      const fadeRows = Math.ceil((W < 700 ? 64 : 110) / CELL);   // ragged pixel edge into the white page, like the hero's
+      for (let r = 0; r < rows; r++) {
+        const yf = (r + 0.5) / rows;
+        // Ease so the top stays dark for a while, like the reference
+        const base = Math.pow(yf, 1.35);
+        for (let c = 0; c < cols; c++) {
+          const i = r * cols + c;
+          const b = BAYER[(r & 3) * 4 + (c & 3)];
+          if (r < fadeRows && hash(c, r, 3) > Math.pow((r + 0.5) / fadeRows, 1.4)) { idx[i] = -1; continue; }
+          const xf = (c + 0.5) / cols;
+          // Soft clouds: two octaves of slowly drifting noise, strongest in the middle band
+          const cloud = noise(xf * 3.2 + t * 0.03, yf * 2.4, z) * 0.65 + noise(xf * 7 - t * 0.02, yf * 5, z + 9) * 0.35;
+          let v = base + (cloud - 0.5) * 0.22 * Math.sin(Math.PI * Math.min(1, yf * 1.15));
+          // Cursor warms the area around it
+          if (glow > 0.01) {
+            const dx = (c + 0.5) * CELL - mx, dy = (r + 0.5) * CELL - my;
+            v += glow * 0.12 * Math.exp(-(dx * dx + dy * dy) / (2 * 140 * 140));
+          }
+          // Ordered dithering between neighbouring stops
+          const f = Math.max(0, Math.min(n, v * n));
+          const lo = Math.floor(f);
+          idx[i] = Math.min(n, lo + (f - lo > b ? 1 : 0));
         }
-        p.x += p.vx * dt; p.y += p.vy * dt; p.age += dt;
-        if (reach(p) > p.life + 0.1 || p.x < -20 || p.x > W + 20 || p.y < -20) ps.splice(k, 1);
-      }
-    }
-
-    function render() {
-      const fade = Math.pow(0.004, SPEED / 60);
-      for (let i = 0; i < heat.length; i++) heat[i] *= fade;
-      for (const p of ps) {
-        const c = Math.floor(p.x / cell), r = Math.floor(p.y / cell);
-        if (c < 0 || r < 0 || c >= cols || r >= rows) continue;
-        const f = reach(p) / p.life;
-        // Fade in as it leaves the edge, fade out as it reaches its distance
-        const v = clamp01(p.age / 0.8) * clamp01((1 - f) / 0.35);
-        const i = r * cols + c;
-        if (v >= heat[i]) {
-          heat[i] = v;
-          col[i] = Math.max(0, Math.min(PALETTE.length - 1, Math.floor(f * PALETTE.length + (p.jit - 0.5) * 2.2)));
-        }
-      }
-      for (let i = 0; i < heat.length; i++) {
-        const v = heat[i];
-        key[i] = v > 0.62 ? col[i] * 3 : v > 0.32 ? col[i] * 3 + 1 : v > 0.1 ? col[i] * 3 + 2 : -1;
       }
       ctx!.clearRect(0, 0, W, H);
-      const s = cell - 1;
-      for (let kk = 0; kk < PALETTE.length * 3; kk++) {
-        ctx!.fillStyle = PALETTE[Math.floor(kk / 3)]; ctx!.globalAlpha = ALPHAS[kk % 3];
-        for (let i = 0; i < key.length; i++) if (key[i] === kk) ctx!.fillRect((i % cols) * cell, Math.floor(i / cols) * cell, s, s);
+      for (let k = 0; k <= n; k++) {
+        ctx!.fillStyle = STOPS[k];
+        for (let i = 0; i < idx.length; i++) if (idx[i] === k) ctx!.fillRect((i % cols) * CELL, Math.floor(i / cols) * CELL, CELL + 0.5, CELL + 0.5);
       }
-      ctx!.globalAlpha = 1;
     }
 
-    let last = 0, running = false, raf = 0;
     function frame(now: number) {
-      const dt = Math.min(0.05, (now - last) / 1000); last = now;
-      step(dt * SPEED); render();
+      if (now - lastDraw >= 1000 / FPS - 1) { lastDraw = now; draw(now); }
       if (running) raf = requestAnimationFrame(frame);
     }
-    function start() { if (running || reduced) return; running = true; last = performance.now(); raf = requestAnimationFrame(frame); }
+    function start() { if (running || reduced) return; running = true; raf = requestAnimationFrame(frame); }
     function stop() { running = false; cancelAnimationFrame(raf); }
-    function warm() { ps.length = 0; for (let k = 0; k < 600; k++) { step((1 / 60) * SPEED * 1.6); render(); } }
 
-    size();
-    warm();   // start mid-flow, so it never looks empty when scrolled into view
-    new ResizeObserver(() => { size(); warm(); if (!running) render(); }).observe(root);
+    size(); draw(performance.now());
+    new ResizeObserver(() => { size(); draw(performance.now()); }).observe(root);
     new IntersectionObserver(([e]) => (e.isIntersecting ? start() : stop()), { threshold: 0 }).observe(root);
     document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
   }
