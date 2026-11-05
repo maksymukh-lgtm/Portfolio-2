@@ -7,7 +7,7 @@ export const selectedWorks = [
   {
     slug: 'phone-intake',
     title: 'Digitizing Phone-Based Intake',
-    summary: "I replaced MassAbility's manual phone intake with a guided online application, cutting drop-offs by 80%.",
+    summary: 'Replaced MassAbility’s phone intake with an online application for residents, cutting drop-offs by 80%.',
     bg: '#fde6d2',      // peach (hero: #f8cfa6)
     border: '#ebcbb0',
     image: '/work/intake.webp',
@@ -16,7 +16,7 @@ export const selectedWorks = [
   {
     slug: 'spreadsheets-to-platform',
     title: 'From Spreadsheets to Platform',
-    summary: 'Service reporting, spend tracking and fund requests moved from spreadsheets and email to one platform.',
+    summary: 'Moved MassAbility providers’ reporting, spending and fund requests from spreadsheets to one platform.',
     bg: '#d3ece8',      // seafoam teal (hero: #8fc3bd)
     border: '#b4d4cf',
     image: '/work/service-hours.webp',
@@ -25,7 +25,7 @@ export const selectedWorks = [
   {
     slug: 'tracking-care',
     title: 'Tracking Care for Participants',
-    summary: 'A tool for providers to track and report the services each Supported Living participant receives.',
+    summary: 'A MassAbility tool for providers to track services delivered to each Supported Living participant.',
     bg: '#e5f0ec',      // misty aqua (hero: #c3ddd5)
     border: '#c6d9d2',
     image: '/work/sl-quarter.webp',
@@ -33,8 +33,8 @@ export const selectedWorks = [
   },
   {
     slug: 'career-reporting',
-    title: 'Reporting for Career Programs',
-    summary: "Reporting for MassAbility's career and student services, designed around their own rules and users.",
+    title: 'Career and Student Reporting',
+    summary: 'Reporting for MassAbility providers serving students and job seekers, built around the program’s rules.',
     bg: '#fff1c4',      // sunshine (hero: #fde27a)
     border: '#ead899',
     image: '/work/cies-reports.webp',
