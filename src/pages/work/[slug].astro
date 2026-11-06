@@ -4,6 +4,7 @@ import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import ImageSlot from '../../components/case/ImageSlot.astro';
 import Icon from '../../components/Icon.astro';
+import CardSort from '../../components/case/CardSort.astro';
 import { caseStudies } from '../../data/caseStudies.js';
 import { selectedWorks } from '../../data/projects.js';
 
@@ -73,7 +74,7 @@ let n = 0;
           </div>
 
           {b.type === 'section' && b.image && (
-            <div class="block-wide"><ImageSlot image={b.image} /></div>
+            <div class="block-wide">{b.image.type === 'cardsort' ? <CardSort image={b.image} /> : <ImageSlot image={b.image} />}</div>
           )}
 
           {b.type === 'features' && (

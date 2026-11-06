@@ -1,0 +1,172 @@
+---
+/*
+  Interactive card sort: a wireframe in the middle of a coloured panel,
+  surrounded by sticky notes from the card sorting exercise. Notes can be
+  dragged with a mouse or finger, or focused and moved with the arrow keys.
+  Props: { src, alt, notes: [{ text, x, y, r, mx?, my? }] } — x/y are % of the panel, r is tilt in degrees;
+  mx/my are phone positions (notes without them are hidden on phones).
+*/
+const { image } = Astro.props;
+---
+<figure class="sort">
+  <div class="board" data-board>
+    <img class="wire tonal-shadow" src={image.src} alt={image.alt} loading="lazy" decoding="async" />
+    {image.notes.map((n) => (
+      <button
+        type="button"
+        class:list={['note', { 'desktop-only': n.mx === undefined }]}
+        data-x={n.x} data-y={n.y} data-mx={n.mx} data-my={n.my}
+        style={`--x:${n.x}%;--y:${n.y}%;--r:${n.r || 0}deg`}
+        aria-label={`Sticky note: ${n.text}. Drag, or use arrow keys to move.`}
+      >{n.text}</button>
+    ))}
+    <p class="hint" aria-hidden="true">Drag the notes around</p>
+  </div>
+  {image.caption && <figcaption>{image.caption}</figcaption>}
+</figure>
+
+<style>
+  .sort { margin: 0; }
+  .board {
+    --surface: var(--accent, #f7f7f7);
+    position: relative;
+    aspect-ratio: 16 / 7.5;
+    background: var(--accent, #f7f7f7);
+    border-radius: 12px;
+    overflow: hidden;
+    touch-action: none;           /* dragging a note shouldn't scroll the page */
+    user-select: none;
+  }
+  .wire {
+    position: absolute;
+    left: 32%;
+    top: 9%;
+    width: 36%;
+    height: auto;
+    border-radius: 8px;
+    pointer-events: none;
+  }
+
+  /* Sticky note, styled after the ones on the research board */
+  .note {
+    --shade: color-mix(in srgb, #fdd866, #6b4a00 55%);
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: clamp(64px, 7.5%, 108px);
+    aspect-ratio: 1;
+    padding: 0.6em 0.65em;
+    border: 0;
+    border-radius: 2px;
+    background: #fdd866;
+    color: #2a2208;
+    font: inherit;
+    font-size: clamp(0.625rem, 0.5rem + 0.3vw, 0.8125rem);
+    line-height: 1.3;
+    text-align: left;
+    display: flex;
+    align-items: flex-start;
+    cursor: grab;
+    transform: rotate(var(--r));
+    box-shadow:
+      0 1px 2px color-mix(in srgb, var(--shade) 25%, transparent),
+      0 8px 16px -10px color-mix(in srgb, var(--shade) 60%, transparent);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .note:hover { transform: rotate(var(--r)) translateY(-2px); }
+  .note:focus-visible { outline: 2px solid #2a2208; outline-offset: 3px; }
+  .note.dragging {
+    cursor: grabbing;
+    transform: rotate(calc(var(--r) * 0.3)) scale(1.06);
+    box-shadow:
+      0 2px 4px color-mix(in srgb, var(--shade) 25%, transparent),
+      0 22px 30px -14px color-mix(in srgb, var(--shade) 70%, transparent);
+    transition: box-shadow 0.2s ease, transform 0.15s ease;
+  }
+
+  .hint {
+    position: absolute;
+    right: 1.25rem;
+    bottom: 1rem;
+    margin: 0;
+    font-family: 'Geist Mono', ui-monospace, monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--accent, #f7f7f7), #3a2010 55%);
+    pointer-events: none;
+  }
+  figcaption { margin-top: 0.75rem; font-size: 0.875rem; color: #6b6b6b; }
+
+  /* Phones: a taller board with a bigger wireframe; notes keep their % positions */
+  @media (max-width: 700px) {
+    .board { aspect-ratio: 1 / 1.15; }
+    .wire { left: 10%; top: 24%; width: 80%; }
+    .hint { display: none; }
+    .note { width: 72px; font-size: 0.625rem; }
+    .desktop-only { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { .note, .note.dragging { transition: none; } }
+</style>
+
+<script>
+  function init(board: HTMLElement) {
+    let z = 10;
+    const notes = [...board.querySelectorAll<HTMLElement>('.note')];
+    // Phones use their own starting positions (fewer notes, around a bigger wireframe)
+    const mq = matchMedia('(max-width: 700px)');
+    const reset = () => notes.forEach((el) => {
+      const m = mq.matches && el.dataset.mx !== undefined;
+      el.style.setProperty('--x', `${m ? el.dataset.mx : el.dataset.x}%`);
+      el.style.setProperty('--y', `${m ? el.dataset.my : el.dataset.y}%`);
+    });
+    reset();
+    mq.addEventListener('change', reset);
+
+    const place = (el: HTMLElement, xPct: number, yPct: number) => {
+      const bw = board.clientWidth, bh = board.clientHeight;
+      const maxX = 100 - (el.offsetWidth / bw) * 100, maxY = 100 - (el.offsetHeight / bh) * 100;
+      el.style.setProperty('--x', `${Math.max(0, Math.min(maxX, xPct))}%`);
+      el.style.setProperty('--y', `${Math.max(0, Math.min(maxY, yPct))}%`);
+    };
+
+    notes.forEach((el) => {
+      let startX = 0, startY = 0, ox = 0, oy = 0, moved = false;
+
+      el.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        el.setPointerCapture(e.pointerId);
+        el.style.zIndex = String(++z);
+        el.classList.add('dragging');
+        startX = e.clientX; startY = e.clientY;
+        ox = parseFloat(el.style.getPropertyValue('--x')); oy = parseFloat(el.style.getPropertyValue('--y'));
+        moved = false;
+      });
+      el.addEventListener('pointermove', (e) => {
+        if (!el.hasPointerCapture(e.pointerId)) return;
+        moved = true;
+        place(el, ox + ((e.clientX - startX) / board.clientWidth) * 100, oy + ((e.clientY - startY) / board.clientHeight) * 100);
+      });
+      const end = (e: PointerEvent) => {
+        if (!el.classList.contains('dragging')) return;
+        el.classList.remove('dragging');
+        if (el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId);
+        // A fresh small tilt each time it's put down, like a real sticky note
+        if (moved) el.style.setProperty('--r', `${(Math.random() * 8 - 4).toFixed(1)}deg`);
+      };
+      el.addEventListener('pointerup', end);
+      el.addEventListener('pointercancel', end);
+
+      // Keyboard: arrow keys move the focused note (Shift = bigger steps)
+      el.addEventListener('keydown', (e) => {
+        const step = e.shiftKey ? 5 : 1;
+        const d: Record<string, [number, number]> = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
+        if (!d[e.key]) return;
+        e.preventDefault();
+        el.style.zIndex = String(++z);
+        place(el, parseFloat(el.style.getPropertyValue('--x')) + d[e.key][0], parseFloat(el.style.getPropertyValue('--y')) + d[e.key][1]);
+      });
+    });
+  }
+  document.querySelectorAll<HTMLElement>('[data-board]').forEach(init);
+</script>

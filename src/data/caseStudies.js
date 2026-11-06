@@ -5,6 +5,7 @@
 //     `icon` is an Iconoir icon name (browse them at iconoir.com); without one, the card shows its number
 //   { type: 'metrics', title, intro, items: [{ value | icon, title, text }] }  (value = a short figure like '80%')
 // An image with `placeholder` (and no `src`) shows a labelled grey frame until you add the real file.
+// `type: 'cardsort'` shows the wireframe with draggable sticky notes (see CardSort.astro).
 // `layers: [{ src, alt, x, y, w }]` composes several images on the coloured panel (x, y, w in %).
 // `frame: true` sets a real image on a panel in the project's colour, with rounded corners.
 export const caseStudies = {
@@ -51,10 +52,31 @@ export const caseStudies = {
           'Before designing any screens, we had to fix the content. We started with the full list of intake questions and reorganized them into a logical order, making sure nothing the agency needed was missed. Because intake feeds several programs, I worked with stakeholders from different programs and departments to confirm that every team’s information was captured in one flow.',
         ],
         image: {
-          ratio: '16 / 7',
-          layers: [
-            { src: '/work/intake-structure-board.webp', alt: 'Current application structure: the full list of intake questions, grouped on sticky notes', x: 5, y: 8, w: 58 },
-            { src: '/work/intake-wireframe.webp', alt: 'Wireframe of the restructured application: the Work status step with section navigation', x: 52, y: 26, w: 41 },
+          type: 'cardsort',
+          src: '/work/intake-wireframe.webp',
+          alt: 'Wireframe of the restructured application: the Work status step with section navigation',
+          notes: [
+            { text: 'First Name', x: 2, y: 6, r: -3, mx: 3, my: 3 },
+            { text: 'Middle Name', x: 11.5, y: 4, r: 2, mx: 27, my: 1 },
+            { text: 'Last name', x: 21, y: 7, r: -1, mx: 51, my: 4 },
+            { text: 'Preferred name', x: 3, y: 33, r: 2, mx: 75, my: 2 },
+            { text: 'Previously used name', x: 12, y: 30, r: -2 },
+            { text: 'DOB', x: 21.5, y: 35, r: 3 },
+            { text: 'Age', x: 2, y: 60, r: -2 },
+            { text: 'Social security number', x: 11.5, y: 58, r: 1 },
+            { text: 'Alien Registration Number', x: 21, y: 62, r: -3 },
+            { text: 'Email address', x: 71, y: 5, r: 2, mx: 3, my: 75 },
+            { text: 'Home Phone Number', x: 80.5, y: 8, r: -2, mx: 27, my: 75 },
+            { text: 'Cell phone number', x: 90, y: 4, r: 3, mx: 51, my: 75 },
+            { text: 'Preferred method of communication', x: 71.5, y: 33, r: -1, mx: 75, my: 75 },
+            { text: 'Preferred Language (Spoken)', x: 81, y: 30, r: 2 },
+            { text: 'Preferred Language (written)', x: 90, y: 35, r: -3 },
+            { text: 'Gender', x: 71, y: 61, r: 3 },
+            { text: 'Ethnicity', x: 80.5, y: 58, r: -2 },
+            { text: 'Race', x: 90, y: 62, r: 1 },
+            { text: 'Do you have a veteran status?', x: 34, y: 72, r: -2 },
+            { text: 'Do you have a citizenship status?', x: 45, y: 74, r: 2 },
+            { text: 'Gender Pronoun', x: 56, y: 71, r: -1 },
           ],
         },
       },
