@@ -191,9 +191,21 @@ export const caseStudies = {
           { icon: 'stats-report', title: 'Progress reports', text: 'Providers submit their monthly or quarterly reports in a structured format, so requested and delivered services can be compared.' },
           { icon: 'user-circle', title: 'Participant data review', text: 'The agency and providers can review participant information and service history in one place.' },
         ],
-        images: [
-          { placeholder: 'Key screen: a service plan in review', ratio: '4 / 3' },
-          { placeholder: 'Key screen: the progress report form', ratio: '4 / 3' },
+        showcase: [
+          {
+            bg: '#e5f0ec',
+            title: 'Plans start from what\u2019s already approved.',
+            subtitle: 'Hours authorized, used and requested sit right above the services being updated.',
+            icons: ['clipboard-check'],
+            shots: [{ src: '/work/sl-update-services.webp', alt: 'Updating authorized services: the active service authorization with remaining balance, monthly utilization, and each service area with authorized and requested hours' }],
+          },
+          {
+            bg: '#fde6d2',
+            title: 'Reports follow the service plan.',
+            subtitle: 'Service areas in the active plan are pre-selected, so providers only confirm what they delivered.',
+            icons: ['stats-report'],
+            shots: [{ src: '/work/sl-service-areas.webp', alt: 'Quarterly progress report: selecting the service areas provided this period, with areas from the service plan pre-selected and tagged' }],
+          },
         ],
       },
       {
