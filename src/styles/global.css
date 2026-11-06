@@ -76,8 +76,8 @@ a { color: inherit; }
   --shade: color-mix(in srgb, var(--surface, #ffffff), #1a0d05 62%);
   --shade: oklch(from var(--surface, #ffffff) calc(l - 0.42) calc(c * 3 + 0.02) h);
   box-shadow:
-    0 1px 2px color-mix(in srgb, var(--shade) 18%, transparent),
-    0 14px 36px -14px color-mix(in srgb, var(--shade) 55%, transparent);
+    0 1px 2px color-mix(in srgb, var(--shade) 10%, transparent),
+    0 14px 40px -16px color-mix(in srgb, var(--shade) 32%, transparent);
 }
 
 /* Side lines running the full height of the page. They stay close to the
