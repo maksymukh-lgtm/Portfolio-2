@@ -93,8 +93,30 @@ export const caseStudies = {
           { icon: 'help-circle', title: 'Contextual help panel', text: 'A side panel updates as each field is selected, explaining exactly what that question needs.' },
         ],
         images: [
-          { placeholder: 'Key screen: a question with the contextual help panel open', ratio: '4 / 3' },
-          { placeholder: 'Key screen: the narration controls and speech to text', ratio: '4 / 3' },
+          {
+            ratio: '4 / 3',
+            layers: [
+              {
+                src: '/work/intake-help-panel.webp', x: 5, y: 9, w: 90,
+                alt: 'A contact information step with the cell phone field selected and the help panel explaining that field',
+                marks: [
+                  { x: 1, y: 45.5, w: 49.5, h: 7.5, label: 'Selected field', side: 'bottom-right' },
+                  { x: 58.5, y: 2.5, w: 37.5, h: 26, label: 'Contextual help', side: 'bottom' },
+                ],
+              },
+            ],
+          },
+          {
+            ratio: '4 / 3',
+            layers: [
+              { src: '/work/intake-audio-controls.webp', x: 8, y: 14, w: 42, label: 'Captions and narration controls',
+                alt: 'Toolbar with captions, audio, back, pause and forward controls' },
+              { src: '/work/intake-speech-field.webp', x: 8, y: 42, w: 76, label: 'Speech to text on every field',
+                alt: 'A cell phone number field with a microphone button for dictating the answer' },
+              { src: '/work/intake-captions.webp', x: 5, y: 69, w: 90, label: 'Narration captions',
+                alt: 'Caption bar reading the current narration aloud: now let\u2019s review your contact information' },
+            ],
+          },
         ],
       },
       {

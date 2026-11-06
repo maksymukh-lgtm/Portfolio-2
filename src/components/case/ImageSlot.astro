@@ -9,8 +9,15 @@ const ratio = image.ratio || '16 / 9';
     ? (
       <div class="panel comp" style={`--ratio:${ratio}`}>
         {image.layers.map((l) => (
-          <img class="tonal-shadow" src={l.src} alt={l.alt || ''} loading="lazy" decoding="async"
-            style={`left:${l.x}%;top:${l.y}%;width:${l.w}%`} />
+          <div class="layer" style={`left:${l.x}%;top:${l.y}%;width:${l.w}%`}>
+            <img class="tonal-shadow" src={l.src} alt={l.alt || ''} loading="lazy" decoding="async" />
+            {l.marks?.map((m) => (
+              <span class="mark" style={`left:${m.x}%;top:${m.y}%;width:${m.w}%;height:${m.h}%`}>
+                {m.label && <span class={`pill pill-${m.side || 'top'}`}>{m.label}</span>}
+              </span>
+            ))}
+            {l.label && <span class="pill pill-under">{l.label}</span>}
+          </div>
         ))}
       </div>
     )
@@ -72,6 +79,33 @@ const ratio = image.ratio || '16 / 9';
   }
   /* Composition: several images layered on the panel, placed by % */
   .comp { position: relative; aspect-ratio: var(--ratio); overflow: hidden; }
-  .comp img { position: absolute; height: auto; }
+  .comp .layer { position: absolute; }
+  .comp .layer img { display: block; width: 100%; height: auto; }
+
+  /* Highlights: an outlined area on a layer, with an optional label pill */
+  .mark {
+    position: absolute;
+    border: 2px solid var(--highlight, #e46a1e);
+    border-radius: 8px;
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--highlight, #e46a1e) 18%, transparent);
+    pointer-events: none;
+  }
+  .pill {
+    position: absolute;
+    white-space: nowrap;
+    padding: 0.3em 0.65em;
+    border-radius: 999px;
+    background: var(--highlight, #e46a1e);
+    color: #fff;
+    font-family: 'Geist Mono', ui-monospace, monospace;
+    font-size: clamp(0.5625rem, 0.45rem + 0.3vw, 0.75rem);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1.2;
+  }
+  .pill-top { left: -2px; bottom: calc(100% + 8px); }
+  .pill-bottom { left: -2px; top: calc(100% + 8px); }
+  .pill-bottom-right { right: -2px; top: calc(100% + 8px); }
+  .pill-under { left: 0; top: calc(100% + 10px); background: color-mix(in srgb, var(--accent, #f7f7f7), #3a1a08 70%); }
   figcaption { margin-top: 0.75rem; font-size: 0.875rem; color: #6b6b6b; }
 </style>
