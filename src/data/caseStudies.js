@@ -16,7 +16,7 @@ export const caseStudies = {
       { label: 'Timeline', value: '[add]', placeholder: true },
       { label: 'Organization', value: 'MassAbility' },
     ],
-    cover: { src: '/work/intake-cover.webp', alt: 'The online intake application: step navigation, the Personal Information form with speech-to-text fields, and a help panel' },
+    cover: { src: '/work/intake-cover-v2.webp', alt: 'The online intake application: step navigation, the Personal Information form with speech-to-text fields, and a help panel' },
     problem: 'How can we let people with disabilities complete MassAbility intake on their own terms, without waiting for a phone call?',
     outcome: 'We launched an accessible intake platform that 80% of applicants now complete on their own. The rest get help from case managers through follow-up.',
     blocks: [
