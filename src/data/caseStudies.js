@@ -168,7 +168,36 @@ export const caseStudies = {
         body: [
           'The blueprint surfaced more opportunities than we could build. With limited time and budget, and multiple teams collaborating, we needed clear priorities. We ran a MoSCoW exercise with stakeholders to decide what had to be in the first release, then confirmed the final feature set with everyone involved.',
         ],
-        image: { src: '/work/sl-moscow-v2.webp', alt: 'MoSCoW prioritization board, Service Plan creation and maintenance: features grouped into plan list, plan authoring, plan content and approval, with the one deferred feature tagged won\u2019t have, and a pinned list of all service areas', frame: true },
+        image: {
+          type: 'moscow',
+          title: 'SL reporting platform: first release',
+          note: 'Calculations, eligibility decisions and payments stay in MassAbility\u2019s own system (OnBase). The platform covers data entry, tracking, visibility and workflow status.',
+          columns: [
+            {
+              priority: 'must',
+              label: 'Must have',
+              hint: 'Service plan creation and maintenance',
+              groups: [
+                { name: 'Initial plan list', audience: 'provider', items: ['View participants who need an initial Service Plan', 'Identify overdue or pending plans', 'Open a system-generated blank plan'] },
+                { name: 'Service Plan authoring', audience: 'provider', items: ['Create initial Service Plan', 'Save draft', 'Submit initial Service Plan', 'View submission status'] },
+                { name: 'Service Plan content', audience: 'provider', items: ['Review prefilled participant data', 'Review provider and coordinator data', 'Select applicable service areas', 'Select supported tasks', 'Define measurable goals and narrative', 'Request additional service levels', 'Justify additional services', 'Enter anticipated monthly service hours', 'Identify priority tasks', 'Request a participant data update'] },
+                { name: 'Approval and revision', audience: 'provider', items: ['View MassAbility comments', 'Edit returned plans', 'Resubmit corrected plans'] },
+              ],
+            },
+            {
+              priority: 'wont',
+              label: 'Won\u2019t have (this release)',
+              hint: 'Referral and intake stay in existing tools for now',
+              groups: [
+                { name: 'Referral review and acceptance', audience: 'provider', items: ['Review available referrals', 'Review referral information', 'Accept or reject referrals'] },
+                { name: 'SL assessment', audience: 'provider', items: ['Create SL assessment', 'Save assessment drafts', 'Resume incomplete assessments', 'Capture assessment data', 'Submit completed assessments', 'Route for supervisor approval', 'View assessment status'] },
+                { name: 'Referral and authorization', audience: 'agency', items: ['Create SL referral', 'Associate referral with provider', 'Track referral status', 'Issue service authorization'] },
+                { name: 'Review and record maintenance', audience: 'agency', items: ['Review submitted assessments', 'Validate eligibility criteria', 'Maintain assessment records', 'Generate and email assessment PDF'] },
+                { name: 'Service plan extras', audience: 'provider', items: ['Internal supervisor review', 'Upload supporting documents'] },
+              ],
+            },
+          ],
+        },
       },
       {
         type: 'features',

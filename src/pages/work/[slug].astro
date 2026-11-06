@@ -6,6 +6,7 @@ import ImageSlot from '../../components/case/ImageSlot.astro';
 import Icon from '../../components/Icon.astro';
 import CardSort from '../../components/case/CardSort.astro';
 import FeatureShowcase from '../../components/case/FeatureShowcase.astro';
+import MoscowBoard from '../../components/case/MoscowBoard.astro';
 import { caseStudies } from '../../data/caseStudies.js';
 import { selectedWorks } from '../../data/projects.js';
 
@@ -77,7 +78,7 @@ let n = 0;
           </div>
 
           {b.type === 'section' && b.image && (
-            <div class="block-wide">{b.image.type === 'cardsort' ? <CardSort image={b.image} /> : <ImageSlot image={b.image} />}</div>
+            <div class="block-wide">{b.image.type === 'cardsort' ? <CardSort image={b.image} /> : b.image.type === 'moscow' ? <MoscowBoard board={b.image} /> : <ImageSlot image={b.image} />}</div>
           )}
 
           {b.type === 'features' && (
