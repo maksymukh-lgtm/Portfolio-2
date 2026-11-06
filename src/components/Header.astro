@@ -1,7 +1,7 @@
 ---
 const links = [
   { href: '/#work', label: 'Work' },
-  { href: '/resume', label: 'Resume' },
+  { href: '/Hanna_Maksymuk_CV.pdf', label: 'Resume', external: true },   // opens the PDF in a new tab
   { href: '/#contacts', label: 'Contacts' },
 ];
 ---
@@ -9,7 +9,7 @@ const links = [
   <a class="name" href="/">Hanna Maksymuk</a>
   <nav aria-label="Main">
     <ul>
-      {links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+      {links.map((l) => <li><a href={l.href} {...(l.external ? { target: '_blank', rel: 'noopener' } : {})}>{l.label}</a></li>)}
     </ul>
   </nav>
 </header>
