@@ -279,7 +279,22 @@ export const caseStudies = {
         body: [
           'The blueprint made it clear there was more to solve than one release could cover. We ran a MoSCoW exercise with stakeholders to agree on what had to be built first and what could wait.',
         ],
-        image: { placeholder: 'MoSCoW prioritization board', ratio: '16 / 7' },
+        image: {
+          type: 'moscow',
+          phase: 'Service delivery, ongoing tracking and billing',
+          note: 'Billing depends on OnBase for authorized limits and review outcomes; OnBase depends on the platform for complete, structured billing submissions.',
+          legend: true,
+          groups: [
+            { name: 'Service delivery logging', audience: 'provider', items: [{ text: 'Log service hours' }, { text: 'Log activities and transportation' }, { text: 'Log standard and non-standard purchases' }] },
+            { name: 'Billing data capture & submission', audience: 'provider', items: [{ text: 'Generate billing data (SDR) from logged services and purchases', should: true }, { text: 'Submit monthly billing activity' }, { text: 'Upload supporting documentation', should: true }] },
+            { name: 'Billing review & correction loop', audience: 'provider', items: [{ text: 'Receive billing status from OnBase' }, { text: 'Receive requests to correct billing' }, { text: 'Update logged services or purchases' }, { text: 'Resubmit corrected billing' }] },
+            { name: 'Plan-aware visibility', audience: 'provider', items: [{ text: 'Display authorized plan limits during entry' }, { text: 'Track cumulative usage across months' }, { text: 'Reflect remaining authorized amounts' }, { text: 'Track billing submission deadlines' }] },
+            { name: 'Soft validation & flexibility', audience: 'provider', items: [{ text: 'Soft-flag services or purchases over authorized limits', should: true }, { text: 'Support billing date ranges across months' }] },
+            { name: 'Activity & billing intake', audience: 'agency', items: [{ text: 'Receive monthly activity logs and billing' }, { text: 'View detailed breakdown' }, { text: 'Access uploaded documentation' }] },
+            { name: 'Review, correction loop & analytics', audience: 'agency', items: [{ text: 'Review submitted logs and billing' }, { text: 'Return submissions for correction' }, { text: 'Provide correction feedback', should: true }, { text: 'Receive corrected resubmissions' }, { text: 'Track correction cycles' }] },
+            { name: 'Status & tracking', audience: 'agency', items: [{ text: 'View billing status' }, { text: 'Track submission dates and timeliness' }, { text: 'Identify missing or late submissions' }] },
+          ],
+        },
       },
       {
         type: 'features',

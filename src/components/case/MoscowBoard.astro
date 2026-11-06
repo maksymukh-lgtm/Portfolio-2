@@ -4,12 +4,16 @@
   a blue board with a phase header, groups of sticky notes inside dashed
   outlines (purple = provider-facing, pink = MassAbility-facing), small label
   tabs naming each group, and red "Won't have" tags on deferred features.
-  Props (board): { phase, legend?: true, groups: [{ name, audience, items: [{ text, wont? }] }], pinned?: { title, items } }
+  Props (board): { phase, note?, legend?: true, groups: [{ name, audience, items: [{ text, wont?, should? }] }], pinned?: { title, items } }
+  Untagged notes are must-haves; `should` adds a green Should have pill, `wont` a red Won't have pill.
 */
 const { board } = Astro.props;
+const all = board.groups.flatMap((g) => g.items);
+const hasShould = all.some((i) => i.should), hasWont = all.some((i) => i.wont);
 ---
 <figure class="board">
   <div class="phase">{board.phase}</div>
+  {board.note && <p class="b-note">{board.note}</p>}
 
   <div class="canvas">
     <div class="groups">
@@ -18,8 +22,9 @@ const { board } = Astro.props;
           <span class="tab">{g.name}</span>
           <ul class="notes">
             {g.items.map((it) => (
-              <li class={`note${it.wont ? ' wont' : ''}`}>
+              <li class={`note${it.wont ? ' wont' : ''}${it.should ? ' should' : ''}`}>
                 {it.wont && <span class="pill">Won’t have</span>}
+                {it.should && <span class="pill pill-should">Should have</span>}
                 <span class="text">{it.text}</span>
                 <span class="sig">Hanna Maksymuk</span>
               </li>
@@ -35,7 +40,9 @@ const { board } = Astro.props;
           <p class="l-title">Legend</p>
           <p><span class="dash provider"></span>Provider-facing</p>
           <p><span class="dash agency"></span>MassAbility-facing</p>
-          <p><span class="pill">Won’t have</span>Not in this release</p>
+          {hasShould && <p><span class="pill pill-should">Should have</span>Important, not critical</p>}
+          {hasWont && <p><span class="pill">Won’t have</span>Not in this release</p>}
+          <p><span class="plain"></span>No tag: must have</p>
         </div>
       )}
       {board.pinned && (
@@ -119,7 +126,7 @@ const { board } = Astro.props;
     color: #1d1d1d;
   }
   .sig { margin-top: 0.6rem; font-size: 7px; color: #9aa3ab; }
-  .note.wont { margin-top: 0.55rem; }
+  .note.wont, .note.should { margin-top: 0.55rem; }
   .note.wont .text { color: #5c5c5c; }
 
   .pill {
@@ -134,6 +141,19 @@ const { board } = Astro.props;
     white-space: nowrap;
   }
   .note .pill { position: absolute; top: -0.65rem; left: -0.35rem; }
+  .pill-should { background: #c8f0cf; border-color: #4fb36a; color: #1d5a2c; }
+  .plain { width: 18px; height: 14px; background: #fff; border-radius: 2px; box-shadow: 0 1px 2px rgb(40 80 120 / 0.25); flex: none; }
+  /* Dependency note under the phase header */
+  .b-note {
+    margin: 0.6rem clamp(1.25rem, 0.75rem + 2vw, 2.25rem) 0;
+    padding: 0.7rem 1rem;
+    background: color-mix(in srgb, #fff 60%, transparent);
+    border-radius: 6px;
+    text-align: center;
+    font-size: clamp(0.75rem, 0.7rem + 0.2vw, 0.875rem);
+    line-height: 1.45;
+    color: #2c3a44;
+  }
 
   /* Side column: legend and the pinned list */
   .side { display: grid; gap: 1rem; align-content: start; }
