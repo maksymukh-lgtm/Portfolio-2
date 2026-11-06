@@ -16,7 +16,7 @@ export const caseStudies = {
     overview:
       'MassAbility is a Massachusetts government agency that provides services to people with disabilities. Every path to those services starts with intake, a process that involves multiple teams across different programs and departments. For years, the heart of that process was a phone call. I designed the digital platform that replaced it.',
     meta: [
-      { label: 'Role', value: 'Product designer' },
+      { label: 'Role', value: 'UX/UI Designer' },
       { label: 'Timeline', value: 'April 2024 – July 2024' },
       { label: 'Organization', value: 'MassAbility' },
     ],
@@ -139,7 +139,7 @@ export const caseStudies = {
     overview:
       "Supported Living is one of MassAbility's Home and Community Life programs. It helps people with physical disabilities live as independently as possible, in their own homes and communities. The program is grounded in the independent living philosophy: participants are the experts on their own lives, making their own choices and deciding what independence looks like for them. Services are delivered by contracted providers, and I designed the platform they use to plan and report on that work.",
     meta: [
-      { label: 'Role', value: 'Product designer' },
+      { label: 'Role', value: 'UX/UI Designer' },
       { label: 'Timeline', value: 'December 2025 – ongoing' },
       { label: 'Organization', value: 'MassAbility' },
     ],
@@ -239,7 +239,7 @@ export const caseStudies = {
     overview:
       "Transitional Assistance is a MassAbility program that helps participants move from a facility back into the community. Providers support each transition by planning the services and purchases a participant will need, and the program runs on complex business rules. I designed the platform that brought planning, approvals and billing into one place.",
     meta: [
-      { label: 'Role', value: 'Product designer' },
+      { label: 'Role', value: 'UX/UI Designer' },
       { label: 'Timeline', value: 'December 2025 – ongoing' },
       { label: 'Organization', value: 'MassAbility' },
     ],
