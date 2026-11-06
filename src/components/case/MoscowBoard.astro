@@ -60,10 +60,13 @@ const { board } = Astro.props;
     overflow: hidden;
     font-size: 12px;
   }
+  /* White header bar inside the blue board, so the board's rounded corners show */
   .phase {
-    padding: 0.9rem 1rem;
+    margin: clamp(1rem, 0.6rem + 1.2vw, 1.5rem) clamp(1.25rem, 0.75rem + 2vw, 2.25rem) 0;
+    padding: 0.8rem 1rem;
     background: #fff;
-    border-bottom: 1px solid #c9d6e0;
+    border-radius: 6px;
+    box-shadow: 0 1px 2px rgb(40 80 120 / 0.12);
     text-align: center;
     font-size: clamp(0.9375rem, 0.85rem + 0.3vw, 1.0625rem);
   }
@@ -71,7 +74,7 @@ const { board } = Astro.props;
     display: grid;
     grid-template-columns: minmax(0, 1fr) 210px;
     gap: 1.5rem;
-    padding: clamp(1.25rem, 0.75rem + 2vw, 2.25rem);
+    padding: clamp(1.5rem, 1rem + 1.5vw, 2rem) clamp(1.25rem, 0.75rem + 2vw, 2.25rem) clamp(1.25rem, 0.75rem + 2vw, 2.25rem);
   }
   .groups { display: flex; flex-wrap: wrap; gap: 2rem 1.5rem; align-items: flex-start; }
   .group { flex: 0 1 auto; }
