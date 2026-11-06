@@ -79,7 +79,7 @@ export const caseStudies = {
         title: 'Outcomes and metrics',
         intro: 'The platform is live and in use today.',
         items: [
-          { value: '80%', title: 'Completed without help', text: 'Most applicants now finish intake on their own. Case managers help the other 20% through follow-up.' },
+          { icon: 'check-circle', title: '80% complete it on their own', text: 'Most applicants now finish intake without help. Case managers support the other 20% through follow-up.' },
           { icon: 'thumbs-up', title: 'Easy for residents to use', text: 'Applicants describe the new application as easy to use.' },
           { icon: 'user-badge-check', title: 'Well received by staff', text: 'The eligibility team has given the new process great reviews.' },
         ],
