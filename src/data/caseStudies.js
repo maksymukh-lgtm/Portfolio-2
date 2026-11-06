@@ -143,7 +143,7 @@ export const caseStudies = {
       { label: 'Timeline', value: 'December 2025 – ongoing' },
       { label: 'Organization', value: 'MassAbility' },
     ],
-    cover: { src: '/work/sl-quarter.webp', alt: 'Quarterly progress report showing the active service authorization, hours remaining and services to report' },
+    cover: { src: '/work/sl-cover.webp', alt: 'Supported Living participants list with filters, service plan statuses such as due, overdue and under review, and urgent actions for each participant' },
     problem: "How can we help providers and MassAbility plan, approve and report on services, within the program's existing business processes?",
     outcome: "We designed a platform for service plans, approvals and progress reports. Providers gave it enthusiastic feedback in demos, and it's now in active testing.",
     blocks: [
@@ -153,7 +153,6 @@ export const caseStudies = {
         body: [
           'Providers report on the services they deliver every month or quarter, depending on their contract. They did it with a Word document, and approvals went back and forth over email. That made it hard to track what was requested, what was approved and what was actually delivered. Following spending or pulling analytics across providers was close to impossible.',
         ],
-        image: { placeholder: 'An anonymized example of the old Word report or email approval chain', ratio: '16 / 7' },
       },
       {
         type: 'section',
