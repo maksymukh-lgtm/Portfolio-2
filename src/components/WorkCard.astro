@@ -2,9 +2,23 @@
 const { title, summary, image, alt = '', href, bg = 'var(--color-placeholder)', border = 'transparent', comingSoon = false } = Astro.props;
 // A "coming soon" card renders as a plain block (not a link) with a label
 const Tag = comingSoon ? 'div' : 'a';
+// Loose pixels breaking off the band's edges, like the hero animation's dissolving edge
+const PIX = ['#8fc3bd', '#c3ddd5', '#f8cfa6', '#fde27a', '#fcbc45', '#f98f33'];
+const rnd = (n) => { const x = Math.sin(n * 127.1) * 43758.5453; return x - Math.floor(x); };
+const edgePixels = Array.from({ length: 34 }, (_, i) => {
+  const top = i % 2 === 0;
+  return { x: rnd(i + 1) * 100, y: top ? -(1 + Math.floor(rnd(i + 7) * 3)) : (1 + Math.floor(rnd(i + 7) * 3)), top, c: PIX[Math.floor(rnd(i + 3) * PIX.length)] };
+});
 ---
 <div class:list={['wrap', { 'soon-wrap': comingSoon }]}>
-{comingSoon && <span class="band" aria-hidden="true">Coming soon</span>}
+{comingSoon && (
+  <span class="band" aria-hidden="true">
+    {edgePixels.map((p) => (
+      <i class={p.top ? 't' : 'b'} style={`left:${p.x.toFixed(1)}%;--row:${p.y};background:${p.c}`}></i>
+    ))}
+    <span class="band-body"><span class="band-text">Coming soon</span></span>
+  </span>
+)}
 <Tag class:list={['card', { soon: comingSoon }]} href={comingSoon ? undefined : href} style={`--card-bg:${bg};--card-border:${border}`} aria-label={comingSoon ? `${title}, case study coming soon` : undefined}>
   <div class="media">
     {image ? <img class="tonal-shadow" src={image} alt={alt} width="1260" height="1000" loading="lazy" decoding="async" /> : null}
@@ -60,30 +74,52 @@ const Tag = comingSoon ? 'div' : 'a';
   /* The band: a light grey strap across the card, overhanging both edges, at full strength */
   .wrap { position: relative; height: 100%; container-type: inline-size; }
   .band {
+    --cell: 6px;
     position: absolute;
     z-index: 3;
     left: -8px;
     right: -8px;
     top: 66%;
     translate: 0 -50%;
+    height: calc(var(--cell) * 9);
+    pointer-events: none;
+  }
+  /* The band body: a grid of square pixels (like the hero animation) with stepped corners */
+  .band-body {
+    position: absolute;
+    inset: 0;
     display: grid;
     place-items: center;
-    height: clamp(48px, 3rem + 1vw, 64px);
     background:
-      repeating-linear-gradient(90deg, rgb(0 0 0 / 0.025) 0 1px, transparent 1px 3px),
-      linear-gradient(180deg, #f2f2f0, #e2e2df);
-    border-radius: 3px;
-    box-shadow: 0 6px 14px -8px rgb(0 0 0 / 0.25);
-    color: #55554f;
-    font-size: clamp(0.875rem, 0.75rem + 0.35vw, 1.125rem);
+      linear-gradient(90deg, transparent calc(var(--cell) - 1px), #f7f7f5 0) 0 0 / var(--cell) var(--cell),
+      linear-gradient(180deg, transparent calc(var(--cell) - 1px), #f7f7f5 0) 0 0 / var(--cell) var(--cell),
+      #e2e2de;
+    clip-path: polygon(0 var(--cell), var(--cell) var(--cell), var(--cell) 0, calc(100% - var(--cell)) 0, calc(100% - var(--cell)) var(--cell), 100% var(--cell),
+                       100% calc(100% - var(--cell)), calc(100% - var(--cell)) calc(100% - var(--cell)), calc(100% - var(--cell)) 100%, var(--cell) 100%, var(--cell) calc(100% - var(--cell)), 0 calc(100% - var(--cell)));
+  }
+  /* Loose pixels breaking off the top and bottom edges */
+  .band i {
+    position: absolute;
+    width: calc(var(--cell) - 1px);
+    height: calc(var(--cell) - 1px);
+  }
+  .band i.t { bottom: calc(100% + (var(--row) * -1 - 1) * var(--cell)); }
+  .band i.b { top: calc(100% + (var(--row) - 1) * var(--cell)); }
+  .band-text {
+    position: relative;
+    padding: 0 0.9em;
+    color: #3f3f3a;
+    font-family: 'Geist Mono', ui-monospace, monospace;
+    font-size: clamp(0.8125rem, 0.72rem + 0.3vw, 1rem);
     font-weight: 500;
     letter-spacing: 0.22em;
     text-transform: uppercase;
-    pointer-events: none;
+    line-height: calc(var(--cell) * 4);
   }
+
   /* Phones: the card grows taller, so pin the band to the bottom of the screenshot */
   @media (max-width: 700px) {
-    .band { top: calc(86cqw - 6px); }
+    .band { top: calc(86cqw - 34px); }
   }
 
   .text { padding: 1.5rem 1.625rem 1.75rem; }
