@@ -17,7 +17,7 @@ export const caseStudies = {
       'MassAbility is a Massachusetts government agency that provides services to people with disabilities. Every path to those services starts with intake, a process that involves multiple teams across different programs and departments. For years, the heart of that process was a phone call. I designed the digital platform that replaced it.',
     meta: [
       { label: 'Role', value: 'Product designer' },
-      { label: 'Timeline', value: '[add]', placeholder: true },
+      { label: 'Timeline', value: 'April 2024 – July 2024' },
       { label: 'Organization', value: 'MassAbility' },
     ],
     cover: { src: '/work/intake-cover-v2.webp', alt: 'The online intake application: step navigation, the Personal Information form with speech-to-text fields, and a help panel' },
