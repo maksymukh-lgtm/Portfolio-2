@@ -305,7 +305,6 @@ export const caseStudies = {
           { icon: 'git-pull-request', title: 'Approvals and modifications', text: 'Plans are submitted, approved and changed in the platform instead of over email, so everyone sees the current version.' },
           { icon: 'wallet', title: 'Billing connected to the plan', text: 'I added TA-specific features to the Invoice module and connected them to each provider’s TA plan, so billing reflects what was approved.' },
         ],
-        showcaseStack: true,
         showcase: [
           {
             bg: '#d3ece8',
@@ -321,7 +320,6 @@ export const caseStudies = {
             subtitle: 'Each uploaded receipt is matched to the purchases it covers.',
             icons: ['attachment'],
             full: true,
-            stageW: 64,
             shots: [{ src: '/work/ta-invoice-docs.webp', alt: 'Create TA invoice, documents step: upload receipts and select which approved purchases each file covers' }],
           },
         ],
