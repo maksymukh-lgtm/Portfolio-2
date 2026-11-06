@@ -8,7 +8,7 @@ export const caseStudies = {
   'phone-intake': {
     title: 'Digitizing Phone-Based Intake',
     subtitle: 'An accessible online intake application for MassAbility.',
-    intro:
+    overview:
       'MassAbility is a Massachusetts government agency that provides services to people with disabilities. Every path to those services starts with intake, a process that involves multiple teams across different programs and departments. For years, the heart of that process was a phone call. I designed the digital platform that replaced it.',
     meta: [
       { label: 'Role', value: 'Product designer' },

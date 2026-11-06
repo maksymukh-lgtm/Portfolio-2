@@ -22,14 +22,11 @@ let n = 0;
   <Header />
   <main class="case" style={`--accent:${project?.bg || '#f7f7f7'};--accent-border:${project?.border || 'var(--color-line)'}`}>
 
-    <!-- Intro: title on the left, summary on the right (same pattern as the home hero) -->
+    <!-- Intro: back link, title and subtitle -->
     <section class="intro">
-      <div class="intro-main">
-        <a class="back" href="/#work">← Recent work</a>
-        <h1>{cs.title.replace(/-/g, '\u2011')}</h1>   {/* keep hyphenated words together */}
-        <p class="subtitle">{cs.subtitle}</p>
-      </div>
-      <p class="intro-text">{cs.intro}</p>
+      <a class="back" href="/#work">← Recent work</a>
+      <h1>{cs.title.replace(/-/g, '\u2011')}</h1>   {/* keep hyphenated words together */}
+      <p class="subtitle">{cs.subtitle}</p>
     </section>
 
     <!-- Meta strip: cells divided by thin lines -->
@@ -47,6 +44,14 @@ let n = 0;
       <div class="cover">
         <img src={cs.cover.src} alt={cs.cover.alt} />
       </div>
+    )}
+
+    <!-- Overview: its own section, heading left and text right like the story sections -->
+    {cs.overview && (
+      <section class="block overview">
+        <div class="block-head"><h2>Overview</h2></div>
+        <div class="block-body"><p class="lead">{cs.overview}</p></div>
+      </section>
     )}
 
     <!-- Problem / Outcome -->
@@ -122,16 +127,12 @@ let n = 0;
 
   /* Intro */
   .intro {
-    display: grid;
-    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
-    gap: 3rem;
     padding: clamp(3rem, 2rem + 3vw, 5.5rem) var(--inset) clamp(3rem, 2rem + 2.5vw, 4.5rem);
   }
   .back { display: inline-block; margin-bottom: 2rem; font-size: 0.9375rem; color: #6b6b6b; text-decoration: none; }
   .back:hover { color: var(--color-text); }
   h1 { font-size: clamp(2.5rem, 1.5rem + 3.3vw, 4.5rem); font-weight: 500; line-height: 1.04; letter-spacing: -0.025em; }
   .subtitle { margin-top: 1.25rem; font-size: clamp(1.125rem, 1rem + 0.45vw, 1.5rem); line-height: 1.4; color: #5c5c5c; max-width: 32rem; }
-  .intro-text { align-self: end; font-size: 1.25rem; line-height: 1.5; }
 
   /* Meta strip */
   .meta {
@@ -178,6 +179,8 @@ let n = 0;
     padding: clamp(3.5rem, 2rem + 3vw, 5.5rem) var(--inset);
     border-bottom: 1px solid var(--color-line);
   }
+  .overview .block-head h2 { margin-top: 0; }
+  .block-body p.lead { font-size: clamp(1.1875rem, 1rem + 0.5vw, 1.5rem); line-height: 1.55; color: var(--color-text); }
   .block-head h2 { margin-top: 0.75rem; font-size: clamp(1.5rem, 1rem + 1.1vw, 2.125rem); line-height: 1.2; letter-spacing: -0.015em; max-width: 26rem; }
   .block-body p { font-size: 1.125rem; line-height: 1.65; color: var(--color-muted); max-width: 40rem; }
   .block-body p + p { margin-top: 1.2em; }
@@ -223,8 +226,7 @@ let n = 0;
   .next-sub { font-size: 1.0625rem; color: #6b6b6b; max-width: 40rem; }
 
   @media (max-width: 800px) {
-    .intro, .block, .po { grid-template-columns: 1fr; }
-    .intro { gap: 2rem; }
+    .block, .po { grid-template-columns: 1fr; }
     .po-cell + .po-cell { border-left: 0; border-top: 1px solid var(--color-line); }
     .block { row-gap: 1.5rem; }
     .features, .metrics, .pair { grid-template-columns: 1fr; }
