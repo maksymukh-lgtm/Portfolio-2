@@ -330,13 +330,32 @@ export const caseStudies = {
         body: [
           'I presented mockups to the business team regularly, collected their feedback and iterated until the designs were approved. With rules this complex, those review cycles were essential for catching edge cases early and making sure the platform matched how the program really works.',
         ],
-        image: {
-          row: [
-            { src: '/work/service-hours.webp', alt: 'Service hours request: hours requested per category against their thresholds, with a running total' },
-            { src: '/work/ta-purchases.webp', alt: 'Purchases and other categories in the TA plan summary, each with authorized and utilized amounts and an on-track status' },
-            { src: '/work/ta-invoice-docs-v2.webp', alt: 'TA invoice documents step: receipts matched to the approved purchases they cover' },
-          ],
-        },
+        showcase: [
+          {
+            bg: '#d3ece8',
+            title: 'Returned plans show what to change.',
+            subtitle: 'Requested changes are one click away, and updated sections are marked.',
+            icons: ['page-edit'],
+            full: true,
+            shots: [{ src: '/work/ta-modification.webp', alt: 'A TA plan modification returned for changes: status, program notice, a link to the requested changes, and service hours marked as updated' }],
+          },
+          {
+            bg: '#fde6d2',
+            title: 'Requests stay within each limit.',
+            subtitle: 'A live overview shows what\u2019s authorized, requested and still available.',
+            icons: ['shield-check'],
+            full: true,
+            shots: [{ src: '/work/ta-request-limits.webp', alt: 'Purchases request: an additional amount on top of the authorized bedroom and bathroom budget, with a request limit overview per category' }],
+          },
+          {
+            bg: '#fff1c4',
+            title: 'Referrals arrive with a deadline.',
+            subtitle: 'Providers accept or reject in the platform, with due dates up front.',
+            icons: ['alarm'],
+            full: true,
+            shots: [{ src: '/work/ta-referrals.webp', alt: 'Referrals tab: each referred participant with the referral date, a due status such as overdue or days left, and reject or accept actions' }],
+          },
+        ],
       },
       {
         type: 'metrics',
