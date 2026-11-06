@@ -96,7 +96,6 @@ export const caseStudies = {
         showcase: [
           {
             bg: '#fde6d2',
-            tags: [{ text: 'Help panel' }, { text: 'Updates per field', dot: '#e46a1e' }],
             title: 'Help that follows each question.',
             subtitle: 'The side panel explains whichever field is selected.',
             icons: ['help-circle'],
@@ -104,7 +103,6 @@ export const caseStudies = {
           },
           {
             bg: '#d3ece8',
-            tags: [{ text: 'Narration' }, { text: 'Audio on', dot: '#4f8f8a' }],
             title: 'Every question can be heard, read or spoken.',
             subtitle: 'Narration, captions and speech to text are built in.',
             icons: ['sound-high', 'microphone'],

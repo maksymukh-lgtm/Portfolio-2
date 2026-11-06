@@ -18,6 +18,7 @@
   --fs-small: 0.875rem;                           /* 14px */
 
   --radius: 6px;
+  --radius-panel: 12px;   /* every image container / coloured panel on case study pages */
 
   /* Page frame & content edges
      --frame      side lines' distance from the window edge; grows with the screen:

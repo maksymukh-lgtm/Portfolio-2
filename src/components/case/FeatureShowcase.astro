@@ -1,19 +1,14 @@
 ---
 /*
-  Feature showcase card: flat coloured card with tag pills, a short headline and
+  Feature showcase card: flat coloured card with a short headline and
   subline, and product crops inside a soft double frame that fades out at the
   bottom. Optional floating icon tiles sit over the frame's top-right corner.
-  Props (card): { bg, tags: [{ text, dot? }], title, subtitle, icons: [names], shots: [{ src, alt, w? }] } (w = width in %)
+  Props (card): { bg, title, subtitle, icons: [names], shots: [{ src, alt, w? }] } (w = width in %)
 */
 import Icon from '../Icon.astro';
 const { card } = Astro.props;
 ---
 <figure class="showcase" style={`--card:${card.bg}`}>
-  <div class="tags">
-    {card.tags.map((t) => (
-      <span class="tag">{t.dot && <span class="dot" style={`background:${t.dot}`}></span>}{t.text}</span>
-    ))}
-  </div>
   <p class="title">{card.title}</p>
   <p class="subtitle">{card.subtitle}</p>
 
@@ -37,23 +32,10 @@ const { card } = Astro.props;
     flex-direction: column;
     padding: clamp(1.25rem, 0.8rem + 1.2vw, 2rem);
     background: var(--card);
+    border-radius: var(--radius-panel);
     overflow: hidden;
   }
-  .tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }
-  .tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4em;
-    padding: 0.25em 0.6em;
-    border: 1px solid color-mix(in srgb, var(--card), #2a1a10 22%);
-    border-radius: 6px;
-    background: color-mix(in srgb, var(--card), #fff 35%);
-    font-size: 0.75rem;
-    line-height: 1.3;
-    color: #3a3330;
-  }
-  .dot { width: 7px; height: 7px; border-radius: 50%; }
-  .title { margin-top: 1.25rem; font-size: clamp(1.25rem, 1rem + 0.7vw, 1.625rem); font-weight: 500; line-height: 1.25; letter-spacing: -0.01em; }
+  .title { margin-top: 0; font-size: clamp(1.25rem, 1rem + 0.7vw, 1.625rem); font-weight: 500; line-height: 1.25; letter-spacing: -0.01em; }
   .subtitle { margin-top: 0.4rem; font-size: 0.9375rem; line-height: 1.5; color: #5c5650; }
 
   .stage { position: relative; margin-top: clamp(1.75rem, 1rem + 2vw, 3rem); padding: 0 4% 0; }

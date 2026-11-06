@@ -159,19 +159,24 @@ let n = 0;
   dd.todo { color: #c0652f; }
 
   /* Cover */
-  .cover {
+  /* The cover is a rounded panel aligned with the content, like the other image panels */
+  .case > .cover {
+    margin-inline: calc(var(--line-x) + var(--inset));
+    margin-block: 0 clamp(3rem, 2rem + 2.5vw, 4.5rem);
     background: var(--accent);
     --surface: var(--accent);
-    border-bottom: 1px solid var(--color-line);
-    padding: clamp(2rem, 1rem + 4vw, 5rem) clamp(1.25rem, 0.5rem + 5vw, 6rem);
+    border-radius: var(--radius-panel);
+    padding: clamp(1.5rem, 0.75rem + 4vw, 5rem) clamp(1.25rem, 0.5rem + 5vw, 6rem);
     overflow: hidden;
   }
+  .meta { margin-bottom: clamp(3rem, 2rem + 2.5vw, 4.5rem); }
+  .overview { border-top: 1px solid var(--color-line); }
   .cover img {
     display: block;
     width: 100%;
     max-width: 1200px;
     margin-inline: auto;
-    border-radius: 10px;
+    border-radius: 8px;
   }
 
   /* Overview list: Background, Problem, Outcome separated by thin lines */
