@@ -233,4 +233,76 @@ export const caseStudies = {
       },
     ],
   },
+  'spreadsheets-to-platform': {
+    title: 'From Spreadsheets to Platform',
+    subtitle: "A planning, approvals and billing platform for MassAbility's Transitional Assistance program.",
+    overview:
+      "Transitional Assistance is a MassAbility program that helps participants move from a facility back into the community. Providers support each transition by planning the services and purchases a participant will need, and the program runs on complex business rules. I designed the platform that brought planning, approvals and billing into one place.",
+    meta: [
+      { label: 'Role', value: 'Product designer' },
+      { label: 'Timeline', value: '[add]', placeholder: true },
+      { label: 'Organization', value: 'MassAbility' },
+    ],
+    cover: { src: '/work/service-hours.webp', alt: 'TA plan: the service hours request form with a running total of requested hours per category' },
+    problem: 'How can we help providers build accurate Transitional Assistance plans and get them approved, when the rules behind every category are complex and keep changing?',
+    outcome: "We designed a platform where providers create TA plans, request approvals and modifications, and bill against their approved plan, replacing spreadsheets and email. Providers loved it in our demo, and it's now in the final stages of development.",
+    blocks: [
+      {
+        type: 'section',
+        title: 'Too many versions of the truth',
+        body: [
+          'For every participant, providers create a TA plan that estimates future expenses and service hours. Each service and purchase category has its own limits and business rules, and those rules change over time. All of this lived in spreadsheets. Different versions of a plan travelled around, and people couldn’t always tell which one was current. Approvals and modification requests happened over email, adding another layer to keep track of.',
+        ],
+        image: { placeholder: 'An anonymized example of the old spreadsheet plan', ratio: '16 / 7' },
+      },
+      {
+        type: 'section',
+        title: 'Mapping a complex process',
+        body: [
+          'I started with an extended stakeholder interview to define how the process actually worked, step by step. From there, I created a current-state service blueprint that showed every stage of a TA plan, the people involved and where the rules applied. It gave the whole team a shared picture of a process that had only existed in spreadsheets, inboxes and people’s heads.',
+          'We also had the chance to interview one of the program’s biggest providers. They walked us through the internal system they had built to track their own work, which showed us what providers really needed day to day and where the official process fell short. Those insights fed directly into the design.',
+        ],
+        image: { placeholder: 'Current-state service blueprint', ratio: '16 / 7' },
+      },
+      {
+        type: 'section',
+        title: 'Deciding what to build first',
+        body: [
+          'The blueprint made it clear there was more to solve than one release could cover. We ran a MoSCoW exercise with stakeholders to agree on what had to be built first and what could wait.',
+        ],
+        image: { placeholder: 'MoSCoW prioritization board', ratio: '16 / 7' },
+      },
+      {
+        type: 'features',
+        title: 'The solution: one plan, one source of truth',
+        items: [
+          { icon: 'calculator', title: 'TA plan builder', text: 'Providers estimate expenses and service hours by category in one structured plan.' },
+          { icon: 'shield-check', title: 'Rules built in', text: 'Each service and purchase category carries its own limits, so plans follow the program’s rules from the start.' },
+          { icon: 'git-pull-request', title: 'Approvals and modifications', text: 'Plans are submitted, approved and changed in the platform instead of over email, so everyone sees the current version.' },
+          { icon: 'wallet', title: 'Billing connected to the plan', text: 'I added TA-specific features to the Invoice module and connected them to each provider’s TA plan, so billing reflects what was approved.' },
+        ],
+        images: [
+          { placeholder: 'Key screen: the plan builder', ratio: '4 / 3' },
+          { placeholder: 'Key screen: an approval in review, or a TA invoice', ratio: '4 / 3' },
+        ],
+      },
+      {
+        type: 'section',
+        title: 'Designing with the business team',
+        body: [
+          'I presented mockups to the business team regularly, collected their feedback and iterated until the designs were approved. With rules this complex, those review cycles were essential for catching edge cases early and making sure the platform matched how the program really works.',
+        ],
+      },
+      {
+        type: 'metrics',
+        title: 'Outcomes and metrics',
+        items: [
+          { icon: 'page-flip', title: 'One source of truth', text: 'A single, current TA plan replaces scattered spreadsheet versions.' },
+          { icon: 'mail-out', title: 'Approvals out of email', text: 'Approvals and modification requests are tracked in one place.' },
+          { icon: 'link', title: 'Planning and billing connected', text: 'Invoices are tied directly to the approved plan.' },
+          { icon: 'heart', title: 'Loved by providers', text: 'Providers responded with great enthusiasm in our demo, and the platform is now in its final stages of development.' },
+        ],
+      },
+    ],
+  },
 };
