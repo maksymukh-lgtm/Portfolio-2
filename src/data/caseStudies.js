@@ -305,9 +305,23 @@ export const caseStudies = {
           { icon: 'git-pull-request', title: 'Approvals and modifications', text: 'Plans are submitted, approved and changed in the platform instead of over email, so everyone sees the current version.' },
           { icon: 'wallet', title: 'Billing connected to the plan', text: 'I added TA-specific features to the Invoice module and connected them to each provider’s TA plan, so billing reflects what was approved.' },
         ],
-        images: [
-          { placeholder: 'Key screen: the plan builder', ratio: '4 / 3' },
-          { placeholder: 'Key screen: an approval in review, or a TA invoice', ratio: '4 / 3' },
+        showcase: [
+          {
+            bg: '#d3ece8',
+            title: 'Every entry is logged against the plan.',
+            subtitle: 'Providers log activities in one table, and each row shows its billing status.',
+            icons: ['list'],
+            shots: [{ src: '/work/ta-activity-log.webp', alt: 'Activity log for a participant: category, activity, service date, hours and details for each entry, with statuses such as flagged by MassAbility, paid and ready for billing' }],
+          },
+          {
+            bg: '#fde6d2',
+            title: 'Invoices link receipts to approved items.',
+            subtitle: 'Each uploaded receipt is matched to the purchases it covers.',
+            icons: ['attachment'],
+            maxH: 420,
+            fade: 80,
+            shots: [{ src: '/work/ta-invoice-docs.webp', alt: 'Create TA invoice, documents step: upload receipts and select which approved purchases each file covers' }],
+          },
         ],
       },
       {

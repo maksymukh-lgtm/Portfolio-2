@@ -8,7 +8,7 @@
 import Icon from '../Icon.astro';
 const { card } = Astro.props;
 ---
-<figure class="showcase" style={`--card:${card.bg}`}>
+<figure class="showcase" style={`--card:${card.bg};--fade:${card.fade || 62}%;--max:${card.maxH || 340}px`}>
   <p class="title">{card.title}</p>
   <p class="subtitle">{card.subtitle}</p>
 
@@ -51,11 +51,11 @@ const { card } = Astro.props;
     padding: clamp(1rem, 0.6rem + 1vw, 1.5rem);
     border-radius: 20px;
     background: #fff;
-    max-height: 340px;
+    max-height: var(--max);
     overflow: hidden;
     /* content fades out toward the bottom */
-    -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent);
-            mask-image: linear-gradient(to bottom, #000 62%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, #000 var(--fade), transparent);
+            mask-image: linear-gradient(to bottom, #000 var(--fade), transparent);
   }
   .screen img { display: block; width: 100%; max-width: 100%; height: auto; border-radius: 8px; }
 
