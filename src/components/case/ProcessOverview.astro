@@ -1,124 +1,182 @@
 ---
 /*
-  Process overview: a horizontal timeline of stages (hollow circles on a thin
-  line ending in an arrow), each with a short bullet list, and a dotted
-  "ongoing" track underneath. Becomes a vertical timeline on phones.
-  Props (process): { title, stages: [{ label, points: [] }], ongoing? }
+  Process overview, styled as a soft flow diagram: a tinted panel with large
+  rounded background shapes, stage labels as pills (alternating filled and
+  outlined), dot-to-arrow connectors, white cards with the stage's points and a
+  small round icon badge, and an "ongoing" bar along the bottom.
+  Vertical on phones.
+  Props (process): { title, stages: [{ label, icon?, points: [] }], ongoing? }
 */
+import Icon from '../Icon.astro';
 const { process } = Astro.props;
 ---
-<figure class="process" style={`--n:${process.stages.length}`}>
-  <p class="title">{process.title}</p>
+<figure class="flow" style={`--n:${process.stages.length}`}>
+  <span class="blob b1" aria-hidden="true"></span>
+  <span class="blob b2" aria-hidden="true"></span>
+
+  <div class="title-card">{process.title}</div>
 
   <ol class="stages">
-    {process.stages.map((s) => (
+    {process.stages.map((s, i) => (
       <li class="stage">
-        <span class="label">{s.label}</span>
-        <span class="node" aria-hidden="true"></span>
-        <ul class="points">{s.points.map((p) => <li>{p}</li>)}</ul>
+        <span class={`pill${i % 2 ? ' outline' : ''}`}>{s.label}</span>
+        {i < process.stages.length - 1 && <span class="h-conn" aria-hidden="true"></span>}
+        <span class="down" aria-hidden="true"></span>
+        <div class="card">
+          {s.icon && <span class="badge"><Icon name={s.icon} size="18" /></span>}
+          <ul>{s.points.map((p) => <li>{p}</li>)}</ul>
+        </div>
       </li>
     ))}
   </ol>
 
   {process.ongoing && (
     <div class="ongoing">
-      <span>{process.ongoing}</span>
+      <span class="badge"><Icon name="group" size="18" /></span>
+      <span class="o-text">{process.ongoing}</span>
+      <span class="o-line" aria-hidden="true"></span>
     </div>
   )}
 </figure>
 
 <style>
-  .process {
-    --ink: #1d1d1d;
+  .flow {
+    --strong: color-mix(in srgb, var(--accent, #d3ece8), #0f3f3b 72%);
+    --ink: #1a1f1e;
+    --line: #1a1f1e;
+    position: relative;
     margin: 0;
-    padding: clamp(2rem, 1.25rem + 3vw, 4rem) clamp(1.5rem, 0.5rem + 6vw, 7rem);
-    background: var(--accent, #f2f3f6);
+    padding: clamp(1.75rem, 1rem + 3vw, 3.5rem) clamp(1.25rem, 0.5rem + 4vw, 4.5rem);
+    background: var(--accent, #d3ece8);
     border-radius: var(--radius-panel);
+    overflow: hidden;
+    isolation: isolate;
     color: var(--ink);
   }
-  .title {
-    text-align: center;
-    font-size: clamp(1.125rem, 1rem + 0.5vw, 1.5rem);
+  /* Large soft shapes in the background */
+  .blob { position: absolute; z-index: -1; background: color-mix(in srgb, var(--accent, #d3ece8), #fff 38%); }
+  .b1 { left: -6%; top: 22%; width: 58%; height: 120%; border-radius: 0 360px 0 0; }
+  .b2 { right: -8%; top: -30%; width: 46%; height: 85%; border-radius: 0 0 0 320px; opacity: 0.7; }
+
+  .title-card {
+    width: fit-content;
+    margin: 0 auto clamp(1.75rem, 1rem + 2vw, 2.75rem);
+    padding: 0.9rem 1.5rem;
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 8px 24px -14px color-mix(in srgb, var(--strong) 60%, transparent);
+    font-size: clamp(1rem, 0.9rem + 0.45vw, 1.25rem);
     font-weight: 500;
-    margin-bottom: clamp(2rem, 1.5rem + 2vw, 3.25rem);
   }
 
   .stages {
     list-style: none;
     margin: 0;
     padding: 0;
-    position: relative;
     display: grid;
     grid-template-columns: repeat(var(--n), minmax(0, 1fr));
-    column-gap: 1.5rem;
+    column-gap: clamp(1.25rem, 0.5rem + 2vw, 2.5rem);
   }
-  /* The connecting line with an arrowhead, running through all the nodes */
-  .stages::before {
-    content: '';
-    position: absolute;
-    left: 9px;
-    right: 0;
-    top: calc(1.6em + 1rem + 9px);
-    border-top: 1px solid color-mix(in srgb, var(--ink) 45%, transparent);
-  }
-  .stages::after {
-    content: '';
-    position: absolute;
-    right: -1px;
-    top: calc(1.6em + 1rem + 5px);
-    border: 4.5px solid transparent;
-    border-left: 7px solid color-mix(in srgb, var(--ink) 60%, transparent);
-    border-right: 0;
-  }
-  .label {
-    display: block;
-    height: 1.6em;
-    font-size: clamp(0.8125rem, 0.7rem + 0.35vw, 1rem);
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-  .node {
+  .stage { position: relative; display: flex; flex-direction: column; align-items: flex-start; }
+
+  /* Pills */
+  .pill {
     position: relative;
-    z-index: 1;
-    display: block;
-    width: 18px;
-    height: 18px;
-    margin: 1rem 0 1.25rem;
-    border: 2.5px solid var(--ink);
+    padding: 0.6rem 0.95rem;
+    border-radius: 4px;
+    background: var(--strong);
+    border: 1.5px solid var(--strong);
+    color: #fff;
+    font-size: clamp(0.8125rem, 0.72rem + 0.3vw, 0.9375rem);
+    font-weight: 500;
+    line-height: 1.25;
+  }
+  .pill.outline { background: color-mix(in srgb, #fff 55%, transparent); color: var(--strong); }
+  /* Horizontal connector to the next stage: dot → arrow (position set by the script) */
+  .h-conn {
+    position: absolute;
+    left: var(--conn-left, 100%);
+    top: var(--conn-top, 1.2rem);
+    width: var(--gap-w, 2rem);
+    border-top: 1.5px solid var(--line);
+  }
+  .h-conn::before { content: ''; position: absolute; left: -1px; top: -4.25px; width: 7px; height: 7px; border-radius: 50%; background: var(--line); }
+  .h-conn::after { content: ''; position: absolute; right: -1px; top: -5.75px; border: 5px solid transparent; border-left: 7px solid var(--line); border-right: 0; }
+
+  /* Vertical connector: dot at the top, arrowhead at the bottom */
+  .down { position: relative; display: block; width: 2px; height: 34px; margin: 0.25rem 0 0.25rem 1.5rem; background: var(--line); }
+  .down::before { content: ''; position: absolute; left: -2.5px; top: -1px; width: 7px; height: 7px; border-radius: 50%; background: var(--line); }
+  .down::after { content: ''; position: absolute; left: -4px; bottom: -1px; border: 5px solid transparent; border-top: 7px solid var(--line); border-bottom: 0; }
+
+  /* Cards with an icon badge on the left corner */
+  .card {
+    position: relative;
+    width: 100%;
+    margin-top: 0.35rem;
+    padding: 1rem 1rem 1.1rem 1.25rem;
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 10px 28px -16px color-mix(in srgb, var(--strong) 70%, transparent);
+  }
+  .card ul { list-style: disc; margin: 0; padding-left: 1em; display: grid; gap: 0.35rem; font-size: clamp(0.8125rem, 0.75rem + 0.25vw, 1rem); line-height: 1.4; }
+  .badge {
+    position: absolute;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
-    background: var(--accent, #f2f3f6);
+    background: #8a8f8e;
+    color: #fff;
+    box-shadow: 0 0 0 4px color-mix(in srgb, #fff 55%, transparent);
   }
-  .points { list-style: disc; margin: 0; padding-left: 1.1em; display: grid; gap: 0.35rem; font-size: clamp(0.875rem, 0.8rem + 0.25vw, 1.0625rem); line-height: 1.4; }
+  .card .badge { left: -17px; top: -17px; }
+  .badge :global(svg) { stroke-width: 1.7; }
 
-  .ongoing { margin-top: clamp(2rem, 1.5rem + 2vw, 3rem); }
-  .ongoing span {
-    display: block;
+  /* Ongoing bar */
+  .ongoing {
     position: relative;
-    padding-bottom: 0.5rem;
-    border-bottom: 1.5px dotted var(--ink);
-    font-size: clamp(0.8125rem, 0.7rem + 0.35vw, 1rem);
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: clamp(1.75rem, 1rem + 2vw, 2.5rem);
+    padding: 0.85rem 1.25rem 0.85rem 3rem;
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 10px 28px -16px color-mix(in srgb, var(--strong) 70%, transparent);
   }
-  .ongoing span::after {
-    content: '';
-    position: absolute;
-    right: -2px;
-    bottom: -5px;
-    border: 4px solid transparent;
-    border-left: 7px solid var(--ink);
-    border-right: 0;
-  }
+  .ongoing .badge { left: -4px; top: 50%; translate: 0 -50%; }
+  .o-text { white-space: nowrap; font-size: clamp(0.8125rem, 0.75rem + 0.25vw, 1rem); font-weight: 500; }
+  .o-line { position: relative; flex: 1; border-top: 1.5px dashed var(--line); }
+  .o-line::before { content: ''; position: absolute; left: -2px; top: -4.5px; width: 7px; height: 7px; border-radius: 50%; background: var(--line); }
+  .o-line::after { content: ''; position: absolute; right: -1px; top: -6px; border: 5px solid transparent; border-left: 7px solid var(--line); border-right: 0; }
 
-  /* Phones: a vertical timeline */
-  @media (max-width: 700px) {
-    .stages { grid-template-columns: 1fr; row-gap: 1.5rem; padding-left: 2rem; }
-    .stages::before { left: 8px; right: auto; top: 6px; bottom: 0; border-top: 0; border-left: 1px solid color-mix(in srgb, var(--ink) 45%, transparent); }
-    .stages::after { right: auto; left: 4px; top: auto; bottom: -1px; border: 4.5px solid transparent; border-top: 7px solid color-mix(in srgb, var(--ink) 60%, transparent); border-bottom: 0; }
-    .stage { position: relative; }
-    .node { position: absolute; left: -2rem; top: 0.1em; margin: 0; }
-    .label { margin-bottom: 0.5rem; height: auto; white-space: normal; }
+  @media (max-width: 800px) {
+    .stages { grid-template-columns: 1fr; row-gap: 1.75rem; padding-left: 1rem; }
+    .h-conn { display: none; }
+    .b1 { width: 110%; }
+    .b2 { display: none; }
+    .ongoing { padding-left: 2.75rem; }
   }
 </style>
+
+<script>
+  // Size the horizontal pill connectors so each reaches the next stage's pill
+  function fit(flow: HTMLElement) {
+    const stages = [...flow.querySelectorAll<HTMLElement>('.stage')];
+    stages.forEach((st, i) => {
+      const pill = st.querySelector<HTMLElement>('.pill');
+      const next = stages[i + 1]?.querySelector<HTMLElement>('.pill');
+      const conn = st.querySelector<HTMLElement>('.h-conn');
+      if (!pill || !next || !conn) return;
+      const s = st.getBoundingClientRect(), a = pill.getBoundingClientRect(), b = next.getBoundingClientRect();
+      conn.style.setProperty('--conn-left', `${a.right - s.left + 8}px`);
+      conn.style.setProperty('--conn-top', `${a.top - s.top + a.height / 2}px`);
+      conn.style.setProperty('--gap-w', `${Math.max(0, b.left - a.right - 18)}px`);
+    });
+  }
+  document.querySelectorAll<HTMLElement>('.flow').forEach((f) => {
+    fit(f);
+    new ResizeObserver(() => fit(f)).observe(f);
+  });
+</script>
