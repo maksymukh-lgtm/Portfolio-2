@@ -240,7 +240,7 @@ export const caseStudies = {
       "Transitional Assistance is a MassAbility program that helps participants move from a facility back into the community. Providers support each transition by planning the services and purchases a participant will need, and the program runs on complex business rules. I designed the platform that brought planning, approvals and billing into one place.",
     meta: [
       { label: 'Role', value: 'Product designer' },
-      { label: 'Timeline', value: '[add]', placeholder: true },
+      { label: 'Timeline', value: 'December 2025 – ongoing' },
       { label: 'Organization', value: 'MassAbility' },
     ],
     cover: { src: '/work/ta-cover.webp', alt: 'Participant TA plan summary: total projected cost, hours utilized per service, and each service with authorized and utilized hours and an on-track status' },
