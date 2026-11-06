@@ -7,7 +7,6 @@
 
   Links marked "placeholder" need your real URLs.
 */
-const year = new Date().getFullYear();
 const columns = [
   { title: 'Pages', links: [
     { label: 'Home', href: '#top' },
@@ -18,11 +17,6 @@ const columns = [
     { label: 'LinkedIn', href: '#', icon: 'linkedin' },   // placeholder
     { label: 'Email', href: '#', icon: 'mail' },          // placeholder
     { label: 'Resume', href: '/resume', icon: 'doc' },
-  ] },
-  { title: 'Info', links: [
-    { label: `© ${year}`, href: null },
-    { label: 'Fonts: Geist', href: null },
-    { label: 'Back to top', href: '#top' },
   ] },
 ];
 const icons: Record<string, string> = {
@@ -88,7 +82,7 @@ const svg = (name: string) => `<svg viewBox="0 0 24 24" width="16" height="16" f
   .statement a :global(svg) { width: 0.8em; height: 0.8em; }
   .statement a:hover, .cols a:hover { text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px; }
 
-  .cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2rem; }
+  .cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem; }
   h3 { font-size: 0.9375rem; font-weight: 500; margin-bottom: 1.25rem; }
   ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.1rem; font-size: 0.9375rem; color: #6b6b6b; }
   li { display: flex; align-items: center; height: 1.375rem; }   /* same row height with or without an icon */
