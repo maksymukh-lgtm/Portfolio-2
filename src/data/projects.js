@@ -7,7 +7,7 @@ export const selectedWorks = [
   {
     slug: 'phone-intake',
     title: 'Digitizing Phone-Based Intake',
-    summary: 'Replaced MassAbility’s phone intake with an online application for residents, cutting drop-offs by 80%.',
+    summary: 'Replaced MassAbility’s phone intake with an accessible application that 80% complete on their own.',
     bg: '#fde6d2',      // peach (hero: #f8cfa6)
     border: '#ebcbb0',
     image: '/work/intake.webp',
@@ -16,7 +16,7 @@ export const selectedWorks = [
   {
     slug: 'spreadsheets-to-platform',
     title: 'From Spreadsheets to Platform',
-    summary: 'Moved MassAbility providers’ reporting, spending and fund requests from spreadsheets to one platform.',
+    summary: 'A single source of truth for transition plans, approvals and billing, replacing scattered spreadsheets.',
     bg: '#d3ece8',      // seafoam teal (hero: #8fc3bd)
     border: '#b4d4cf',
     image: '/work/service-hours.webp',
@@ -24,8 +24,8 @@ export const selectedWorks = [
   },
   {
     slug: 'tracking-care',
-    title: 'Tracking Care for Participants',
-    summary: 'A MassAbility tool for providers to track services delivered to each Supported Living participant.',
+    title: 'From Word Docs to Approvals',
+    summary: 'Service plans, approvals and progress reports for MassAbility providers, moved out of Word and email.',
     bg: '#e5f0ec',      // misty aqua (hero: #c3ddd5)
     border: '#c6d9d2',
     image: '/work/sl-quarter.webp',
