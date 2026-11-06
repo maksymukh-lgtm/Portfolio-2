@@ -160,7 +160,7 @@ export const caseStudies = {
         body: [
           'We started by running a survey to identify the stakeholders involved, their pain points and how the process worked for each of them. We then interviewed stakeholders to confirm what we’d learned. From there, I created a current-state service blueprint that mapped how everything worked today, from the provider’s first submission to the agency’s final approval.',
         ],
-        image: { src: '/work/sl-service-blueprint.webp', alt: 'Current-state service blueprint for the referral, intake and eligibility phase: provider actions, frontstage interactions and backstage MassAbility actions, with lines of interaction and visibility', frame: true },
+        image: { src: '/work/sl-service-blueprint-v2.webp', alt: 'Current-state service blueprint for the referral, intake and eligibility phase: provider actions, frontstage interactions and backstage MassAbility actions, with lines of interaction and visibility', frame: true },
       },
       {
         type: 'section',
