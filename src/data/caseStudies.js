@@ -243,7 +243,7 @@ export const caseStudies = {
       { label: 'Timeline', value: 'December 2025 – ongoing' },
       { label: 'Organization', value: 'MassAbility' },
     ],
-    cover: { src: '/work/ta-cover.webp', alt: 'Participant TA plan summary: total projected cost, hours utilized per service, and each service with authorized and utilized hours and an on-track status' },
+    cover: { src: '/work/ta-cover-v2.webp', alt: 'Participant TA plan summary: total projected cost, hours utilized per service, and each service with authorized and utilized hours and an on-track status' },
     problem: 'How can we help providers build accurate Transitional Assistance plans and get them approved, when the rules behind every category are complex and keep changing?',
     outcome: "We designed a platform where providers create TA plans, request approvals and modifications, and bill against their approved plan, replacing spreadsheets and email. Providers loved it in our demo, and it's now in the final stages of development.",
     blocks: [
