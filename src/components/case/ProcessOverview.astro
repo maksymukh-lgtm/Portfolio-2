@@ -1,0 +1,124 @@
+---
+/*
+  Process overview: a horizontal timeline of stages (hollow circles on a thin
+  line ending in an arrow), each with a short bullet list, and a dotted
+  "ongoing" track underneath. Becomes a vertical timeline on phones.
+  Props (process): { title, stages: [{ label, points: [] }], ongoing? }
+*/
+const { process } = Astro.props;
+---
+<figure class="process" style={`--n:${process.stages.length}`}>
+  <p class="title">{process.title}</p>
+
+  <ol class="stages">
+    {process.stages.map((s) => (
+      <li class="stage">
+        <span class="label">{s.label}</span>
+        <span class="node" aria-hidden="true"></span>
+        <ul class="points">{s.points.map((p) => <li>{p}</li>)}</ul>
+      </li>
+    ))}
+  </ol>
+
+  {process.ongoing && (
+    <div class="ongoing">
+      <span>{process.ongoing}</span>
+    </div>
+  )}
+</figure>
+
+<style>
+  .process {
+    --ink: #1d1d1d;
+    margin: 0;
+    padding: clamp(2rem, 1.25rem + 3vw, 4rem) clamp(1.5rem, 0.5rem + 6vw, 7rem);
+    background: var(--accent, #f2f3f6);
+    border-radius: var(--radius-panel);
+    color: var(--ink);
+  }
+  .title {
+    text-align: center;
+    font-size: clamp(1.125rem, 1rem + 0.5vw, 1.5rem);
+    font-weight: 500;
+    margin-bottom: clamp(2rem, 1.5rem + 2vw, 3.25rem);
+  }
+
+  .stages {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+    column-gap: 1.5rem;
+  }
+  /* The connecting line with an arrowhead, running through all the nodes */
+  .stages::before {
+    content: '';
+    position: absolute;
+    left: 9px;
+    right: 0;
+    top: calc(1.6em + 1rem + 9px);
+    border-top: 1px solid color-mix(in srgb, var(--ink) 45%, transparent);
+  }
+  .stages::after {
+    content: '';
+    position: absolute;
+    right: -1px;
+    top: calc(1.6em + 1rem + 5px);
+    border: 4.5px solid transparent;
+    border-left: 7px solid color-mix(in srgb, var(--ink) 60%, transparent);
+    border-right: 0;
+  }
+  .label {
+    display: block;
+    height: 1.6em;
+    font-size: clamp(0.8125rem, 0.7rem + 0.35vw, 1rem);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .node {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 18px;
+    height: 18px;
+    margin: 1rem 0 1.25rem;
+    border: 2.5px solid var(--ink);
+    border-radius: 50%;
+    background: var(--accent, #f2f3f6);
+  }
+  .points { list-style: disc; margin: 0; padding-left: 1.1em; display: grid; gap: 0.35rem; font-size: clamp(0.875rem, 0.8rem + 0.25vw, 1.0625rem); line-height: 1.4; }
+
+  .ongoing { margin-top: clamp(2rem, 1.5rem + 2vw, 3rem); }
+  .ongoing span {
+    display: block;
+    position: relative;
+    padding-bottom: 0.5rem;
+    border-bottom: 1.5px dotted var(--ink);
+    font-size: clamp(0.8125rem, 0.7rem + 0.35vw, 1rem);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+  .ongoing span::after {
+    content: '';
+    position: absolute;
+    right: -2px;
+    bottom: -5px;
+    border: 4px solid transparent;
+    border-left: 7px solid var(--ink);
+    border-right: 0;
+  }
+
+  /* Phones: a vertical timeline */
+  @media (max-width: 700px) {
+    .stages { grid-template-columns: 1fr; row-gap: 1.5rem; padding-left: 2rem; }
+    .stages::before { left: 8px; right: auto; top: 6px; bottom: 0; border-top: 0; border-left: 1px solid color-mix(in srgb, var(--ink) 45%, transparent); }
+    .stages::after { right: auto; left: 4px; top: auto; bottom: -1px; border: 4.5px solid transparent; border-top: 7px solid color-mix(in srgb, var(--ink) 60%, transparent); border-bottom: 0; }
+    .stage { position: relative; }
+    .node { position: absolute; left: -2rem; top: 0.1em; margin: 0; }
+    .label { margin-bottom: 0.5rem; height: auto; white-space: normal; }
+  }
+</style>

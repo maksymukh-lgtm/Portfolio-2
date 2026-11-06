@@ -262,7 +262,17 @@ export const caseStudies = {
           'I started with an extended stakeholder interview to define how the process actually worked, step by step. From there, I created a current-state service blueprint that showed every stage of a TA plan, the people involved and where the rules applied. It gave the whole team a shared picture of a process that had only existed in spreadsheets, inboxes and people’s heads.',
           'We also had the chance to interview one of the program’s biggest providers. They walked us through the internal system they had built to track their own work, which showed us what providers really needed day to day and where the official process fell short. Those insights fed directly into the design.',
         ],
-        image: { placeholder: 'Current-state service blueprint', ratio: '16 / 7' },
+        image: {
+          type: 'process',
+          title: 'Process overview',
+          stages: [
+            { label: 'Stakeholder interview', points: ['How the process works', 'Step-by-step definition'] },
+            { label: 'Service blueprint', points: ['Every stage of a TA plan', 'People involved', 'Where rules apply'] },
+            { label: 'Provider interview', points: ['Their internal tracking system', 'Day-to-day needs', 'Gaps in the official process'] },
+            { label: 'Design', points: ['Insights into mockups', 'Shared picture for the team'] },
+          ],
+          ongoing: 'Stakeholder engagement',
+        },
       },
       {
         type: 'section',
