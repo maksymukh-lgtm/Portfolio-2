@@ -1,182 +1,149 @@
 ---
 /*
-  Process overview, styled as a soft flow diagram: a tinted panel with large
-  rounded background shapes, stage labels as pills (alternating filled and
-  outlined), dot-to-arrow connectors, white cards with the stage's points and a
-  small round icon badge, and an "ongoing" bar along the bottom.
-  Vertical on phones.
-  Props (process): { title, stages: [{ label, icon?, points: [] }], ongoing? }
+  Process overview: a horizontal timeline of stages with a short bullet list
+  under each and an "ongoing" track underneath. Pixel details tie it to the hero
+  animation: the line is a run of square pixels that warms from teal to
+  tangerine, each stage node is a small pixel ring in that stage's colour, the
+  arrowheads are stepped pixels, and a few loose pixels scatter off the end like
+  the hero's dissolving edge. Becomes a vertical timeline on phones.
+  Props (process): { title, stages: [{ label, points: [] }], ongoing? }
 */
-import Icon from '../Icon.astro';
 const { process } = Astro.props;
+// Stage colours warm along the timeline, like pixels falling into the hero's core
+const RAMP = ['#4f8f8a', '#8fc3bd', '#e2c048', '#f98f33', '#e46a1e'];
+const colourAt = (i, n) => RAMP[Math.round((i / Math.max(1, n - 1)) * (RAMP.length - 2))];
+// Pixel ring: 4x4 cells, outer ring filled
+const ring = [];
+for (let y = 0; y < 4; y++) for (let x = 0; x < 4; x++) if (x === 0 || y === 0 || x === 3 || y === 3) ring.push([x, y]);
+// Loose pixels drifting off the end of the timeline (x, y in px from the arrow, size, colour index)
+const scatter = [[-10, -14, 4, 3], [-24, -26, 3, 4], [-6, -32, 3, 2], [-38, -18, 4, 3], [-18, -44, 3, 4], [-52, -34, 2, 2], [-30, -52, 3, 3], [-8, -58, 2, 4]];
 ---
-<figure class="flow" style={`--n:${process.stages.length}`}>
-  <span class="blob b1" aria-hidden="true"></span>
-  <span class="blob b2" aria-hidden="true"></span>
+<figure class="process" style={`--n:${process.stages.length}`}>
+  <p class="title">{process.title}</p>
 
-  <div class="title-card">{process.title}</div>
+  <div class="track-wrap">
+    <span class="pix-line" aria-hidden="true"></span>
+    <svg class="pix-arrow" viewBox="0 0 3 5" aria-hidden="true" shape-rendering="crispEdges"><rect x="0" y="0" width="1" height="1" /><rect x="1" y="1" width="1" height="1" /><rect x="2" y="2" width="1" height="1" /><rect x="1" y="3" width="1" height="1" /><rect x="0" y="4" width="1" height="1" /></svg>
+    <span class="scatter" aria-hidden="true">
+      {scatter.map(([x, y, s, c]) => <i style={`left:${x}px;top:${y}px;width:${s}px;height:${s}px;background:${RAMP[c]}`}></i>)}
+    </span>
 
-  <ol class="stages">
-    {process.stages.map((s, i) => (
-      <li class="stage">
-        <span class={`pill${i % 2 ? ' outline' : ''}`}>{s.label}</span>
-        {i < process.stages.length - 1 && <span class="h-conn" aria-hidden="true"></span>}
-        <span class="down" aria-hidden="true"></span>
-        <div class="card">
-          {s.icon && <span class="badge"><Icon name={s.icon} size="18" /></span>}
-          <ul>{s.points.map((p) => <li>{p}</li>)}</ul>
-        </div>
-      </li>
-    ))}
-  </ol>
+    <ol class="stages">
+      {process.stages.map((s, i) => (
+        <li class="stage" style={`--c:${colourAt(i, process.stages.length)}`}>
+          <span class="label">{s.label}</span>
+          <svg class="node" viewBox="0 0 4 4" aria-hidden="true" shape-rendering="crispEdges">
+            {ring.map(([x, y]) => <rect x={x} y={y} width="0.86" height="0.86" />)}
+          </svg>
+          <ul class="points">{s.points.map((p) => <li>{p}</li>)}</ul>
+        </li>
+      ))}
+    </ol>
+  </div>
 
   {process.ongoing && (
     <div class="ongoing">
-      <span class="badge"><Icon name="group" size="18" /></span>
       <span class="o-text">{process.ongoing}</span>
-      <span class="o-line" aria-hidden="true"></span>
+      <span class="o-line" aria-hidden="true"><svg class="o-arrow" viewBox="0 0 3 5" shape-rendering="crispEdges"><rect x="0" y="0" width="1" height="1" /><rect x="1" y="1" width="1" height="1" /><rect x="2" y="2" width="1" height="1" /><rect x="1" y="3" width="1" height="1" /><rect x="0" y="4" width="1" height="1" /></svg></span>
     </div>
   )}
 </figure>
 
 <style>
-  .flow {
-    --strong: color-mix(in srgb, var(--accent, #d3ece8), #0f3f3b 72%);
-    --ink: #1a1f1e;
-    --line: #1a1f1e;
-    position: relative;
-    margin: 0;
-    padding: clamp(1.75rem, 1rem + 3vw, 3.5rem) clamp(1.25rem, 0.5rem + 4vw, 4.5rem);
-    background: var(--accent, #d3ece8);
-    border-radius: var(--radius-panel);
+  .process {
+    --ink: #1d1d1d;
     overflow: hidden;
-    isolation: isolate;
+    --ramp: linear-gradient(90deg, #4f8f8a, #8fc3bd 30%, #e2c048 62%, #f98f33 88%, #e46a1e);
+    margin: 0;
+    padding: clamp(2rem, 1.25rem + 3vw, 4rem) clamp(1.5rem, 0.5rem + 6vw, 7rem);
+    background: var(--accent, #f2f3f6);
+    border-radius: var(--radius-panel);
     color: var(--ink);
   }
-  /* Large soft shapes in the background */
-  .blob { position: absolute; z-index: -1; background: color-mix(in srgb, var(--accent, #d3ece8), #fff 38%); }
-  .b1 { left: -6%; top: 22%; width: 58%; height: 120%; border-radius: 0 360px 0 0; }
-  .b2 { right: -8%; top: -30%; width: 46%; height: 85%; border-radius: 0 0 0 320px; opacity: 0.7; }
-
-  .title-card {
-    width: fit-content;
-    margin: 0 auto clamp(1.75rem, 1rem + 2vw, 2.75rem);
-    padding: 0.9rem 1.5rem;
-    background: #fff;
-    border-radius: 4px;
-    box-shadow: 0 8px 24px -14px color-mix(in srgb, var(--strong) 60%, transparent);
-    font-size: clamp(1rem, 0.9rem + 0.45vw, 1.25rem);
+  .title {
+    text-align: center;
+    font-size: clamp(1.125rem, 1rem + 0.5vw, 1.5rem);
     font-weight: 500;
+    margin-bottom: clamp(2rem, 1.5rem + 2vw, 3.25rem);
   }
+
+  .track-wrap { position: relative; --row: calc(1.6em + 1rem); }
+  .track-wrap { font-size: clamp(0.8125rem, 0.7rem + 0.35vw, 1rem); }
+
+  /* The timeline: a run of square pixels warming from teal to tangerine */
+  .pix-line {
+    position: absolute;
+    left: 9px;
+    right: 8px;
+    top: calc(var(--row) + 7px);
+    height: 4px;
+    background: var(--ramp);
+    -webkit-mask: repeating-linear-gradient(90deg, #000 0 4px, transparent 4px 7px);
+            mask: repeating-linear-gradient(90deg, #000 0 4px, transparent 4px 7px);
+  }
+  .pix-arrow { position: absolute; right: 0; top: calc(var(--row) + 4px); width: 6px; height: 10px; fill: #e46a1e; }
+  .scatter { position: absolute; right: 0; top: calc(var(--row) + 9px); width: 0; height: 0; }
+  .scatter i { position: absolute; display: block; opacity: 0.85; }
 
   .stages {
     list-style: none;
     margin: 0;
     padding: 0;
+    position: relative;
     display: grid;
     grid-template-columns: repeat(var(--n), minmax(0, 1fr));
-    column-gap: clamp(1.25rem, 0.5rem + 2vw, 2.5rem);
+    column-gap: 1.5rem;
   }
-  .stage { position: relative; display: flex; flex-direction: column; align-items: flex-start; }
-
-  /* Pills */
-  .pill {
+  .label {
+    display: block;
+    height: 1.6em;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  /* Stage node: a small pixel ring in the stage's colour */
+  .node {
     position: relative;
-    padding: 0.6rem 0.95rem;
-    border-radius: 4px;
-    background: var(--strong);
-    border: 1.5px solid var(--strong);
-    color: #fff;
-    font-size: clamp(0.8125rem, 0.72rem + 0.3vw, 0.9375rem);
-    font-weight: 500;
-    line-height: 1.25;
+    z-index: 1;
+    display: block;
+    width: 18px;
+    height: 18px;
+    margin: 1rem 0 1.25rem;
+    fill: var(--c);
+    background: var(--accent, #f2f3f6);
+    box-shadow: 0 0 0 4px var(--accent, #f2f3f6);
   }
-  .pill.outline { background: color-mix(in srgb, #fff 55%, transparent); color: var(--strong); }
-  /* Horizontal connector to the next stage: dot → arrow (position set by the script) */
-  .h-conn {
-    position: absolute;
-    left: var(--conn-left, 100%);
-    top: var(--conn-top, 1.2rem);
-    width: var(--gap-w, 2rem);
-    border-top: 1.5px solid var(--line);
-  }
-  .h-conn::before { content: ''; position: absolute; left: -1px; top: -4.25px; width: 7px; height: 7px; border-radius: 50%; background: var(--line); }
-  .h-conn::after { content: ''; position: absolute; right: -1px; top: -5.75px; border: 5px solid transparent; border-left: 7px solid var(--line); border-right: 0; }
+  .points { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.4rem; font-size: clamp(0.875rem, 0.8rem + 0.25vw, 1.0625rem); line-height: 1.4; }
+  /* Square pixel bullets in the stage colour */
+  .points li { position: relative; padding-left: 1.05em; }
+  .points li::before { content: ''; position: absolute; left: 0; top: 0.55em; width: 5px; height: 5px; background: var(--c); }
 
-  /* Vertical connector: dot at the top, arrowhead at the bottom */
-  .down { position: relative; display: block; width: 2px; height: 34px; margin: 0.25rem 0 0.25rem 1.5rem; background: var(--line); }
-  .down::before { content: ''; position: absolute; left: -2.5px; top: -1px; width: 7px; height: 7px; border-radius: 50%; background: var(--line); }
-  .down::after { content: ''; position: absolute; left: -4px; bottom: -1px; border: 5px solid transparent; border-top: 7px solid var(--line); border-bottom: 0; }
-
-  /* Cards with an icon badge on the left corner */
-  .card {
+  /* Ongoing track: a dotted row of pixels with a stepped arrow */
+  .ongoing { margin-top: clamp(2rem, 1.5rem + 2vw, 3rem); font-size: clamp(0.8125rem, 0.7rem + 0.35vw, 1rem); }
+  .o-text { display: block; margin-bottom: 0.65rem; letter-spacing: 0.02em; text-transform: uppercase; }
+  .o-line {
     position: relative;
-    width: 100%;
-    margin-top: 0.35rem;
-    padding: 1rem 1rem 1.1rem 1.25rem;
-    background: #fff;
-    border-radius: 4px;
-    box-shadow: 0 10px 28px -16px color-mix(in srgb, var(--strong) 70%, transparent);
+    display: block;
+    height: 3px;
+    margin-right: 10px;
+    background: repeating-linear-gradient(90deg, var(--ink) 0 3px, transparent 3px 7px);
   }
-  .card ul { list-style: disc; margin: 0; padding-left: 1em; display: grid; gap: 0.35rem; font-size: clamp(0.8125rem, 0.75rem + 0.25vw, 1rem); line-height: 1.4; }
-  .badge {
-    position: absolute;
-    display: grid;
-    place-items: center;
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    background: #8a8f8e;
-    color: #fff;
-    box-shadow: 0 0 0 4px color-mix(in srgb, #fff 55%, transparent);
-  }
-  .card .badge { left: -17px; top: -17px; }
-  .badge :global(svg) { stroke-width: 1.7; }
+  .o-arrow { position: absolute; right: -9px; top: -3.5px; width: 6px; height: 10px; fill: var(--ink); }
 
-  /* Ongoing bar */
-  .ongoing {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-top: clamp(1.75rem, 1rem + 2vw, 2.5rem);
-    padding: 0.85rem 1.25rem 0.85rem 3rem;
-    background: #fff;
-    border-radius: 4px;
-    box-shadow: 0 10px 28px -16px color-mix(in srgb, var(--strong) 70%, transparent);
-  }
-  .ongoing .badge { left: -4px; top: 50%; translate: 0 -50%; }
-  .o-text { white-space: nowrap; font-size: clamp(0.8125rem, 0.75rem + 0.25vw, 1rem); font-weight: 500; }
-  .o-line { position: relative; flex: 1; border-top: 1.5px dashed var(--line); }
-  .o-line::before { content: ''; position: absolute; left: -2px; top: -4.5px; width: 7px; height: 7px; border-radius: 50%; background: var(--line); }
-  .o-line::after { content: ''; position: absolute; right: -1px; top: -6px; border: 5px solid transparent; border-left: 7px solid var(--line); border-right: 0; }
-
-  @media (max-width: 800px) {
-    .stages { grid-template-columns: 1fr; row-gap: 1.75rem; padding-left: 1rem; }
-    .h-conn { display: none; }
-    .b1 { width: 110%; }
-    .b2 { display: none; }
-    .ongoing { padding-left: 2.75rem; }
+  /* Phones: a vertical timeline */
+  @media (max-width: 700px) {
+    .stages { grid-template-columns: 1fr; row-gap: 1.5rem; padding-left: 2rem; }
+    .pix-line {
+      left: 7px; right: auto; top: 6px; bottom: 10px; width: 4px; height: auto;
+      background: linear-gradient(180deg, #4f8f8a, #8fc3bd 30%, #e2c048 62%, #f98f33 88%, #e46a1e);
+      -webkit-mask: repeating-linear-gradient(180deg, #000 0 4px, transparent 4px 7px);
+              mask: repeating-linear-gradient(180deg, #000 0 4px, transparent 4px 7px);
+    }
+    .pix-arrow { right: auto; left: 6px; top: auto; bottom: 2px; rotate: 90deg; }
+    .scatter { display: none; }
+    .stage { position: relative; }
+    .node { position: absolute; left: -2rem; top: 0.1em; margin: 0; }
+    .label { margin-bottom: 0.5rem; height: auto; white-space: normal; }
   }
 </style>
-
-<script>
-  // Size the horizontal pill connectors so each reaches the next stage's pill
-  function fit(flow: HTMLElement) {
-    const stages = [...flow.querySelectorAll<HTMLElement>('.stage')];
-    stages.forEach((st, i) => {
-      const pill = st.querySelector<HTMLElement>('.pill');
-      const next = stages[i + 1]?.querySelector<HTMLElement>('.pill');
-      const conn = st.querySelector<HTMLElement>('.h-conn');
-      if (!pill || !next || !conn) return;
-      const s = st.getBoundingClientRect(), a = pill.getBoundingClientRect(), b = next.getBoundingClientRect();
-      conn.style.setProperty('--conn-left', `${a.right - s.left + 8}px`);
-      conn.style.setProperty('--conn-top', `${a.top - s.top + a.height / 2}px`);
-      conn.style.setProperty('--gap-w', `${Math.max(0, b.left - a.right - 18)}px`);
-    });
-  }
-  document.querySelectorAll<HTMLElement>('.flow').forEach((f) => {
-    fit(f);
-    new ResizeObserver(() => fit(f)).observe(f);
-  });
-</script>
