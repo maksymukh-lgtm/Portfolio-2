@@ -331,11 +331,10 @@ export const caseStudies = {
           'I presented mockups to the business team regularly, collected their feedback and iterated until the designs were approved. With rules this complex, those review cycles were essential for catching edge cases early and making sure the platform matched how the program really works.',
         ],
         image: {
-          ratio: '16 / 7.8',
-          layers: [
-            { src: '/work/service-hours.webp', x: 4, y: 8, w: 45, alt: 'Service hours request: hours requested per category against their thresholds, with a running total' },
-            { src: '/work/ta-plan-history.webp', x: 52, y: 8, w: 44, alt: 'TA plan history: the active modification and the expired initial plan, with submission and approval dates' },
-            { src: '/work/ta-purchases.webp', x: 52, y: 34, w: 44, alt: 'Purchases and other categories in the TA plan summary, each with authorized and utilized amounts and an on-track status' },
+          row: [
+            { src: '/work/service-hours.webp', alt: 'Service hours request: hours requested per category against their thresholds, with a running total' },
+            { src: '/work/ta-purchases.webp', alt: 'Purchases and other categories in the TA plan summary, each with authorized and utilized amounts and an on-track status' },
+            { src: '/work/ta-invoice-docs-v2.webp', alt: 'TA invoice documents step: receipts matched to the approved purchases they cover' },
           ],
         },
       },

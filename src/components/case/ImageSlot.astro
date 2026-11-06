@@ -4,8 +4,16 @@
 const { image } = Astro.props;
 const ratio = image.ratio || '16 / 9';
 ---
-<figure class={`slot${image.frame || image.layers ? ' framed' : ''}`} style={image.src && !image.ratio ? '' : `--ratio:${ratio}`}>
-  {image.layers
+<figure class={`slot${image.frame || image.layers || image.row ? ' framed' : ''}`} style={image.src && !image.ratio ? '' : `--ratio:${ratio}`}>
+  {image.row
+    ? (
+      <div class="panel row" style={`--cols:${image.row.length}`}>
+        {image.row.map((r) => (
+          <img class="tonal-shadow" src={r.src} alt={r.alt || ''} loading="lazy" decoding="async" />
+        ))}
+      </div>
+    )
+    : image.layers
     ? (
       <div class="panel comp" style={`--ratio:${ratio}`}>
         {image.layers.map((l) => (
@@ -81,6 +89,11 @@ const ratio = image.ratio || '16 / 9';
   .comp { position: relative; aspect-ratio: var(--ratio); overflow: hidden; }
   .comp .layer { position: absolute; }
   .comp .layer img { display: block; width: 100%; height: auto; }
+  /* Row: images side by side in equal columns, aligned to the top */
+  .row { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); gap: clamp(0.75rem, 0.4rem + 1vw, 1.5rem); align-items: start; }
+  .row img { width: 100%; height: auto; }
+  @media (max-width: 700px) { .row { grid-template-columns: 1fr; } }
+
   /* Phones: stack the layers so each snapshot stays readable */
   @media (max-width: 700px) {
     .comp { aspect-ratio: auto; display: grid; gap: 0.75rem; }
