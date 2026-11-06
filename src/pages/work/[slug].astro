@@ -219,7 +219,11 @@ let n = 0;
 
   /* Metrics */
   /* Metrics reuse the feature card grid; a figure can sit where the icon goes */
-  .head-note { max-width: 32rem; margin-top: 1rem; font-size: 1.125rem; line-height: 1.55; color: var(--color-muted); }
+  /* Solution and outcome sections: heading spans the full width (their text sits under it) */
+  .block-features .block-head, .block-metrics .block-head { grid-column: 1 / -1; }
+  .block-features .block-body, .block-metrics .block-body { display: none; }
+  .block-features .block-head h2, .block-metrics .block-head h2 { max-width: 44rem; }
+  .head-note { max-width: 48rem; margin-top: 1rem; font-size: 1.125rem; line-height: 1.55; color: var(--color-muted); }
   .metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .value { display: block; height: 28px; font-size: 2rem; font-weight: 500; line-height: 28px; letter-spacing: -0.02em; color: #c0652f; }
 
