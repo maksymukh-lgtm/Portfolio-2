@@ -81,6 +81,11 @@ const ratio = image.ratio || '16 / 9';
   .comp { position: relative; aspect-ratio: var(--ratio); overflow: hidden; }
   .comp .layer { position: absolute; }
   .comp .layer img { display: block; width: 100%; height: auto; }
+  /* Phones: stack the layers so each snapshot stays readable */
+  @media (max-width: 700px) {
+    .comp { aspect-ratio: auto; display: grid; gap: 0.75rem; }
+    .comp .layer { position: static; width: 100% !important; }
+  }
 
   /* Highlights: an outlined area on a layer, with an optional label pill */
   .mark {
