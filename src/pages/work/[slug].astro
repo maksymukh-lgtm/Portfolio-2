@@ -155,18 +155,17 @@ let n = 0;
 
   /* Cover */
   .cover {
-    max-height: min(78vh, 780px);   /* the screenshot is cropped at the bottom */
     background: var(--accent);
     border-bottom: 1px solid var(--color-line);
-    padding: clamp(2.5rem, 1rem + 5vw, 6rem) clamp(1.5rem, 1rem + 6vw, 8rem) 0;
+    padding: clamp(2rem, 1rem + 4vw, 5rem) clamp(1.25rem, 0.5rem + 5vw, 6rem);
     overflow: hidden;
   }
   .cover img {
     display: block;
     width: 100%;
-    max-width: 1100px;
+    max-width: 1200px;
     margin-inline: auto;
-    border-radius: 10px 10px 0 0;
+    border-radius: 10px;
     box-shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 20px 50px -20px rgb(30 20 60 / 0.3);
   }
 
