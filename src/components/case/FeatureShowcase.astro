@@ -8,7 +8,7 @@
 import Icon from '../Icon.astro';
 const { card } = Astro.props;
 ---
-<figure class="showcase" style={`--card:${card.bg};--fade:${card.fade || 62}%;--max:${card.maxH || 340}px`}>
+<figure class={`showcase${card.full ? ' full' : ''}`} style={`--card:${card.bg};--fade:${card.fade || 62}%;--max:${card.maxH || 340}px;--stage-w:${card.stageW || 100}%`}>
   <p class="title">{card.title}</p>
   <p class="subtitle">{card.subtitle}</p>
 
@@ -38,7 +38,7 @@ const { card } = Astro.props;
   .title { margin-top: 0; font-size: clamp(1.25rem, 1rem + 0.7vw, 1.625rem); font-weight: 500; line-height: 1.25; letter-spacing: -0.01em; }
   .subtitle { margin-top: 0.4rem; font-size: 0.9375rem; line-height: 1.5; color: #5c5650; }
 
-  .stage { position: relative; margin-top: clamp(1.75rem, 1rem + 2vw, 3rem); padding: 0 4% 0; }
+  .stage { width: var(--stage-w); margin-inline: auto; position: relative; margin-top: clamp(1.75rem, 1rem + 2vw, 3rem); padding: 0 4% 0; }
   /* Soft double frame: a translucent outer ring around a white screen */
   .frame {
     padding: 10px;
@@ -74,6 +74,10 @@ const { card } = Astro.props;
     rotate: calc(-4deg + var(--i) * 7deg);
   }
   .tile :global(svg) { stroke-width: 1.5; }
+
+  /* `full`: show the whole interface, with no height cap or fade */
+  @media (max-width: 700px) { .stage { width: 100%; } }
+  .full .screen { max-height: none; -webkit-mask-image: none; mask-image: none; }
   @media (max-width: 700px) {
     .tile { width: 44px; height: 44px; border-radius: 12px; top: calc(-18px + var(--i) * 38px); }
     .tile :global(svg) { width: 22px; height: 22px; }

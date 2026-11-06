@@ -96,7 +96,7 @@ let n = 0;
                 <div class="pair block-wide">{b.images.map((img) => <ImageSlot image={img} />)}</div>
               )}
               {b.showcase && (
-                <div class="pair showcase-pair block-wide">{b.showcase.map((card) => <FeatureShowcase card={card} />)}</div>
+                <div class={`pair showcase-pair block-wide${b.showcaseStack ? ' stack' : ''}`}>{b.showcase.map((card) => <FeatureShowcase card={card} />)}</div>
               )}
             </>
           )}
@@ -218,6 +218,7 @@ let n = 0;
   .features p { margin-top: 0.6rem; font-size: 1rem; line-height: 1.55; color: var(--color-muted); }
   .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
   .showcase-pair { gap: 12px; }
+  .showcase-pair.stack { grid-template-columns: 1fr; }
 
   /* Metrics */
   /* Metrics reuse the feature card grid; a figure can sit where the icon goes */
