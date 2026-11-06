@@ -133,4 +133,81 @@ export const caseStudies = {
       },
     ],
   },
+  'tracking-care': {
+    title: 'Tracking Care for Participants',
+    subtitle: "A reporting and approvals platform for MassAbility's Supported Living program.",
+    overview:
+      "Supported Living is one of MassAbility's Home and Community Life programs. It helps people with physical disabilities live as independently as possible, in their own homes and communities. The program is grounded in the independent living philosophy: participants are the experts on their own lives, making their own choices and deciding what independence looks like for them. Services are delivered by contracted providers, and I designed the platform they use to plan and report on that work.",
+    meta: [
+      { label: 'Role', value: 'Product designer' },
+      { label: 'Timeline', value: '[add]', placeholder: true },
+      { label: 'Organization', value: 'MassAbility' },
+    ],
+    cover: { src: '/work/sl-quarter.webp', alt: 'Quarterly progress report showing the active service authorization, hours remaining and services to report' },
+    problem: "How can we help providers and MassAbility plan, approve and report on services, within the program's existing business processes?",
+    outcome: "We designed a platform for service plans, approvals and progress reports. Providers gave it enthusiastic feedback in demos, and it's now in active testing.",
+    blocks: [
+      {
+        type: 'section',
+        title: 'A Word document couldn’t keep up',
+        body: [
+          'Providers report on the services they deliver every month or quarter, depending on their contract. They did it with a Word document, and approvals went back and forth over email. That made it hard to track what was requested, what was approved and what was actually delivered. Following spending or pulling analytics across providers was close to impossible.',
+        ],
+        image: { placeholder: 'An anonymized example of the old Word report or email approval chain', ratio: '16 / 7' },
+      },
+      {
+        type: 'section',
+        title: 'Understanding the process first',
+        body: [
+          'We started by running a survey to identify the stakeholders involved, their pain points and how the process worked for each of them. We then interviewed stakeholders to confirm what we’d learned. From there, I created a current-state service blueprint that mapped how everything worked today, from the provider’s first submission to the agency’s final approval.',
+        ],
+        image: { placeholder: 'Current-state service blueprint', ratio: '16 / 7' },
+      },
+      {
+        type: 'section',
+        title: 'Prioritizing with limited time and budget',
+        body: [
+          'The blueprint surfaced more opportunities than we could build. With limited time and budget, and multiple teams collaborating, we needed clear priorities. We ran a MoSCoW exercise with stakeholders to decide what had to be in the first release, then confirmed the final feature set with everyone involved.',
+        ],
+        image: { placeholder: 'MoSCoW prioritization board', ratio: '16 / 7' },
+      },
+      {
+        type: 'features',
+        title: 'The solution: plans, reports and participant data in one place',
+        intro: 'I designed mockups for the three workflows that mattered most.',
+        items: [
+          { icon: 'clipboard-check', title: 'Service plan creation and approval', text: 'Providers create service plans and MassAbility reviews and approves them in the platform, replacing approvals by email.' },
+          { icon: 'stats-report', title: 'Progress reports', text: 'Providers submit their monthly or quarterly reports in a structured format, so requested and delivered services can be compared.' },
+          { icon: 'user-circle', title: 'Participant data review', text: 'The agency and providers can review participant information and service history in one place.' },
+        ],
+        images: [
+          { placeholder: 'Key screen: a service plan in review', ratio: '4 / 3' },
+          { placeholder: 'Key screen: the progress report form', ratio: '4 / 3' },
+        ],
+      },
+      {
+        type: 'section',
+        title: 'Designing within real constraints',
+        body: [
+          'The platform was built by our internal development team on the front end and by an external provider on the back end. I worked closely with both. The back-end provider’s feedback and technical constraints shaped many of the interactions and how the interface came together, so my job was to find the best experience within what the system could support.',
+        ],
+      },
+      {
+        type: 'section',
+        title: 'Documentation and testing',
+        body: [
+          'To keep everyone aligned, I wrote the functional requirements document (FRD) together with the development team. I also created the testing documents used to validate the platform before launch.',
+        ],
+      },
+      {
+        type: 'metrics',
+        title: 'Outcomes and metrics',
+        items: [
+          { icon: 'chat-bubble-check', title: 'Enthusiastic provider feedback', text: 'When we demonstrated the platform, providers were excited to finally have a structured way to handle approvals instead of email.' },
+          { icon: 'test-tube', title: 'In active testing', text: 'The platform is currently being tested ahead of rollout.' },
+          { icon: 'multiple-pages', title: 'Ready to build on', text: 'The FRD and testing documents give the agency a clear foundation for launch and future releases.' },
+        ],
+      },
+    ],
+  },
 };

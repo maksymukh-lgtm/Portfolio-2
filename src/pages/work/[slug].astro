@@ -16,8 +16,10 @@ export function getStaticPaths() {
 const { slug } = Astro.params;
 const cs = caseStudies[slug];
 const project = selectedWorks.find((p) => p.slug === slug);
-const i = selectedWorks.findIndex((p) => p.slug === slug);
-const next = selectedWorks[(i + 1) % selectedWorks.length];
+// Next project: the next one in the home page order that has a case study page
+const published = selectedWorks.filter((p) => caseStudies[p.slug]);
+const i = published.findIndex((p) => p.slug === slug);
+const next = published.length > 1 ? published[(i + 1) % published.length] : null;
 const pad = (n) => String(n).padStart(2, '0');
 let n = 0;
 ---
