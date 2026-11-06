@@ -30,7 +30,7 @@ import HeroAnimation from './HeroAnimation.astro';
   .bio {
     font-size: 1.25rem; /* 20px */
     line-height: 1.5;
-    padding: 0 0 3.5rem 3rem;
+    padding: 0 0 3.5rem calc(3rem + var(--bio-shift, 0px));
     border-left: 1px solid var(--color-line);
     /* Extend the divider up to the top of the page like the mockup */
     margin-top: -6rem;
@@ -39,6 +39,28 @@ import HeroAnimation from './HeroAnimation.astro';
   @media (max-width: 800px) {
     .intro { grid-template-columns: 1fr; gap: 0; }
     h1 { padding-bottom: 1.5rem; }
-    .bio { border-left: 0; padding: 0 0 2.5rem; margin-top: 0; }
+    .bio { border-left: 0; padding: 0 0 2.5rem; margin-top: 0; --bio-shift: 0px !important; }
   }
 </style>
+
+<script>
+  // Shift the bio text so its longest line ends exactly at the right edge of the
+  // column (lined up with the last letter of "Contacts"). The divider stays put;
+  // the extra left padding equals the empty space after the longest line, so the
+  // line breaks don't change.
+  function alignBio() {
+    const bio = document.querySelector<HTMLElement>('.bio');
+    if (!bio) return;
+    bio.style.removeProperty('--bio-shift');
+    const range = document.createRange();
+    range.selectNodeContents(bio);
+    const right = Math.max(...[...range.getClientRects()].map((r) => r.right));
+    const boxRight = bio.getBoundingClientRect().right - parseFloat(getComputedStyle(bio).paddingRight);
+    const slack = Math.floor(boxRight - right - 1);
+    if (slack > 0) bio.style.setProperty('--bio-shift', `${slack}px`);
+  }
+  document.fonts?.ready.then(alignBio);
+  alignBio();
+  let t: number | undefined;
+  addEventListener('resize', () => { clearTimeout(t); t = window.setTimeout(alignBio, 100); });
+</script>
