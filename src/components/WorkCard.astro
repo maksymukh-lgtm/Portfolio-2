@@ -46,12 +46,10 @@ const Tag = comingSoon ? 'div' : 'a';
 
   /* Coming soon: no hover effects, a small label above the title */
   .card { position: relative; }
-  .soon { cursor: default; background: #f1f1ef; border-color: #e2e2df; }
-  /* Screenshot washed out and greyed so the card reads as unavailable */
-  .soon img { filter: grayscale(1) opacity(0.45); box-shadow: none; }
-  .soon h3, .soon p { color: #8a8a86; }
+  /* Coming soon: the whole card is faded, keeping its colours */
+  .soon { cursor: default; opacity: 0.45; }
   .soon:hover img { transform: none; }
-  .soon:hover { border-color: #e2e2df; }
+  .soon:hover { border-color: var(--card-border); }
   .soon-label {
     display: inline-block;
     margin-bottom: 0.75rem;
