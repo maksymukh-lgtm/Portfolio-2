@@ -1,0 +1,51 @@
+---
+// A case study image. Until `src` is set it shows a labelled placeholder frame,
+// so it's clear what image belongs there.
+const { image } = Astro.props;
+const ratio = image.ratio || '16 / 9';
+---
+<figure class="slot" style={`--ratio:${ratio}`}>
+  {image.src
+    ? <img src={image.src} alt={image.alt || ''} loading="lazy" decoding="async" />
+    : (
+      <div class="placeholder">
+        <span class="tag">Image</span>
+        <span class="what">{image.placeholder}</span>
+      </div>
+    )}
+  {image.caption && <figcaption>{image.caption}</figcaption>}
+</figure>
+
+<style>
+  .slot { margin: 0; }
+  img, .placeholder {
+    display: block;
+    width: 100%;
+    aspect-ratio: var(--ratio);
+    border-radius: 8px;
+    border: 1px solid var(--color-line);
+    object-fit: cover;
+    background: #f7f7f7;
+  }
+  .placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    padding: 1.5rem;
+    text-align: center;
+    background:
+      repeating-linear-gradient(135deg, transparent 0 14px, rgb(0 0 0 / 0.025) 14px 15px),
+      #f7f7f7;
+  }
+  .tag {
+    font-family: 'Geist Mono', ui-monospace, monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #8a8a8a;
+  }
+  .what { max-width: 26rem; font-size: 0.9375rem; line-height: 1.5; color: #6b6b6b; }
+  figcaption { margin-top: 0.75rem; font-size: 0.875rem; color: #6b6b6b; }
+</style>

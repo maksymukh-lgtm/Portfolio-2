@@ -1,0 +1,238 @@
+---
+import Base from '../../layouts/Base.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import ImageSlot from '../../components/case/ImageSlot.astro';
+import { caseStudies } from '../../data/caseStudies.js';
+import { selectedWorks } from '../../data/projects.js';
+
+export function getStaticPaths() {
+  return Object.keys(caseStudies).map((slug) => ({ params: { slug } }));
+}
+
+const { slug } = Astro.params;
+const cs = caseStudies[slug];
+const project = selectedWorks.find((p) => p.slug === slug);
+const i = selectedWorks.findIndex((p) => p.slug === slug);
+const next = selectedWorks[(i + 1) % selectedWorks.length];
+const pad = (n) => String(n).padStart(2, '0');
+let n = 0;
+---
+<Base title={`${cs.title} — Hanna Maksymuk`} description={cs.subtitle}>
+  <Header />
+  <main class="case" style={`--accent:${project?.bg || '#f7f7f7'};--accent-border:${project?.border || 'var(--color-line)'}`}>
+
+    <!-- Intro: title on the left, summary on the right (same pattern as the home hero) -->
+    <section class="intro">
+      <div class="intro-main">
+        <a class="back" href="/#work">← Recent work</a>
+        <h1>{cs.title.replace(/-/g, '\u2011')}</h1>   {/* keep hyphenated words together */}
+        <p class="subtitle">{cs.subtitle}</p>
+      </div>
+      <p class="intro-text">{cs.intro}</p>
+    </section>
+
+    <!-- Meta strip: cells divided by thin lines -->
+    <dl class="meta">
+      {cs.meta.map((m) => (
+        <div class="meta-cell">
+          <dt>{m.label}</dt>
+          <dd class={m.placeholder ? 'todo' : ''}>{m.value}</dd>
+        </div>
+      ))}
+    </dl>
+
+    <!-- Cover: the card colour with the product screenshot -->
+    {cs.cover && (
+      <div class="cover">
+        <img src={cs.cover.src} alt={cs.cover.alt} />
+      </div>
+    )}
+
+    <!-- Problem / Outcome -->
+    <div class="po">
+      <div class="po-cell"><p class="label">Problem</p><p class="po-text">{cs.problem}</p></div>
+      <div class="po-cell"><p class="label">Outcome</p><p class="po-text">{cs.outcome}</p></div>
+    </div>
+
+    <!-- Story -->
+    {cs.blocks.map((b) => {
+      n += 1;
+      return (
+        <section class={`block block-${b.type}`}>
+          <div class="block-head">
+            <p class="label">{pad(n)}</p>
+            <h2>{b.title}</h2>
+          </div>
+          <div class="block-body">
+            {b.body?.map((p) => <p>{p}</p>)}
+            {b.intro && <p>{b.intro}</p>}
+          </div>
+
+          {b.type === 'section' && b.image && (
+            <div class="block-wide"><ImageSlot image={b.image} /></div>
+          )}
+
+          {b.type === 'features' && (
+            <>
+              <ul class="features block-wide">
+                {b.items.map((f, k) => (
+                  <li><span class="label">{pad(k + 1)}</span><h3>{f.title}</h3><p>{f.text}</p></li>
+                ))}
+              </ul>
+              {b.images && (
+                <div class="pair block-wide">{b.images.map((img) => <ImageSlot image={img} />)}</div>
+              )}
+            </>
+          )}
+
+          {b.type === 'metrics' && (
+            <ul class="metrics block-wide">
+              {b.items.map((m) => (
+                <li><span class="value">{m.value}</span><span class="m-label">{m.label}</span><p>{m.text}</p></li>
+              ))}
+            </ul>
+          )}
+        </section>
+      );
+    })}
+
+    <!-- Next project -->
+    {next && (
+      <a class="next" href={`/work/${next.slug}`} style={`--next-bg:${next.bg}`}>
+        <span class="label">Next project</span>
+        <span class="next-title">{next.title} <span class="arrow" aria-hidden="true">→</span></span>
+        <span class="next-sub">{next.summary}</span>
+      </a>
+    )}
+  </main>
+  <Footer />
+</Base>
+
+<style>
+  /* Everything spans the framed area so row lines meet the side lines */
+  .case > * { margin-inline: var(--line-x); }
+  .label {
+    font-family: 'Geist Mono', ui-monospace, monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #8a8a8a;
+  }
+
+  /* Intro */
+  .intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+    gap: 3rem;
+    padding: clamp(3rem, 2rem + 3vw, 5.5rem) var(--inset) clamp(3rem, 2rem + 2.5vw, 4.5rem);
+  }
+  .back { display: inline-block; margin-bottom: 2rem; font-size: 0.9375rem; color: #6b6b6b; text-decoration: none; }
+  .back:hover { color: var(--color-text); }
+  h1 { font-size: clamp(2.5rem, 1.5rem + 3.3vw, 4.5rem); font-weight: 500; line-height: 1.04; letter-spacing: -0.025em; }
+  .subtitle { margin-top: 1.25rem; font-size: clamp(1.125rem, 1rem + 0.45vw, 1.5rem); line-height: 1.4; color: #5c5c5c; max-width: 32rem; }
+  .intro-text { align-self: end; font-size: 1.25rem; line-height: 1.5; }
+
+  /* Meta strip */
+  .meta {
+    margin-block: 0;
+    display: grid;
+    grid-template-columns: repeat(var(--meta-cols, 3), minmax(0, 1fr));
+    border-block: 1px solid var(--color-line);
+  }
+  .meta-cell { padding: 1.25rem var(--inset); }
+  .meta-cell + .meta-cell { border-left: 1px solid var(--color-line); }
+  dt { font-family: 'Geist Mono', ui-monospace, monospace; font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: #8a8a8a; }
+  dd { margin: 0.4rem 0 0; font-size: 1.0625rem; }
+  dd.todo { color: #c0652f; }
+
+  /* Cover */
+  .cover {
+    max-height: min(78vh, 780px);   /* the screenshot is cropped at the bottom */
+    background: var(--accent);
+    border-bottom: 1px solid var(--color-line);
+    padding: clamp(2.5rem, 1rem + 5vw, 6rem) clamp(1.5rem, 1rem + 6vw, 8rem) 0;
+    overflow: hidden;
+  }
+  .cover img {
+    display: block;
+    width: 100%;
+    max-width: 1100px;
+    margin-inline: auto;
+    border-radius: 10px 10px 0 0;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 20px 50px -20px rgb(30 20 60 / 0.3);
+  }
+
+  /* Problem / Outcome */
+  .po { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--color-line); }
+  .po-cell { padding: clamp(2.5rem, 1.5rem + 2vw, 4rem) var(--inset); }
+  .po-cell + .po-cell { border-left: 1px solid var(--color-line); }
+  .po-text { margin-top: 1rem; font-size: clamp(1.25rem, 1rem + 0.7vw, 1.75rem); line-height: 1.4; letter-spacing: -0.01em; }
+
+  /* Story blocks: heading left, text right, wide media underneath */
+  .block {
+    display: grid;
+    grid-template-columns: minmax(0, 0.76fr) minmax(0, 1fr);
+    column-gap: clamp(2rem, 1rem + 2.5vw, 3.25rem);
+    row-gap: 3rem;
+    padding: clamp(3.5rem, 2rem + 3vw, 5.5rem) var(--inset);
+    border-bottom: 1px solid var(--color-line);
+  }
+  .block-head h2 { margin-top: 0.75rem; font-size: clamp(1.5rem, 1rem + 1.1vw, 2.125rem); line-height: 1.2; letter-spacing: -0.015em; max-width: 26rem; }
+  .block-body p { font-size: 1.125rem; line-height: 1.65; color: var(--color-muted); max-width: 40rem; }
+  .block-body p + p { margin-top: 1.2em; }
+  .block-wide { grid-column: 1 / -1; }
+
+  /* Features: a lined grid of six */
+  .features {
+    list-style: none; margin: 0; padding: 0;
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+    border-top: 1px solid var(--color-line);
+    border-left: 1px solid var(--color-line);
+  }
+  .features li { padding: 1.75rem 1.5rem 2rem; border-right: 1px solid var(--color-line); border-bottom: 1px solid var(--color-line); }
+  .features h3 { margin-top: 1.25rem; font-size: 1.25rem; font-weight: 500; line-height: 1.3; }
+  .features p { margin-top: 0.6rem; font-size: 1rem; line-height: 1.55; color: var(--color-muted); }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+
+  /* Metrics */
+  .metrics {
+    list-style: none; margin: 0; padding: 0;
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+    border-top: 1px solid var(--color-line);
+  }
+  .metrics li { padding: 2rem 1.5rem 0 0; }
+  .metrics li + li { padding-left: 1.5rem; border-left: 1px solid var(--color-line); }
+  .value { display: block; font-size: clamp(2.75rem, 1.8rem + 3vw, 4.75rem); font-weight: 500; line-height: 1; letter-spacing: -0.03em; color: #c0652f; }
+  .m-label { display: block; margin-top: 1rem; font-size: 1.125rem; font-weight: 500; }
+  .metrics p { margin-top: 0.5rem; font-size: 1rem; line-height: 1.55; color: var(--color-muted); max-width: 22rem; }
+
+  /* Next project */
+  .next {
+    display: grid;
+    gap: 0.75rem;
+    padding: clamp(3rem, 2rem + 3vw, 5rem) var(--inset);
+    border-bottom: 1px solid var(--color-line);
+    text-decoration: none;
+    transition: background 0.3s ease;
+  }
+  .next:hover { background: var(--next-bg); }
+  .next-title { font-size: clamp(1.75rem, 1.2rem + 1.8vw, 3rem); letter-spacing: -0.02em; line-height: 1.1; }
+  .arrow { display: inline-block; transition: transform 0.3s ease; }
+  .next:hover .arrow { transform: translateX(6px); }
+  .next-sub { font-size: 1.0625rem; color: #6b6b6b; max-width: 40rem; }
+
+  @media (max-width: 800px) {
+    .intro, .block, .po { grid-template-columns: 1fr; }
+    .intro { gap: 2rem; }
+    .po-cell + .po-cell { border-left: 0; border-top: 1px solid var(--color-line); }
+    .block { row-gap: 1.5rem; }
+    .features, .metrics, .pair { grid-template-columns: 1fr; }
+    .metrics li, .metrics li + li { padding: 1.5rem 0; border-left: 0; border-bottom: 1px solid var(--color-line); }
+    .meta { grid-template-columns: 1fr; }
+    .meta-cell + .meta-cell { border-left: 0; border-top: 1px solid var(--color-line); }
+  }
+  @media (min-width: 801px) and (max-width: 1100px) {
+    .features { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+</style>
