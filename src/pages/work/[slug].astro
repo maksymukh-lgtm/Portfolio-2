@@ -46,19 +46,15 @@ let n = 0;
       </div>
     )}
 
-    <!-- Overview: its own section, heading left and text right like the story sections -->
-    {cs.overview && (
-      <section class="block overview">
-        <div class="block-head"><h2>Overview</h2></div>
-        <div class="block-body"><p class="lead">{cs.overview}</p></div>
-      </section>
-    )}
-
-    <!-- Problem / Outcome -->
-    <div class="po">
-      <div class="po-cell"><p class="label">Problem</p><p class="po-text">{cs.problem}</p></div>
-      <div class="po-cell"><p class="label">Outcome</p><p class="po-text">{cs.outcome}</p></div>
-    </div>
+    <!-- Overview: heading on the left; Background, Problem and Outcome stacked on the right -->
+    <section class="block overview">
+      <div class="block-head"><h2>Overview</h2></div>
+      <dl class="ov-list">
+        {cs.overview && <div class="ov-item"><dt class="label">Background</dt><dd>{cs.overview}</dd></div>}
+        {cs.problem && <div class="ov-item"><dt class="label">Problem</dt><dd>{cs.problem}</dd></div>}
+        {cs.outcome && <div class="ov-item"><dt class="label">Outcome</dt><dd>{cs.outcome}</dd></div>}
+      </dl>
+    </section>
 
     <!-- Story -->
     {cs.blocks.map((b) => {
@@ -164,11 +160,10 @@ let n = 0;
     box-shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 20px 50px -20px rgb(30 20 60 / 0.3);
   }
 
-  /* Problem / Outcome */
-  .po { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--color-line); }
-  .po-cell { padding: clamp(2.5rem, 1.5rem + 2vw, 4rem) var(--inset); }
-  .po-cell + .po-cell { border-left: 1px solid var(--color-line); }
-  .po-text { margin-top: 1rem; font-size: clamp(1.25rem, 1rem + 0.7vw, 1.75rem); line-height: 1.4; letter-spacing: -0.01em; }
+  /* Overview list: Background, Problem, Outcome separated by thin lines */
+  .ov-list { margin: 0; }
+  .ov-item + .ov-item { margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--color-line); }
+  .ov-item dd { margin: 0.75rem 0 0; font-size: clamp(1.1875rem, 1rem + 0.5vw, 1.5rem); line-height: 1.5; letter-spacing: -0.005em; max-width: 42rem; }
 
   /* Story blocks: heading left, text right, wide media underneath */
   .block {
@@ -180,7 +175,6 @@ let n = 0;
     border-bottom: 1px solid var(--color-line);
   }
   .overview .block-head h2 { margin-top: 0; }
-  .block-body p.lead { font-size: clamp(1.1875rem, 1rem + 0.5vw, 1.5rem); line-height: 1.55; color: var(--color-text); }
   .block-head h2 { margin-top: 0.75rem; font-size: clamp(1.5rem, 1rem + 1.1vw, 2.125rem); line-height: 1.2; letter-spacing: -0.015em; max-width: 26rem; }
   .block-body p { font-size: 1.125rem; line-height: 1.65; color: var(--color-muted); max-width: 40rem; }
   .block-body p + p { margin-top: 1.2em; }
@@ -226,8 +220,7 @@ let n = 0;
   .next-sub { font-size: 1.0625rem; color: #6b6b6b; max-width: 40rem; }
 
   @media (max-width: 800px) {
-    .block, .po { grid-template-columns: 1fr; }
-    .po-cell + .po-cell { border-left: 0; border-top: 1px solid var(--color-line); }
+    .block { grid-template-columns: 1fr; }
     .block { row-gap: 1.5rem; }
     .features, .metrics, .pair { grid-template-columns: 1fr; }
     .metrics li, .metrics li + li { padding: 1.5rem 0; border-left: 0; border-bottom: 1px solid var(--color-line); }
