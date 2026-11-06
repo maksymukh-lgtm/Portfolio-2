@@ -65,10 +65,11 @@ let n = 0;
           <div class="block-head">
             <p class="label">{pad(n)}</p>
             <h2>{b.title}</h2>
+            {b.type === 'metrics' && b.intro && <p class="head-note">{b.intro}</p>}
           </div>
           <div class="block-body">
             {b.body?.map((p) => <p>{p}</p>)}
-            {b.intro && <p>{b.intro}</p>}
+            {b.intro && b.type !== 'metrics' && <p>{b.intro}</p>}
           </div>
 
           {b.type === 'section' && b.image && (
@@ -92,9 +93,14 @@ let n = 0;
           )}
 
           {b.type === 'metrics' && (
-            <ul class="metrics block-wide">
+            <ul class="features metrics block-wide">
               {b.items.map((m) => (
-                <li><span class="value">{m.value}</span><span class="m-label">{m.label}</span><p>{m.text}</p></li>
+                <li>
+                  {m.value
+                    ? <span class="value">{m.value}</span>
+                    : <span class="f-icon"><Icon name={m.icon} size="28" /></span>}
+                  <h3>{m.title}</h3><p>{m.text}</p>
+                </li>
               ))}
             </ul>
           )}
@@ -199,16 +205,10 @@ let n = 0;
   .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
 
   /* Metrics */
-  .metrics {
-    list-style: none; margin: 0; padding: 0;
-    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
-    border-top: 1px solid var(--color-line);
-  }
-  .metrics li { padding: 2rem 1.5rem 0 0; }
-  .metrics li + li { padding-left: 1.5rem; border-left: 1px solid var(--color-line); }
-  .value { display: block; font-size: clamp(2.75rem, 1.8rem + 3vw, 4.75rem); font-weight: 500; line-height: 1; letter-spacing: -0.03em; color: #c0652f; }
-  .m-label { display: block; margin-top: 1rem; font-size: 1.125rem; font-weight: 500; }
-  .metrics p { margin-top: 0.5rem; font-size: 1rem; line-height: 1.55; color: var(--color-muted); max-width: 22rem; }
+  /* Metrics reuse the feature card grid; a figure can sit where the icon goes */
+  .head-note { margin-top: 1rem; font-size: 1.125rem; line-height: 1.55; color: var(--color-muted); }
+  .metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .value { display: block; height: 28px; font-size: 2rem; font-weight: 500; line-height: 28px; letter-spacing: -0.02em; color: #c0652f; }
 
   /* Next project */
   .next {
@@ -229,7 +229,6 @@ let n = 0;
     .block { grid-template-columns: 1fr; }
     .block { row-gap: 1.5rem; }
     .features, .metrics, .pair { grid-template-columns: 1fr; }
-    .metrics li, .metrics li + li { padding: 1.5rem 0; border-left: 0; border-bottom: 1px solid var(--color-line); }
     .meta { grid-template-columns: 1fr; }
     .meta-cell + .meta-cell { border-left: 0; border-top: 1px solid var(--color-line); }
   }

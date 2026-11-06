@@ -3,7 +3,7 @@
 //   { type: 'section', title, body: [paragraphs], image?: { placeholder | src, alt, caption, ratio } }
 //   { type: 'features', title, intro, items: [{ icon, title, text }], images?: [...] }
 //     `icon` is an Iconoir icon name (browse them at iconoir.com); without one, the card shows its number
-//   { type: 'metrics', title, intro, items: [{ value, label, text }] }
+//   { type: 'metrics', title, intro, items: [{ value | icon, title, text }] }  (value = a short figure like '80%')
 // An image with `placeholder` (and no `src`) shows a labelled grey frame until you add the real file.
 export const caseStudies = {
   'phone-intake': {
@@ -79,9 +79,9 @@ export const caseStudies = {
         title: 'Outcomes and metrics',
         intro: 'The platform is live and in use today.',
         items: [
-          { value: '80%', label: 'Completion', text: '80% of applicants complete intake on their own, and case managers handle the remaining 20% through follow-up.' },
-          { value: 'Easy', label: 'User-friendly for citizens', text: 'Applicants describe the platform as easy to use.' },
-          { value: 'Praised', label: 'By staff', text: 'The eligibility team has given the new process great reviews.' },
+          { value: '80%', title: 'Completed without help', text: 'Most applicants now finish intake on their own. Case managers help the other 20% through follow-up.' },
+          { icon: 'thumbs-up', title: 'Easy for residents to use', text: 'Applicants describe the new application as easy to use.' },
+          { icon: 'user-badge-check', title: 'Well received by staff', text: 'The eligibility team has given the new process great reviews.' },
         ],
       },
     ],
