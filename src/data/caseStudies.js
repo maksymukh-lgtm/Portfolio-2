@@ -170,33 +170,16 @@ export const caseStudies = {
         ],
         image: {
           type: 'moscow',
-          title: 'SL reporting platform: first release',
-          note: 'Calculations, eligibility decisions and payments stay in MassAbility\u2019s own system (OnBase). The platform covers data entry, tracking, visibility and workflow status.',
-          columns: [
-            {
-              priority: 'must',
-              label: 'Must have',
-              hint: 'Service plan creation and maintenance',
-              groups: [
-                { name: 'Initial plan list', audience: 'provider', items: ['View participants who need an initial Service Plan', 'Identify overdue or pending plans', 'Open a system-generated blank plan'] },
-                { name: 'Service Plan authoring', audience: 'provider', items: ['Create initial Service Plan', 'Save draft', 'Submit initial Service Plan', 'View submission status'] },
-                { name: 'Service Plan content', audience: 'provider', items: ['Review prefilled participant data', 'Review provider and coordinator data', 'Select applicable service areas', 'Select supported tasks', 'Define measurable goals and narrative', 'Request additional service levels', 'Justify additional services', 'Enter anticipated monthly service hours', 'Identify priority tasks', 'Request a participant data update'] },
-                { name: 'Approval and revision', audience: 'provider', items: ['View MassAbility comments', 'Edit returned plans', 'Resubmit corrected plans'] },
-              ],
-            },
-            {
-              priority: 'wont',
-              label: 'Won\u2019t have (this release)',
-              hint: 'Referral and intake stay in existing tools for now',
-              groups: [
-                { name: 'Referral review and acceptance', audience: 'provider', items: ['Review available referrals', 'Review referral information', 'Accept or reject referrals'] },
-                { name: 'SL assessment', audience: 'provider', items: ['Create SL assessment', 'Save assessment drafts', 'Resume incomplete assessments', 'Capture assessment data', 'Submit completed assessments', 'Route for supervisor approval', 'View assessment status'] },
-                { name: 'Referral and authorization', audience: 'agency', items: ['Create SL referral', 'Associate referral with provider', 'Track referral status', 'Issue service authorization'] },
-                { name: 'Review and record maintenance', audience: 'agency', items: ['Review submitted assessments', 'Validate eligibility criteria', 'Maintain assessment records', 'Generate and email assessment PDF'] },
-                { name: 'Service plan extras', audience: 'provider', items: ['Internal supervisor review', 'Upload supporting documents'] },
-              ],
-            },
+          phase: 'Service Plan creation & maintenance',
+          legend: true,
+          groups: [
+            { name: 'Initial plan list', audience: 'provider', items: [{ text: 'View participants who need an initial Service Plan' }, { text: 'Identify plans that are overdue or pending' }, { text: 'Open system-generated blank plan' }] },
+            { name: 'Initial Service Plan authoring', audience: 'provider', items: [{ text: 'Create initial Service Plan' }, { text: 'Save draft' }, { text: 'Submit initial Service Plan' }, { text: 'View submission status' }] },
+            { name: 'Initial Service Plan content', audience: 'provider', items: [{ text: 'Review prefilled participant data' }, { text: 'Review provider and coordinator data' }, { text: 'Select applicable service areas' }, { text: 'Select supported tasks' }, { text: 'Define measurable goals and narrative' }, { text: 'Request additional service levels' }, { text: 'Justify additional services' }, { text: 'Enter anticipated service hours per month' }, { text: 'Identify priority tasks' }, { text: 'Upload supporting documents', wont: true }, { text: 'Request participant data update' }] },
+            { name: 'Approval & revision', audience: 'provider', items: [{ text: 'Internal supervisor review', wont: true }, { text: 'View MBY comments' }, { text: 'Edit returned plans' }, { text: 'Resubmit corrected plans' }] },
+            { name: 'Referral & authorization', audience: 'agency', items: [{ text: 'Create a Supported Living referral', wont: true }, { text: 'Associate referral with provider', wont: true }, { text: 'Track referral status', wont: true }, { text: 'Issue service authorization for assessment', wont: true }] },
           ],
+          pinned: { title: 'List of all service areas', items: ['PCA management / surrogacy', 'Behavioral health supports', 'Personal health care', 'Adaptive equipment / AT', 'Housing assistance', 'Financial management', 'Educational / vocational', 'Household management', 'Social / recreational', 'Mobility / transportation', 'Self-advocacy'] },
         },
       },
       {

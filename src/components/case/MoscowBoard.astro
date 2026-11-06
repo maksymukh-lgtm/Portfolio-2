@@ -1,132 +1,157 @@
 ---
 /*
-  MoSCoW board, rebuilt as real HTML (crisp at any size, readable on phones).
-  A summary row counts features per priority; below, the features that made the
-  first release are grouped by workflow as solid cards, and the deferred ones
-  are listed muted. Each group says who it's for (provider or MassAbility staff).
-  Props (board): { title, note, columns: [{ priority, label, hint?, groups: [{ name, audience, items: [] }] }] }
+  Prioritization board, rebuilt from the Figma board in HTML so it stays crisp:
+  a blue board with a phase header, groups of sticky notes inside dashed
+  outlines (purple = provider-facing, pink = MassAbility-facing), small label
+  tabs naming each group, and red "Won't have" tags on deferred features.
+  Props (board): { phase, legend?: true, groups: [{ name, audience, items: [{ text, wont? }] }], pinned?: { title, items } }
 */
 const { board } = Astro.props;
-const PRIORITIES = [
-  { key: 'must', label: 'Must have', color: '#3f8f6b' },
-  { key: 'should', label: 'Should have', color: '#c9a227' },
-  { key: 'could', label: 'Could have', color: '#5b8fc9' },
-  { key: 'wont', label: "Won't have", color: '#c2553c' },
-];
-const count = (key) =>
-  board.columns.filter((c) => c.priority === key).reduce((n, c) => n + c.groups.reduce((m, g) => m + g.items.length, 0), 0);
-const colorOf = (key) => PRIORITIES.find((p) => p.key === key)?.color;
 ---
-<figure class="moscow">
-  <div class="head">
-    <div>
-      <p class="title">{board.title}</p>
-      {board.note && <p class="note">{board.note}</p>}
-    </div>
-    <ul class="summary" aria-label="Features per priority">
-      {PRIORITIES.map((p) => (
-        <li class={count(p.key) ? '' : 'empty'}>
-          <span class="dot" style={`background:${p.color}`}></span>
-          <span class="s-label">{p.label}</span>
-          <span class="s-count">{count(p.key)}</span>
-        </li>
-      ))}
-    </ul>
-  </div>
+<figure class="board">
+  <div class="phase">{board.phase}</div>
 
-  <div class="cols">
-    {board.columns.map((col) => (
-      <section class={`col col-${col.priority}`} style={`--p:${colorOf(col.priority)}`}>
-        <header class="col-head">
-          <span class="dot"></span>
-          <h4>{col.label}</h4>
-          <span class="col-count">{col.groups.reduce((m, g) => m + g.items.length, 0)}</span>
-          {col.hint && <p class="hint">{col.hint}</p>}
-        </header>
-        <div class="groups">
-          {col.groups.map((g) => (
-            <div class="group">
-              <div class="g-head">
-                <span class="g-name">{g.name}</span>
-                <span class={`aud aud-${g.audience}`}>{g.audience === 'agency' ? 'MassAbility' : 'Provider'}</span>
-              </div>
-              <ul class="items">
-                {g.items.map((it) => <li>{it}</li>)}
-              </ul>
-            </div>
-          ))}
+  <div class="canvas">
+    <div class="groups">
+      {board.groups.map((g) => (
+        <section class={`group ${g.audience === 'agency' ? 'agency' : 'provider'}`}>
+          <span class="tab">{g.name}</span>
+          <ul class="notes">
+            {g.items.map((it) => (
+              <li class={`note${it.wont ? ' wont' : ''}`}>
+                {it.wont && <span class="pill">Won’t have</span>}
+                <span class="text">{it.text}</span>
+                <span class="sig">Hanna Maksymuk</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+
+    <aside class="side">
+      {board.legend && (
+        <div class="legend">
+          <p class="l-title">Legend</p>
+          <p><span class="dash provider"></span>Provider-facing</p>
+          <p><span class="dash agency"></span>MassAbility-facing</p>
+          <p><span class="pill">Won’t have</span>Not in this release</p>
         </div>
-      </section>
-    ))}
+      )}
+      {board.pinned && (
+        <div class="pinned">
+          <p class="p-title">{board.pinned.title}</p>
+          <ul>{board.pinned.items.map((t) => <li>{t}</li>)}</ul>
+        </div>
+      )}
+    </aside>
   </div>
 </figure>
 
 <style>
-  .moscow {
-    --surface: var(--accent, #f7f7f7);
+  .board {
+    --blue: #c6e4fb;
+    --provider: #8b5cf6;
+    --agency: #e0559f;
+    --surface: var(--blue);
     margin: 0;
-    padding: clamp(1.25rem, 0.75rem + 2vw, 2.5rem);
-    background: var(--accent, #f7f7f7);
+    background: var(--blue);
     border-radius: var(--radius-panel);
+    overflow: hidden;
+    font-size: 12px;
   }
-  .head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 1.25rem 2rem; margin-bottom: 1.75rem; }
-  .title { font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem); font-weight: 500; letter-spacing: -0.01em; }
-  .note { margin-top: 0.35rem; font-size: 0.875rem; line-height: 1.5; color: #4f5a57; max-width: 34rem; }
-
-  .summary { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
-  .summary li {
-    display: inline-flex; align-items: center; gap: 0.5em;
-    padding: 0.45em 0.75em;
-    background: #fff; border-radius: 999px;
-    font-size: 0.8125rem;
+  .phase {
+    padding: 0.9rem 1rem;
+    background: #fff;
+    border-bottom: 1px solid #c9d6e0;
+    text-align: center;
+    font-size: clamp(0.9375rem, 0.85rem + 0.3vw, 1.0625rem);
   }
-  .summary li.empty { background: color-mix(in srgb, #fff 50%, transparent); color: #7a8582; }
-  .s-count { font-family: 'Geist Mono', ui-monospace, monospace; font-weight: 500; }
-  .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: var(--p); }
+  .canvas {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 210px;
+    gap: 1.5rem;
+    padding: clamp(1.25rem, 0.75rem + 2vw, 2.25rem);
+  }
+  .groups { display: flex; flex-wrap: wrap; gap: 2rem 1.5rem; align-items: flex-start; }
+  .group { flex: 0 1 auto; }
 
-  .cols { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
-  .col { background: color-mix(in srgb, #fff 55%, transparent); border-radius: 10px; padding: 1rem; }
-  .col-head { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.9rem; }
-  .col-head h4 { margin: 0; font-size: 1rem; font-weight: 500; }
-  .col-count { font-family: 'Geist Mono', ui-monospace, monospace; font-size: 0.8125rem; color: #6b6b6b; }
-  .hint { flex-basis: 100%; font-size: 0.8125rem; line-height: 1.45; color: #5d6664; }
+  /* A group: dashed outline with a small label tab on its top edge */
+  .group {
+    position: relative;
+    padding: 1.6rem 0.9rem 0.9rem;
+    border: 1.5px dashed var(--line-c);
+    border-radius: 3px;
+  }
+  .group.provider { --line-c: var(--provider); }
+  .group.agency { --line-c: var(--agency); }
+  .tab {
+    position: absolute;
+    top: -0.8rem;
+    left: -0.6rem;
+    padding: 0.3em 0.9em;
+    background: #fff;
+    border: 1.5px solid #1b1b1b;
+    border-radius: 2px;
+    font-size: 10.5px;
+    white-space: nowrap;
+  }
 
-  .groups { display: grid; gap: 0.75rem; }
-  .group { background: #fff; border-radius: 8px; padding: 0.85rem; }
-  .g-head { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; margin-bottom: 0.65rem; }
-  .g-name { font-size: 0.875rem; font-weight: 500; }
-  .aud {
+  /* Sticky notes */
+  .notes { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.55rem; }
+  .note {
+    position: relative;
     flex: none;
-    padding: 0.15em 0.55em;
-    border-radius: 4px;
-    font-family: 'Geist Mono', ui-monospace, monospace;
-    font-size: 0.6875rem;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 96px;
+    min-height: 96px;
+    padding: 0.6rem 0.6rem 0.45rem;
+    background: #fff;
+    border-radius: 2px;
+    box-shadow: 0 1px 2px rgb(40 80 120 / 0.12), 0 6px 12px -8px rgb(40 80 120 / 0.35);
+    font-size: 11.5px;
+    line-height: 1.35;
+    color: #1d1d1d;
   }
-  .aud-provider { background: #ece7fb; color: #5a45a8; }
-  .aud-agency { background: #fbe7f1; color: #a33a73; }
+  .sig { margin-top: 0.6rem; font-size: 7px; color: #9aa3ab; }
+  .note.wont { margin-top: 0.55rem; }
+  .note.wont .text { color: #5c5c5c; }
 
-  .items { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
-  .items li {
-    padding: 0.4em 0.6em;
-    border-radius: 6px;
-    font-size: 0.8125rem;
-    line-height: 1.3;
+  .pill {
+    display: inline-block;
+    padding: 0.2em 0.75em;
+    background: #fbb9ae;
+    border: 1.5px solid #e2574a;
+    border-radius: 999px;
+    color: #7a1f14;
+    font-size: 9px;
+    line-height: 1.2;
+    white-space: nowrap;
   }
-  /* In the release: solid, tinted with the priority colour */
-  .col-must .items li { background: color-mix(in srgb, var(--p) 12%, #fff); border: 1px solid color-mix(in srgb, var(--p) 30%, #fff); color: #1f3a2e; }
-  /* Deferred: quiet, dashed */
-  .col-wont .group { background: color-mix(in srgb, #fff 80%, transparent); }
-  .col-wont .items li { border: 1px dashed #c9cfcd; color: #6f7775; }
+  .note .pill { position: absolute; top: -0.65rem; left: -0.35rem; }
 
-  @media (max-width: 800px) {
-    .cols { grid-template-columns: 1fr; }
-    .group { padding: 0.7rem; }
-    .items li { font-size: 0.75rem; }
-    /* Deferred features read as a compact list on phones */
-    .col-wont .items { gap: 0; }
-    .col-wont .items li { border: 0; padding: 0; color: #6f7775; }
-    .col-wont .items li:not(:last-child)::after { content: '·'; margin: 0 0.45em; color: #b5bbb9; }
+  /* Side column: legend and the pinned list */
+  .side { display: grid; gap: 1rem; align-content: start; }
+  .legend, .pinned { background: #fff; border-radius: 3px; padding: 0.9rem; box-shadow: 0 1px 2px rgb(40 80 120 / 0.12); }
+  .l-title, .p-title { font-weight: 500; margin-bottom: 0.6rem; }
+  .legend p:not(.l-title) { display: flex; align-items: center; gap: 0.6em; margin-top: 0.45rem; color: #444; }
+  .dash { width: 26px; border-top: 1.5px dashed; flex: none; }
+  .dash.provider { color: var(--provider); }
+  .dash.agency { color: var(--agency); }
+  .p-title { margin: -0.9rem -0.9rem 0.7rem; padding: 0.55rem 0.9rem; background: #3aa0f0; color: #fff; text-align: center; border-radius: 3px 3px 0 0; }
+  .pinned ul { margin: 0; padding-left: 1.1em; display: grid; gap: 0.2rem; color: #333; }
+
+  @media (max-width: 900px) {
+    .canvas { grid-template-columns: 1fr; }
+    .side { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 560px) {
+    .note { width: calc(50% - 0.3rem); min-height: 78px; font-size: 10.5px; }
+    .group { width: 100%; }
+    .sig { display: none; }
+    .side { grid-template-columns: 1fr; }
+    .groups { gap: 1.75rem 1rem; }
   }
 </style>
