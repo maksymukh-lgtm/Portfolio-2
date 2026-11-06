@@ -168,7 +168,7 @@ export const caseStudies = {
         body: [
           'The blueprint surfaced more opportunities than we could build. With limited time and budget, and multiple teams collaborating, we needed clear priorities. We ran a MoSCoW exercise with stakeholders to decide what had to be in the first release, then confirmed the final feature set with everyone involved.',
         ],
-        image: { placeholder: 'MoSCoW prioritization board', ratio: '16 / 7' },
+        image: { src: '/work/sl-moscow.webp', alt: 'MoSCoW prioritization board for the SL reporting platform: referral and intake features grouped by workflow and tagged by priority, with a legend for provider-facing and MassAbility-facing functionality', frame: true },
       },
       {
         type: 'features',
