@@ -140,7 +140,7 @@ export const caseStudies = {
       "Supported Living is one of MassAbility's Home and Community Life programs. It helps people with physical disabilities live as independently as possible, in their own homes and communities. The program is grounded in the independent living philosophy: participants are the experts on their own lives, making their own choices and deciding what independence looks like for them. Services are delivered by contracted providers, and I designed the platform they use to plan and report on that work.",
     meta: [
       { label: 'Role', value: 'Product designer' },
-      { label: 'Timeline', value: '[add]', placeholder: true },
+      { label: 'Timeline', value: 'December 2025 – ongoing' },
       { label: 'Organization', value: 'MassAbility' },
     ],
     cover: { src: '/work/sl-quarter.webp', alt: 'Quarterly progress report showing the active service authorization, hours remaining and services to report' },
