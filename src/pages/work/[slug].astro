@@ -65,11 +65,11 @@ let n = 0;
           <div class="block-head">
             <p class="label">{pad(n)}</p>
             <h2>{b.title}</h2>
-            {b.type === 'metrics' && b.intro && <p class="head-note">{b.intro}</p>}
+            {(b.type === 'metrics' || b.type === 'features') && b.intro && <p class="head-note">{b.intro}</p>}
           </div>
           <div class="block-body">
             {b.body?.map((p) => <p>{p}</p>)}
-            {b.intro && b.type !== 'metrics' && <p>{b.intro}</p>}
+            {b.intro && b.type === 'section' && <p>{b.intro}</p>}
           </div>
 
           {b.type === 'section' && b.image && (
@@ -206,7 +206,7 @@ let n = 0;
 
   /* Metrics */
   /* Metrics reuse the feature card grid; a figure can sit where the icon goes */
-  .head-note { margin-top: 1rem; font-size: 1.125rem; line-height: 1.55; color: var(--color-muted); }
+  .head-note { max-width: 32rem; margin-top: 1rem; font-size: 1.125rem; line-height: 1.55; color: var(--color-muted); }
   .metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .value { display: block; height: 28px; font-size: 2rem; font-weight: 500; line-height: 28px; letter-spacing: -0.02em; color: #c0652f; }
 
