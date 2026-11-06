@@ -1,0 +1,99 @@
+---
+/*
+  Feature showcase card: flat coloured card with tag pills, a short headline and
+  subline, and product crops inside a soft double frame that fades out at the
+  bottom. Optional floating icon tiles sit over the frame's top-right corner.
+  Props (card): { bg, tags: [{ text, dot? }], title, subtitle, icons: [names], shots: [{ src, alt, w? }] } (w = width in %)
+*/
+import Icon from '../Icon.astro';
+const { card } = Astro.props;
+---
+<figure class="showcase" style={`--card:${card.bg}`}>
+  <div class="tags">
+    {card.tags.map((t) => (
+      <span class="tag">{t.dot && <span class="dot" style={`background:${t.dot}`}></span>}{t.text}</span>
+    ))}
+  </div>
+  <p class="title">{card.title}</p>
+  <p class="subtitle">{card.subtitle}</p>
+
+  <div class="stage">
+    <div class="frame">
+      <div class="screen">
+        {card.shots.map((s) => <img src={s.src} alt={s.alt} loading="lazy" decoding="async" style={s.w ? `width:${s.w}%` : ''} />)}
+      </div>
+    </div>
+    {card.icons?.map((name, i) => (
+      <span class="tile tonal-shadow" style={`--i:${i}`}><Icon name={name} size="28" /></span>
+    ))}
+  </div>
+</figure>
+
+<style>
+  .showcase {
+    --surface: var(--card);
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    padding: clamp(1.25rem, 0.8rem + 1.2vw, 2rem);
+    background: var(--card);
+    overflow: hidden;
+  }
+  .tags { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    padding: 0.25em 0.6em;
+    border: 1px solid color-mix(in srgb, var(--card), #2a1a10 22%);
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--card), #fff 35%);
+    font-size: 0.75rem;
+    line-height: 1.3;
+    color: #3a3330;
+  }
+  .dot { width: 7px; height: 7px; border-radius: 50%; }
+  .title { margin-top: 1.25rem; font-size: clamp(1.25rem, 1rem + 0.7vw, 1.625rem); font-weight: 500; line-height: 1.25; letter-spacing: -0.01em; }
+  .subtitle { margin-top: 0.4rem; font-size: 0.9375rem; line-height: 1.5; color: #5c5650; }
+
+  .stage { position: relative; margin-top: clamp(1.75rem, 1rem + 2vw, 3rem); padding: 0 4% 0; }
+  /* Soft double frame: a translucent outer ring around a white screen */
+  .frame {
+    padding: 10px;
+    border-radius: 28px;
+    background: color-mix(in srgb, #fff 45%, transparent);
+  }
+  .screen {
+    display: grid;
+    gap: 14px;
+    padding: clamp(1rem, 0.6rem + 1vw, 1.5rem);
+    border-radius: 20px;
+    background: #fff;
+    max-height: 340px;
+    overflow: hidden;
+    /* content fades out toward the bottom */
+    -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent);
+            mask-image: linear-gradient(to bottom, #000 62%, transparent);
+  }
+  .screen img { display: block; width: 100%; max-width: 100%; height: auto; border-radius: 8px; }
+
+  /* Floating icon tiles over the frame's top-right corner */
+  .tile {
+    position: absolute;
+    top: calc(-22px + var(--i) * 52px);
+    right: calc(1% + var(--i) * 3%);
+    display: grid;
+    place-items: center;
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    background: #fff;
+    color: #2a2420;
+    rotate: calc(-4deg + var(--i) * 7deg);
+  }
+  .tile :global(svg) { stroke-width: 1.5; }
+  @media (max-width: 700px) {
+    .tile { width: 44px; height: 44px; border-radius: 12px; top: calc(-18px + var(--i) * 38px); }
+    .tile :global(svg) { width: 22px; height: 22px; }
+  }
+</style>

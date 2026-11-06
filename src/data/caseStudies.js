@@ -5,6 +5,7 @@
 //     `icon` is an Iconoir icon name (browse them at iconoir.com); without one, the card shows its number
 //   { type: 'metrics', title, intro, items: [{ value | icon, title, text }] }  (value = a short figure like '80%')
 // An image with `placeholder` (and no `src`) shows a labelled grey frame until you add the real file.
+// features blocks can have `showcase: [cards]` (see FeatureShowcase.astro) instead of `images`.
 // `type: 'cardsort'` shows the wireframe with draggable sticky notes (see CardSort.astro).
 // `layers: [{ src, alt, x, y, w }]` composes several images on the coloured panel (x, y, w in %).
 // `frame: true` sets a real image on a panel in the project's colour, with rounded corners.
@@ -92,29 +93,25 @@ export const caseStudies = {
           { icon: 'closed-captions-tag', title: 'Audio narration and captions', text: 'Every question can be listened to or read.' },
           { icon: 'help-circle', title: 'Contextual help panel', text: 'A side panel updates as each field is selected, explaining exactly what that question needs.' },
         ],
-        images: [
+        showcase: [
           {
-            ratio: '4 / 3',
-            layers: [
-              {
-                src: '/work/intake-help-panel.webp', x: 5, y: 9, w: 90,
-                alt: 'A contact information step with the cell phone field selected and the help panel explaining that field',
-                marks: [
-                  { x: 1, y: 45.5, w: 49.5, h: 7.5, label: 'Selected field', side: 'bottom-right' },
-                  { x: 58.5, y: 2.5, w: 37.5, h: 26, label: 'Contextual help', side: 'bottom' },
-                ],
-              },
-            ],
+            bg: '#fde6d2',
+            tags: [{ text: 'Help panel' }, { text: 'Updates per field', dot: '#e46a1e' }],
+            title: 'Help that follows each question.',
+            subtitle: 'The side panel explains whichever field is selected.',
+            icons: ['help-circle'],
+            shots: [{ src: '/work/intake-help-panel.webp', alt: 'A contact information step: the cell phone field is selected and the side panel explains why the number is needed' }],
           },
           {
-            ratio: '4 / 3',
-            layers: [
-              { src: '/work/intake-audio-controls.webp', x: 8, y: 14, w: 42, label: 'Captions and narration controls',
-                alt: 'Toolbar with captions, audio, back, pause and forward controls' },
-              { src: '/work/intake-speech-field.webp', x: 8, y: 42, w: 76, label: 'Speech to text on every field',
-                alt: 'A cell phone number field with a microphone button for dictating the answer' },
-              { src: '/work/intake-captions.webp', x: 5, y: 69, w: 90, label: 'Narration captions',
-                alt: 'Caption bar reading the current narration aloud: now let\u2019s review your contact information' },
+            bg: '#d3ece8',
+            tags: [{ text: 'Narration' }, { text: 'Audio on', dot: '#4f8f8a' }],
+            title: 'Every question can be heard, read or spoken.',
+            subtitle: 'Narration, captions and speech to text are built in.',
+            icons: ['sound-high', 'microphone'],
+            shots: [
+              { src: '/work/intake-audio-controls.webp', w: 44, alt: 'Toolbar with captions, audio, back, pause and forward controls' },
+              { src: '/work/intake-speech-field.webp', w: 82, alt: 'A phone number field with a microphone button for dictating the answer' },
+              { src: '/work/intake-captions.webp', alt: 'Caption bar showing the narration: now let\u2019s review your contact information' },
             ],
           },
         ],
