@@ -27,7 +27,7 @@ export const caseStudies = {
         body: [
           'After someone submitted an initial application, a staff member had to reach them by phone, walk through every question, then enter the answers into the case management system by hand. It was slow for applicants and labour-intensive for staff, and information people had already shared was often asked for again.',
         ],
-        image: { src: '/work/intake-journey-map.webp', alt: 'User journey map of the applicant: discovering MassAbility, learning about services, and filling out the pre-application form with or without assistance', frame: true },
+        image: { src: '/work/intake-journey-map-v2.webp', alt: 'User journey map of the applicant: discovering MassAbility, learning about services, and filling out the pre-application form with or without assistance', frame: true },
       },
       {
         type: 'section',
