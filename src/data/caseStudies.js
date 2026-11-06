@@ -5,6 +5,7 @@
 //     `icon` is an Iconoir icon name (browse them at iconoir.com); without one, the card shows its number
 //   { type: 'metrics', title, intro, items: [{ value | icon, title, text }] }  (value = a short figure like '80%')
 // An image with `placeholder` (and no `src`) shows a labelled grey frame until you add the real file.
+// `frame: true` sets a real image on a panel in the project's colour, with rounded corners.
 export const caseStudies = {
   'phone-intake': {
     title: 'Digitizing Phone-Based Intake',
@@ -26,7 +27,7 @@ export const caseStudies = {
         body: [
           'After someone submitted an initial application, a staff member had to reach them by phone, walk through every question, then enter the answers into the case management system by hand. It was slow for applicants and labour-intensive for staff, and information people had already shared was often asked for again.',
         ],
-        image: { placeholder: 'The old intake process, e.g. a process map from application to case management', ratio: '16 / 7' },
+        image: { src: '/work/intake-journey-map.webp', alt: 'User journey map of the applicant: discovering MassAbility, learning about services, and filling out the pre-application form with or without assistance', frame: true },
       },
       {
         type: 'section',
