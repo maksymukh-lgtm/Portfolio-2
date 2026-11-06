@@ -253,7 +253,6 @@ export const caseStudies = {
         body: [
           'For every participant, providers create a TA plan that estimates future expenses and service hours. Each service and purchase category has its own limits and business rules, and those rules change over time. All of this lived in spreadsheets. Different versions of a plan travelled around, and people couldn’t always tell which one was current. Approvals and modification requests happened over email, adding another layer to keep track of.',
         ],
-        image: { placeholder: 'An anonymized example of the old spreadsheet plan', ratio: '16 / 7' },
       },
       {
         type: 'section',
