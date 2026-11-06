@@ -46,10 +46,15 @@ const Tag = comingSoon ? 'div' : 'a';
 
   /* Coming soon: no hover effects, a small label above the title */
   .card { position: relative; }
-  /* Coming soon: the whole card is faded, keeping its colours */
-  .soon { cursor: default; opacity: 0.45; }
+  /* Coming soon: everything is faded to 45% except the label, which stays at full strength */
+  .soon {
+    cursor: default;
+    background: color-mix(in srgb, var(--card-bg) 45%, #fff);
+    border-color: color-mix(in srgb, var(--card-border) 45%, #fff);
+  }
+  .soon .media, .soon h3, .soon p { opacity: 0.45; }
   .soon:hover img { transform: none; }
-  .soon:hover { border-color: var(--card-border); }
+  .soon:hover { border-color: color-mix(in srgb, var(--card-border) 45%, #fff); }
   .soon-label {
     display: inline-block;
     margin-bottom: 0.75rem;
