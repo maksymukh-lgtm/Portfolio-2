@@ -1,0 +1,13 @@
+---
+// Inline an icon from the Iconoir set (https://iconoir.com), by name.
+// Icons inherit the text colour; size with CSS (default 1.5em).
+import fs from 'node:fs';
+import path from 'node:path';
+const { name, size = '1.5em', label } = Astro.props;
+const file = path.join(process.cwd(), 'node_modules/iconoir/icons/regular', `${name}.svg`);
+let svg = fs.readFileSync(file, 'utf8')
+  .replace(/\swidth="[^"]*"/, '')
+  .replace(/\sheight="[^"]*"/, '')
+  .replace('<svg', `<svg width="${size}" height="${size}" ${label ? `role="img" aria-label="${label}"` : 'aria-hidden="true"'}`);
+---
+<Fragment set:html={svg} />

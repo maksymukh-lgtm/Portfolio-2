@@ -1,7 +1,8 @@
 // Case study content, keyed by the project's slug (the same slug as in projects.js).
 // Each page is built from `blocks`, rendered in order. Block types:
 //   { type: 'section', title, body: [paragraphs], image?: { placeholder | src, alt, caption, ratio } }
-//   { type: 'features', title, intro, items: [{ title, text }], images?: [...] }
+//   { type: 'features', title, intro, items: [{ icon, title, text }], images?: [...] }
+//     `icon` is an Iconoir icon name (browse them at iconoir.com); without one, the card shows its number
 //   { type: 'metrics', title, intro, items: [{ value, label, text }] }
 // An image with `placeholder` (and no `src`) shows a labelled grey frame until you add the real file.
 export const caseStudies = {
@@ -54,12 +55,12 @@ export const caseStudies = {
         title: 'The solution: an accessible, self-service application',
         intro: 'With the structure in place, I designed high-fidelity mockups for the full application.',
         items: [
-          { title: 'Prefilled information', text: 'Anything the agency already knew is filled in, so applicants never repeat themselves.' },
-          { title: 'Automatic data transfer', text: 'Answers go straight into the case management system, with no manual re-entry.' },
-          { title: 'Two ways to complete', text: 'Applicants can finish on their own, or a case worker can open the case and help them fill it out.' },
-          { title: 'Speech to text', text: 'Applicants can answer by speaking instead of typing.' },
-          { title: 'Audio narration and captions', text: 'Every question can be listened to or read.' },
-          { title: 'Contextual help panel', text: 'A side panel updates as each field is selected, explaining exactly what that question needs.' },
+          { icon: 'magic-wand', title: 'Prefilled information', text: 'Anything the agency already knew is filled in, so applicants never repeat themselves.' },
+          { icon: 'data-transfer-both', title: 'Automatic data transfer', text: 'Answers go straight into the case management system, with no manual re-entry.' },
+          { icon: 'group', title: 'Two ways to complete', text: 'Applicants can finish on their own, or a case worker can open the case and help them fill it out.' },
+          { icon: 'microphone-speaking', title: 'Speech to text', text: 'Applicants can answer by speaking instead of typing.' },
+          { icon: 'closed-captions-tag', title: 'Audio narration and captions', text: 'Every question can be listened to or read.' },
+          { icon: 'help-circle', title: 'Contextual help panel', text: 'A side panel updates as each field is selected, explaining exactly what that question needs.' },
         ],
         images: [
           { placeholder: 'Key screen: a question with the contextual help panel open', ratio: '4 / 3' },
