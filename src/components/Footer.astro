@@ -7,6 +7,7 @@
 
   Links marked "placeholder" need your real URLs.
 */
+import Icon from './Icon.astro';
 const columns = [
   { title: 'Pages', links: [
     { label: 'Home', href: '#top' },
@@ -16,15 +17,9 @@ const columns = [
   { title: 'Connect', links: [
     { label: 'LinkedIn', href: '#', icon: 'linkedin' },   // placeholder
     { label: 'Email', href: '#', icon: 'mail' },          // placeholder
-    { label: 'Resume', href: '/resume', icon: 'doc' },
+    { label: 'Resume', href: '/resume', icon: 'page' },
   ] },
 ];
-const icons: Record<string, string> = {
-  linkedin: '<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 10v7M8 7v.01M12 17v-4a2 2 0 0 1 4 0v4M12 10v7" />',
-  mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/>',
-  doc: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/>',
-};
-const svg = (name: string) => `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[name]}</svg>`;
 ---
 <footer class="site-footer" id="contacts">
   <canvas class="stripe" aria-hidden="true"></canvas>
@@ -40,7 +35,7 @@ const svg = (name: string) => `<svg viewBox="0 0 24 24" width="16" height="16" f
             {col.links.map((l) => (
               <li>
                 {l.href
-                  ? <a href={l.href}>{l.icon && <Fragment set:html={svg(l.icon)} />}{l.label}</a>
+                  ? <a href={l.href}>{l.icon && <Icon name={l.icon} size="16" />}{l.label}</a>
                   : <span>{l.label}</span>}
               </li>
             ))}
