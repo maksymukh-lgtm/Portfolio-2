@@ -12,11 +12,11 @@ const { items } = Astro.props;
         </div>
         <div class="media">
           {item.cover?.type === 'shot' && (
-            <img class="shot" src={item.cover.src} alt={item.cover.alt} loading="lazy" decoding="async"
+            <img class="shot tonal-shadow" src={item.cover.src} alt={item.cover.alt} loading="lazy" decoding="async"
               style={`--x:${item.cover.x}%;--y:${item.cover.y}%;--w:${item.cover.w}%`} />
           )}
           {item.cover?.type === 'logo' && (
-            <img class="logo" src={item.cover.src} alt={item.cover.alt} loading="lazy" decoding="async"
+            <img class="logo tonal-shadow" src={item.cover.src} alt={item.cover.alt} loading="lazy" decoding="async"
               style={`--w:${item.cover.w}%`} />
           )}
         </div>
@@ -64,6 +64,7 @@ const { items } = Astro.props;
     position: relative;
     aspect-ratio: 496 / 339;
     background: #f7f7f7;
+    --surface: #f7f7f7;
     border: 1px solid var(--color-line);
     border-radius: 8px;
     overflow: hidden;
@@ -78,7 +79,6 @@ const { items } = Astro.props;
     height: auto;
     background: #fff;
     border-top-left-radius: 8px;
-    box-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px -10px rgb(0 0 0 / 0.12);
   }
   /* Logo on a small white card, centred */
   .logo {
@@ -90,7 +90,6 @@ const { items } = Astro.props;
     translate: -50% -50%;
     background: #fff;
     border-radius: 14px;
-    box-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 10px 30px -12px rgb(0 0 0 / 0.16);
   }
 
   @media (max-width: 800px) {

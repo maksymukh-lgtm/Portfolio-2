@@ -43,7 +43,7 @@ let n = 0;
     <!-- Cover: the card colour with the product screenshot -->
     {cs.cover && (
       <div class="cover">
-        <img src={cs.cover.src} alt={cs.cover.alt} />
+        <img class="tonal-shadow" src={cs.cover.src} alt={cs.cover.alt} />
       </div>
     )}
 
@@ -156,6 +156,7 @@ let n = 0;
   /* Cover */
   .cover {
     background: var(--accent);
+    --surface: var(--accent);
     border-bottom: 1px solid var(--color-line);
     padding: clamp(2rem, 1rem + 4vw, 5rem) clamp(1.25rem, 0.5rem + 5vw, 6rem);
     overflow: hidden;
@@ -166,7 +167,6 @@ let n = 0;
     max-width: 1200px;
     margin-inline: auto;
     border-radius: 10px;
-    box-shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 20px 50px -20px rgb(30 20 60 / 0.3);
   }
 
   /* Overview list: Background, Problem, Outcome separated by thin lines */

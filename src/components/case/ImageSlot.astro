@@ -7,7 +7,7 @@ const ratio = image.ratio || '16 / 9';
 <figure class={`slot${image.frame ? ' framed' : ''}`} style={image.src && !image.ratio ? '' : `--ratio:${ratio}`}>
   {image.src
     ? (image.frame
-        ? <div class="panel"><img src={image.src} alt={image.alt || ''} loading="lazy" decoding="async" /></div>
+        ? <div class="panel"><img class="tonal-shadow" src={image.src} alt={image.alt || ''} loading="lazy" decoding="async" /></div>
         : <img src={image.src} alt={image.alt || ''} loading="lazy" decoding="async" />)
     : (
       <div class="placeholder">
@@ -53,13 +53,13 @@ const ratio = image.ratio || '16 / 9';
   .framed .panel {
     padding: clamp(1rem, 0.5rem + 3vw, 3.5rem);
     background: var(--accent, #f7f7f7);
+    --surface: var(--accent, #f7f7f7);
     border-radius: 12px;
   }
   .framed img {
     aspect-ratio: auto;
     border: 0;
     border-radius: 8px;
-    box-shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 16px 40px -18px rgb(30 20 60 / 0.3);
   }
   figcaption { margin-top: 0.75rem; font-size: 0.875rem; color: #6b6b6b; }
 </style>
