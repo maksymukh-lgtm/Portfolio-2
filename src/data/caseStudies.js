@@ -51,10 +51,10 @@ export const caseStudies = {
           'Before designing any screens, we had to fix the content. We started with the full list of intake questions and reorganized them into a logical order, making sure nothing the agency needed was missed. Because intake feeds several programs, I worked with stakeholders from different programs and departments to confirm that every team’s information was captured in one flow.',
         ],
         image: {
-          ratio: '16 / 9',
+          ratio: '16 / 7',
           layers: [
-            { src: '/work/intake-structure-board.webp', alt: 'Current application structure: the full list of intake questions, grouped on sticky notes', x: 4, y: 7, w: 66 },
-            { src: '/work/intake-wireframe.webp', alt: 'Wireframe of the restructured application: the Work status step with section navigation', x: 50, y: 30, w: 46 },
+            { src: '/work/intake-structure-board.webp', alt: 'Current application structure: the full list of intake questions, grouped on sticky notes', x: 5, y: 8, w: 58 },
+            { src: '/work/intake-wireframe.webp', alt: 'Wireframe of the restructured application: the Work status step with section navigation', x: 52, y: 26, w: 41 },
           ],
         },
       },
