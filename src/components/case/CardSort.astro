@@ -3,10 +3,18 @@
   Interactive card sort: a wireframe in the middle of a coloured panel,
   surrounded by sticky notes from the card sorting exercise. Notes can be
   dragged with a mouse or finger, or focused and moved with the arrow keys.
-  Props: { src, alt, notes: [{ text, x, y, r, mx?, my? }] } — x/y are % of the panel, r is tilt in degrees;
+  Props: { src, alt, notes: [{ text, x, y, r, color, mx?, my? }] } (color: yellow | peach | teal | pink | aqua) — x/y are % of the panel, r is tilt in degrees;
   mx/my are phone positions (notes without them are hidden on phones).
 */
 const { image } = Astro.props;
+// Sticky note colours, from the site palette
+const NOTE_COLORS = {
+  yellow: '#fdd866',
+  peach: '#f9c8a0',
+  teal: '#a9d6cf',
+  pink: '#f6bfd2',
+  aqua: '#cfe6f2',
+};
 ---
 <figure class="sort">
   <div class="board" data-board>
@@ -16,7 +24,7 @@ const { image } = Astro.props;
         type="button"
         class:list={['note', { 'desktop-only': n.mx === undefined }]}
         data-x={n.x} data-y={n.y} data-mx={n.mx} data-my={n.my}
-        style={`--x:${n.x}%;--y:${n.y}%;--r:${n.r || 0}deg`}
+        style={`--x:${n.x}%;--y:${n.y}%;--r:${n.r || 0}deg;--note:${NOTE_COLORS[n.color] || NOTE_COLORS.yellow}`}
         aria-label={`Sticky note: ${n.text}. Drag, or use arrow keys to move.`}
       >{n.text}</button>
     ))}
@@ -39,9 +47,9 @@ const { image } = Astro.props;
   }
   .wire {
     position: absolute;
-    left: 32%;
-    top: 9%;
-    width: 36%;
+    left: 28%;
+    top: 5%;
+    width: 44%;
     height: auto;
     border-radius: 8px;
     pointer-events: none;
@@ -49,7 +57,7 @@ const { image } = Astro.props;
 
   /* Sticky note, styled after the ones on the research board */
   .note {
-    --shade: color-mix(in srgb, #fdd866, #6b4a00 55%);
+    --shade: oklch(from var(--note, #fdd866) calc(l - 0.45) calc(c * 2.2 + 0.02) h);
     position: absolute;
     left: var(--x);
     top: var(--y);
@@ -58,7 +66,7 @@ const { image } = Astro.props;
     padding: 0.6em 0.65em;
     border: 0;
     border-radius: 2px;
-    background: #fdd866;
+    background: var(--note, #fdd866);
     color: #2a2208;
     font: inherit;
     font-size: clamp(0.625rem, 0.5rem + 0.3vw, 0.8125rem);
@@ -101,7 +109,7 @@ const { image } = Astro.props;
   /* Phones: a taller board with a bigger wireframe; notes keep their % positions */
   @media (max-width: 700px) {
     .board { aspect-ratio: 1 / 1.15; }
-    .wire { left: 10%; top: 24%; width: 80%; }
+    .wire { left: 6%; top: 24%; width: 88%; }
     .hint { display: none; }
     .note { width: 72px; font-size: 0.625rem; }
     .desktop-only { display: none; }
