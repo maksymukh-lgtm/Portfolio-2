@@ -320,7 +320,7 @@ export const caseStudies = {
             subtitle: 'Each uploaded receipt is matched to the purchases it covers.',
             icons: ['attachment'],
             full: true,
-            shots: [{ src: '/work/ta-invoice-docs.webp', alt: 'Create TA invoice, documents step: upload receipts and select which approved purchases each file covers' }],
+            shots: [{ src: '/work/ta-invoice-docs-v2.webp', alt: 'Create TA invoice, documents step: upload receipts and select which approved purchases each file covers' }],
           },
         ],
       },
