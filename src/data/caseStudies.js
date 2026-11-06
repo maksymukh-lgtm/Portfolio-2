@@ -5,6 +5,7 @@
 //     `icon` is an Iconoir icon name (browse them at iconoir.com); without one, the card shows its number
 //   { type: 'metrics', title, intro, items: [{ value | icon, title, text }] }  (value = a short figure like '80%')
 // An image with `placeholder` (and no `src`) shows a labelled grey frame until you add the real file.
+// `layers: [{ src, alt, x, y, w }]` composes several images on the coloured panel (x, y, w in %).
 // `frame: true` sets a real image on a panel in the project's colour, with rounded corners.
 export const caseStudies = {
   'phone-intake': {
@@ -49,7 +50,13 @@ export const caseStudies = {
         body: [
           'Before designing any screens, we had to fix the content. We started with the full list of intake questions and reorganized them into a logical order, making sure nothing the agency needed was missed. Because intake feeds several programs, I worked with stakeholders from different programs and departments to confirm that every team’s information was captured in one flow.',
         ],
-        image: { placeholder: 'Before-and-after of the question structure, e.g. a sitemap or card sort', ratio: '16 / 8' },
+        image: {
+          ratio: '16 / 9',
+          layers: [
+            { src: '/work/intake-structure-board.webp', alt: 'Current application structure: the full list of intake questions, grouped on sticky notes', x: 4, y: 7, w: 66 },
+            { src: '/work/intake-wireframe.webp', alt: 'Wireframe of the restructured application: the Work status step with section navigation', x: 50, y: 30, w: 46 },
+          ],
+        },
       },
       {
         type: 'features',
