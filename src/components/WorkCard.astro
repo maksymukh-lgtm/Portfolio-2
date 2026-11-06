@@ -1,15 +1,18 @@
 ---
-const { title, summary, image, alt = '', href, bg = 'var(--color-placeholder)', border = 'transparent' } = Astro.props;
+const { title, summary, image, alt = '', href, bg = 'var(--color-placeholder)', border = 'transparent', comingSoon = false } = Astro.props;
+// A "coming soon" card renders as a plain block (not a link) with a label
+const Tag = comingSoon ? 'div' : 'a';
 ---
-<a class="card" href={href} style={`--card-bg:${bg};--card-border:${border}`}>
+<Tag class:list={['card', { soon: comingSoon }]} href={comingSoon ? undefined : href} style={`--card-bg:${bg};--card-border:${border}`} aria-label={comingSoon ? `${title}, case study coming soon` : undefined}>
   <div class="media">
     {image ? <img class="tonal-shadow" src={image} alt={alt} width="1260" height="1000" loading="lazy" decoding="async" /> : null}
   </div>
   <div class="text">
+    {comingSoon && <span class="soon-label">Coming soon</span>}
     <h3>{title}</h3>
     <p>{summary}</p>
   </div>
-</a>
+</Tag>
 
 <style>
   /* Coloured card: a screenshot hanging from the top-left edge, title and description underneath */
@@ -40,6 +43,24 @@ const { title, summary, image, alt = '', href, bg = 'var(--color-placeholder)', 
   }
   .card:hover img { transform: translateY(-4px); }
   .card:hover { border-color: color-mix(in srgb, var(--card-border), #000 12%); }
+
+  /* Coming soon: no hover effects, a small label above the title */
+  .card { position: relative; }
+  .soon { cursor: default; }
+  .soon:hover img { transform: none; }
+  .soon:hover { border-color: var(--card-border); }
+  .soon-label {
+    display: inline-block;
+    margin-bottom: 0.75rem;
+    padding: 0.35em 0.8em;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--card-bg), #2a2110 82%);
+    color: #fff;
+    font-family: 'Geist Mono', ui-monospace, monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
 
   .text { padding: 1.5rem 1.625rem 1.75rem; }
   h3 { font-size: clamp(1.5rem, 1rem + 1.1vw, 2.125rem); line-height: 1.2; margin-bottom: 1rem; }

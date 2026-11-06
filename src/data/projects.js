@@ -33,6 +33,7 @@ export const selectedWorks = [
   },
   {
     slug: 'career-reporting',
+    comingSoon: true,   // case study not published yet: shows a label and isn't clickable
     title: 'Career and Student Reporting',
     summary: 'Reporting for MassAbility providers serving students and job seekers, built around the program’s rules.',
     bg: '#fff1c4',      // sunshine (hero: #fde27a)
